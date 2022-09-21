@@ -1,0 +1,31 @@
+{
+  "name": "ufc-ripper",
+  "version": "0.1.0",
+  "description": "Video downloader tool for UFC Fight Pass",
+  "author": "Mahesh Bandara Wijerathna (m4heshd) <m4heshd@gmail.com>",
+  "homepage": "https://github.com/m4heshd/ufc-ripper",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/m4heshd/ufc-ripper.git"
+  },
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "core-js": "^3.8.3",
+    "vue": "^3.2.13"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-service": "~5.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "license": "MIT"
+}
