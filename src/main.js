@@ -1,4 +1,9 @@
 import {createApp} from 'vue';
-import App from './App.vue';
+import Landing from './pages/Landing.vue';
+import "beercss";
+import "material-dynamic-colors";
 
-createApp(App).mount('#app');
+// App theme
+ui("theme", "#df2722");
+
+createApp(Landing).mount('#app');
