@@ -23,8 +23,26 @@
         <i>settings</i>
       </button>
     </div>
+
+    <article class="border round dls-section">
+      <h5>Downloads</h5>
+
+      <div class="dls-section__downloads">
+        <VODCard v-for="vod of vods" :v-vod-data="vod"></VODCard>
+      </div>
+    </article>
   </div>
 </template>
+
+<script setup>
+// Core
+import {ref} from 'vue';
+// Components
+import VODCard from '@/components/VODCard';
+
+// Downloads
+let vods = ref([]);
+</script>
 
 <style lang="scss">
 @use "~@/assets/styles/app.scss";
@@ -32,14 +50,13 @@
 @use "~@/assets/styles/overrides.scss";
 
 .ufcr {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 50px;
-  margin: 4vw;
+  display: grid;
+  grid-gap: 50px;
+  grid-template-rows: max-content max-content minmax(0px, 1fr);
+  margin: 3vw;
 
   .logo > img {
-    height: 80px;
+    height: 70px;
   }
 
   .url-section {
@@ -49,6 +66,23 @@
       width: 60vw;
       max-width: 900px;
       margin-bottom: 0;
+    }
+  }
+
+  .dls-section {
+    display: grid;
+    grid-template-rows: max-content minmax(0px, 1fr);
+    height: 100%;
+    margin: 0;
+
+    & > h5 {
+      margin-bottom: 30px;
+    }
+
+    &__downloads {
+      margin: 10px;
+      overflow: auto;
+      border-radius: 0;
     }
   }
 }

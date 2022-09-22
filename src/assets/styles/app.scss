@@ -1,4 +1,12 @@
+html, body, #app {
+  height: 100vh;
+  overflow: hidden;
+}
+
 #app {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0px, 1fr);
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
