@@ -36,9 +36,19 @@
 
 <script setup>
 // Core
-import {ref} from 'vue';
+import {ref, inject} from 'vue';
 // Components
 import VODCard from '@/components/VODCard';
+
+// Socket
+const socket = inject('socket');
+
+// Config
+const config = ref({});
+
+socket.emit('get-config', (res) => {
+  config.value = res;
+})
 
 // Downloads
 let vods = ref([]);
