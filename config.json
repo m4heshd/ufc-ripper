@@ -1,3 +1,6 @@
 {
-  "port": 8383
+  "port": 8383,
+  "apiKey": "",
+  "refreshToken": "",
+  "authToken": ""
 }
