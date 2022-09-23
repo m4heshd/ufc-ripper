@@ -1,15 +1,15 @@
 // Modules
-const fs = require('fs-extra');
 const path = require('path');
 const express = require('express');
 const http = require('http');
+const {readConfig, getConfig} = require('./src/modules/config-util');
 
 // Init server
 const xApp = express();
 
 // Configs
-let config = fs.readJSONSync('config.json');
-const port = config.port || 8383;
+readConfig();
+const port = getConfig('port') || 8383;
 
 /* Middleware
 =============*/
@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
     console.log(`GUI connected (ID - ${socket.id})\n`);
 
     socket.on('get-config', (cb) => {
-        cb(config);
+        cb(getConfig());
     });
 });
 
