@@ -3,7 +3,8 @@ const axios = require('axios');
 const {getConfig, writeConfig} = require('./config-util');
 
 module.exports = {
-    refreshAuth
+    refreshAuth,
+    getVODMeta
 };
 
 function getHeaders(auth) {
@@ -38,5 +39,29 @@ async function refreshAuth() {
         });
     } else {
         throw 'No auth returned';
+    }
+}
+
+async function getVODMeta(id) {
+    if (!id) throw 'Invalid URL';
+
+    const config = {
+        method: 'get',
+        url: `https://dce-frontoffice.imggaming.com/api/v2/vod/${id}`,
+        headers: getHeaders(getConfig('authToken'))
+    };
+
+    try {
+        return await axios(config);
+    } catch (error) {
+        if (error.response.status === 401) {
+            await refreshAuth();
+            return axios({
+                ...config,
+                headers: getHeaders(getConfig('authToken'))
+            });
+        } else {
+            throw error;
+        }
     }
 }
