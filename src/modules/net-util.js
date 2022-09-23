@@ -4,7 +4,8 @@ const {getConfig, writeConfig} = require('./config-util');
 
 module.exports = {
     refreshAuth,
-    getVODMeta
+    getVODMeta,
+    getVODStream
 };
 
 function getHeaders(auth) {
@@ -63,5 +64,27 @@ async function getVODMeta(id) {
         } else {
             throw error;
         }
+    }
+}
+
+async function getVODStream(id) {
+    let config = {
+        method: 'get',
+        url: `https://dce-frontoffice.imggaming.com/api/v3/stream/vod/${id}`,
+        headers: getHeaders(getConfig('authToken'))
+    };
+
+    let res = await axios(config);
+
+    if (res.data?.playerUrlCallback) {
+        res = await axios.get(res.data.playerUrlCallback);
+
+        if (res.data?.hls?.length) {
+            return res.data.hls[0].url;
+        } else {
+            throw 'No stream URL';
+        }
+    } else {
+        throw 'No playback URL';
     }
 }
