@@ -1,3 +1,6 @@
+// Modules
+const {randomUUID} = require('crypto');
+
 module.exports = {
     sendError,
     sendVODMeta,
@@ -9,18 +12,11 @@ function sendError(error, cb) {
     cb({error});
 }
 
-function sendVODMeta(res, cb) {
-    if (res.data) {
-        const {id, title, description, thumbnailUrl} = res.data;
-        cb({
-            id,
-            title,
-            desc: description,
-            thumb: thumbnailUrl
-        });
-    } else {
-        sendError('No data in the response', cb);
-    }
+function sendVODMeta(VOD, cb) {
+    cb({
+        ...VOD,
+        qID: randomUUID()
+    });
 }
 
 function sendVODDownload(VOD, cb) {

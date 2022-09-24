@@ -1,6 +1,7 @@
 // Modules
 const axios = require('axios');
 const {getConfig, writeConfig} = require('./config-util');
+const {getVODIDFromURL} = require('./txt-util');
 
 module.exports = {
     refreshAuth,
@@ -43,24 +44,39 @@ async function refreshAuth() {
     }
 }
 
-async function getVODMeta(id) {
+async function getVODMeta(url) {
+    const id = getVODIDFromURL(url);
+
     if (!id) throw 'Invalid URL';
 
-    const config = {
-        method: 'get',
-        url: `https://dce-frontoffice.imggaming.com/api/v2/vod/${id}`,
-        headers: getHeaders(getConfig('authToken'))
+    const runReq = async () => {
+        const res = await axios({
+            method: 'get',
+            url: `https://dce-frontoffice.imggaming.com/api/v2/vod/${id}`,
+            headers: getHeaders(getConfig('authToken'))
+        });
+
+        if (res.data) {
+            const {id, title, description, thumbnailUrl} = res.data;
+
+            return {
+                id,
+                title,
+                desc: description,
+                thumb: thumbnailUrl,
+                vodURL: url
+            };
+        } else {
+            throw('No data in the response');
+        }
     };
 
     try {
-        return await axios(config);
+        return await runReq();
     } catch (error) {
         if (error.response.status === 401) {
             await refreshAuth();
-            return axios({
-                ...config,
-                headers: getHeaders(getConfig('authToken'))
-            });
+            return await runReq();
         } else {
             throw error;
         }

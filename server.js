@@ -5,7 +5,6 @@ const http = require('http');
 const {readConfig, getConfig} = require('./src/modules/config-util');
 const {getVODMeta} = require('./src/modules/net-util');
 const {sendError, sendVODMeta} = require('./src/modules/ws-util');
-const {getVODIDFromURL} = require('./src/modules/txt-util');
 
 // Init server
 const xApp = express();
@@ -45,9 +44,7 @@ xServer.listen(port, () => {
 =================*/
 async function verifyVOD(url, cb) {
     try {
-        const meta = await getVODMeta(getVODIDFromURL(url));
-
-        sendVODMeta(meta, cb);
+        sendVODMeta(await getVODMeta(url), cb);
     } catch (error) {
         sendError(error, cb);
     }
