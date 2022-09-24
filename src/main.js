@@ -10,7 +10,7 @@ import Landing from './pages/Landing.vue';
 const socket = io();
 
 // App theme
-ui("theme", "#df2722");
+window.ui("theme", "#df2722");
 
 createApp(Landing)
     .provide('socket', socket)

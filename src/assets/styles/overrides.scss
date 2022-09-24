@@ -1,4 +1,9 @@
 body {
   --primary: #df2722 !important;
   --outline: #df2722 !important;
+  --on-primary: black !important;
+}
+
+.overlay.active {
+  backdrop-filter: saturate(200%) blur(2px);
 }
