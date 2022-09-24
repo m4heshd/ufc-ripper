@@ -8,18 +8,34 @@
     </div>
 
     <div class="url-section center-content">
-      <div class="field label border round url-section__txt-link">
+      <div class="field label suffix border round url-section__txt-link">
         <input
+            v-model="txtLink"
             type="text"
             autocomplete="off"
+            :disabled="busy"
         >
         <label>Link</label>
         <span class="helper">Paste the direct link to Fight Pass video here</span>
+        <a
+            v-if="busy"
+            class="loader"
+        ></a>
+        <i v-else>link</i>
       </div>
-      <button class="square round large">
+
+      <button
+          class="square round large"
+          @click="onBtnDownloadClick"
+          :disabled="busy"
+      >
         <i>download</i>
       </button>
-      <button class="square round large">
+
+      <button
+          class="square round large"
+          :disabled="busy"
+      >
         <i>settings</i>
       </button>
     </div>
@@ -28,17 +44,27 @@
       <h5>Downloads</h5>
 
       <div class="dls-section__downloads">
-        <VODCard v-for="vod of vods" :v-vod-data="vod"></VODCard>
+        <VODCard
+            v-for="vod of downloadQueue"
+            :vVODData="vod"
+        ></VODCard>
       </div>
     </article>
+
+    <!-- Modals -->
+    <VODConfirm
+        vId="modVODConfirm"
+        :vVODData="verifiedVOD"
+    ></VODConfirm>
   </div>
 </template>
 
 <script setup>
 // Core
-import {ref, inject} from 'vue';
+import {ref, inject, nextTick, onMounted} from 'vue';
 // Components
 import VODCard from '@/components/VODCard';
+import VODConfirm from '@/components/VODConfirm';
 
 // Socket
 const socket = inject('socket');
@@ -48,10 +74,36 @@ const config = ref({});
 
 socket.emit('get-config', (res) => {
   config.value = res;
-})
+});
 
-// Downloads
-let vods = ref([]);
+// State
+const busy = ref(false);
+const setBusy = () => busy.value = true;
+const unsetBusy = () => busy.value = false;
+const downloadQueue = ref([]);
+const verifiedVOD = ref({});
+
+// URL Section
+const txtLink = ref('');
+
+function onBtnDownloadClick() {
+  setBusy();
+
+  socket.emit('verify-url', txtLink.value, (res) => {
+    unsetBusy();
+    if (res.error) return console.error(res.error);
+
+    txtLink.value = '';
+    verifiedVOD.value = res;
+
+    window.ui('#modVODConfirm');
+  });
+}
+
+// Lifecycle hooks
+onMounted(() => nextTick(() => {
+  window.ui();
+}));
 </script>
 
 <style lang="scss">

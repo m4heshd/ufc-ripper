@@ -4,13 +4,13 @@
       <div class="s3">
         <img
             class="responsive"
-            :src="vVodData.thumb"
+            :src="vVODData.thumb"
         >
       </div>
       <div class="s9">
         <div class="padding">
-          <h5>{{ vVodData.title }}</h5>
-          <p>{{ vVodData.desc }}</p>
+          <h5>{{ vVODData.title }}</h5>
+          <p>{{ vVODData.desc }}</p>
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@ export default {
 
 <script setup>
 defineProps({
-  vVodData: Object
+  vVODData: Object
 });
 </script>
 
