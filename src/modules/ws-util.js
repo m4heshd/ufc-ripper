@@ -1,6 +1,7 @@
 module.exports = {
     sendError,
-    sendVODMeta
+    sendVODMeta,
+    sendVODDownload
 };
 
 function sendError(error, cb) {
@@ -20,4 +21,8 @@ function sendVODMeta(res, cb) {
     } else {
         sendError('No data in the response', cb);
     }
+}
+
+function sendVODDownload(VOD, cb) {
+    cb(VOD);
 }
