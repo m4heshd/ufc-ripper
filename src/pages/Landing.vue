@@ -55,6 +55,7 @@
     <VODConfirm
         vId="modVODConfirm"
         :vVODData="verifiedVOD"
+        @onConfirm="download"
     ></VODConfirm>
   </div>
 </template>
@@ -104,6 +105,19 @@ function onBtnDownloadClick() {
 onMounted(() => nextTick(() => {
   window.ui();
 }));
+
+// Misc functions
+function download(VOD) {
+  setBusy();
+  window.ui('#modVODConfirm');
+
+  socket.emit('download', VOD, (res) => {
+    unsetBusy();
+    if (res.error) return console.error(res.error);
+
+    downloadQueue.value.push(res);
+  });
+}
 </script>
 
 <style lang="scss">
@@ -115,6 +129,7 @@ onMounted(() => nextTick(() => {
   display: grid;
   grid-gap: 50px;
   grid-template-rows: max-content max-content minmax(0px, 1fr);
+  justify-items: center;
   margin: 3vw;
 
   .logo > img {
@@ -135,6 +150,8 @@ onMounted(() => nextTick(() => {
     display: grid;
     grid-template-rows: max-content minmax(0px, 1fr);
     height: 100%;
+    max-width: 1300px;
+    width: 100%;
     margin: 0;
 
     & > h5 {

@@ -11,12 +11,12 @@ module.exports = {
 
 function openDLSession(VOD, cb) {
     const {vidQuality, audQuality, resolution, framerate, extension, dl_path, episode, dl_args} = getConfig();
-    const {title, hls} = VOD;
+    const {title, hls, vodURL} = VOD;
     const fullTitle = `${episode > 0 ? `${episode}. ` : ''}${title}`;
     const yt_dlp_cmd = `start .\\bin\\yt-dlp.exe -f "${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}" -o "${path.join(dl_path, `${fullTitle}.%(ext)s`)}" ${dl_args.join(' ')} ${hls}`;
 
     console.log(clr.yellowBright.bgBlack.bold.underline(`Downloading "${title}"`));
-    console.log(clr.dim(hls));
+    console.log(clr.dim(`${vodURL}\n`));
 
     writeConfig({episode: episode + 1});
     sendVODDownload({

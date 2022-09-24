@@ -2,9 +2,11 @@
 const path = require('path');
 const express = require('express');
 const http = require('http');
+const clr = require('ansi-colors');
 const {readConfig, getConfig} = require('./src/modules/config-util');
-const {getVODMeta} = require('./src/modules/net-util');
+const {getVODMeta, getVODStream} = require('./src/modules/net-util');
 const {sendError, sendVODMeta} = require('./src/modules/ws-util');
+const {openDLSession} = require('./src/modules/bin-util');
 
 // Init server
 const xApp = express();
@@ -32,12 +34,13 @@ io.on('connection', (socket) => {
 
     socket.on('get-config', cb => cb(getConfig()));
     socket.on('verify-url', verifyVOD);
+    socket.on('download', downloadVOD);
 });
 
 /* Start server
 ===============*/
 xServer.listen(port, () => {
-    console.log(`UFC Ripper GUI is live at http://localhost:${port}\n`);
+    console.log(clr.greenBright(`UFC Ripper GUI is live at http://localhost:${port}\n`));
 });
 
 /* Misc functions
@@ -45,6 +48,17 @@ xServer.listen(port, () => {
 async function verifyVOD(url, cb) {
     try {
         sendVODMeta(await getVODMeta(url), cb);
+    } catch (error) {
+        sendError(error, cb);
+    }
+}
+
+async function downloadVOD(VOD, cb) {
+    try {
+        openDLSession({
+            ...VOD,
+            hls: await getVODStream(VOD.id)
+        }, cb);
     } catch (error) {
         sendError(error, cb);
     }

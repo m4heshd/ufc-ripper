@@ -26,7 +26,7 @@
       >
         Cancel
       </button>
-      <button @click="$emit('onConfirm')">
+      <button @click="$emit('onConfirm', vVODData)">
         <i>download</i>
         <span>Download</span>
       </button>

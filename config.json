@@ -2,5 +2,21 @@
   "port": 8383,
   "apiKey": "",
   "refreshToken": "",
-  "authToken": ""
+  "authToken": "",
+  "resolution": "720",
+  "framerate": "30",
+  "extension": "mp4",
+  "vidQuality": "worstvideo",
+  "audQuality": "bestaudio",
+  "dl_path": "",
+  "episode": 1,
+  "dl_args": [
+    "--ffmpeg-location .\\bin",
+    "--no-mtime",
+    "--output-na-placeholder \"\"",
+    "--add-metadata",
+    "--no-cache-dir",
+    "--ignore-config",
+    "--no-check-certificate"
+  ]
 }
