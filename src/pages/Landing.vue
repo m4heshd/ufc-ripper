@@ -57,6 +57,9 @@
         :vVODData="verifiedVOD"
         @onConfirm="download"
     ></VODConfirm>
+
+    <!-- Overlay -->
+    <Overlay :vActive="state.ui.overlay"></Overlay>
   </div>
 </template>
 
@@ -66,16 +69,11 @@ import {ref, inject, nextTick, onMounted} from 'vue';
 // Components
 import VODCard from '@/components/VODCard';
 import VODConfirm from '@/components/VODConfirm';
+import Overlay from '@/components/Overlay';
 
-// Socket
+// Injects
+const {state} = inject('store');
 const socket = inject('socket');
-
-// Config
-const config = ref({});
-
-socket.emit('get-config', (res) => {
-  config.value = res;
-});
 
 // State
 const busy = ref(false);
