@@ -1,5 +1,10 @@
 // Core
 import {reactive} from "vue";
+// Modules
+import {useToast} from 'vue-toastification';
+
+// Toast
+const toast = useToast();
 
 const state = reactive({
     config: {},
@@ -10,7 +15,13 @@ const state = reactive({
 
 const actions = {
     showOverlay: () => state.ui.overlay = true,
-    hideOverlay: () => state.ui.overlay = false
+    hideOverlay: () => state.ui.overlay = false,
+    popError: (error) => {
+        const msg = typeof error === 'string' ? error : error?.message || 'Task failed. Check console for the error information';
+        toast.error(msg);
+        console.error(error || msg);
+    },
+    popInfo: msg => toast.info(msg)
 };
 
 export {state, actions};

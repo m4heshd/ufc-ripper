@@ -72,7 +72,7 @@ import VODConfirm from '@/components/VODConfirm';
 import Overlay from '@/components/Overlay';
 
 // Injects
-const {state} = inject('store');
+const {state, actions} = inject('store');
 const socket = inject('socket');
 
 // State
@@ -90,7 +90,7 @@ function onBtnDownloadClick() {
 
   socket.emit('verify-url', txtLink.value, (res) => {
     unsetBusy();
-    if (res.error) return console.error(res.error);
+    if (res.error) return actions.popError(res.error);
 
     txtLink.value = '';
     verifiedVOD.value = res;
@@ -111,9 +111,10 @@ function download(VOD) {
 
   socket.emit('download', VOD, (res) => {
     unsetBusy();
-    if (res.error) return console.error(res.error);
+    if (res.error) return actions.popError(res.error);
 
-    downloadQueue.value.push(res);
+    downloadQueue.value.unshift(res);
+    actions.popInfo('Download started');
   });
 }
 </script>

@@ -7,3 +7,25 @@ body {
 .overlay.active {
   backdrop-filter: saturate(200%) blur(2px);
 }
+
+.Vue-Toastification {
+  &__toast {
+    padding: 10px 24px;
+    margin-bottom: 10px;
+
+    & > svg {
+      border-radius: initial;
+    }
+
+    &-body {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  &__close-button {
+    box-shadow: none;
+    padding-left: 0;
+    margin-left: 10px;
+  }
+}
