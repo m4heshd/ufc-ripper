@@ -3,10 +3,10 @@ const path = require('path');
 const express = require('express');
 const http = require('http');
 const clr = require('ansi-colors');
-const {readConfig, getConfig} = require('./src/modules/config-util');
-const {getVODMeta, getVODStream} = require('./src/modules/net-util');
-const {sendError, sendVODMeta} = require('./src/modules/ws-util');
-const {openDLSession} = require('./src/modules/bin-util');
+const {readConfig, getConfig} = require('./server-modules/config-util');
+const {getVODMeta, getVODStream} = require('./server-modules/net-util');
+const {sendError, sendVODMeta} = require('./server-modules/ws-util');
+const {openDLSession} = require('./server-modules/bin-util');
 
 // Init server
 const xApp = express();
