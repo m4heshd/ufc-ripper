@@ -17,12 +17,6 @@
   </article>
 </template>
 
-<script>
-export default {
-  name: "VODCard"
-};
-</script>
-
 <script setup>
 defineProps({
   vVODData: Object

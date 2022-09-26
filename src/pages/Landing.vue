@@ -52,11 +52,11 @@
     </article>
 
     <!-- Modals -->
-    <VODConfirm
+    <ModVODConfirm
         vId="modVODConfirm"
         :vVODData="verifiedVOD"
         @onConfirm="download"
-    ></VODConfirm>
+    ></ModVODConfirm>
 
     <!-- Overlay -->
     <Overlay :vActive="state.ui.overlay"></Overlay>
@@ -68,7 +68,7 @@
 import {ref, inject, nextTick, onMounted} from 'vue';
 // Components
 import VODCard from '@/components/VODCard';
-import VODConfirm from '@/components/VODConfirm';
+import ModVODConfirm from '@/components/ModVODConfirm';
 import Overlay from '@/components/Overlay';
 
 // Injects
@@ -77,8 +77,7 @@ const socket = inject('socket');
 
 // State
 const busy = ref(false);
-const setBusy = () => busy.value = true;
-const unsetBusy = () => busy.value = false;
+const switchBusyState = (busyState) => busy.value = busyState === undefined ? !busy.value : busyState;
 const downloadQueue = ref([]);
 const verifiedVOD = ref({});
 
@@ -86,10 +85,10 @@ const verifiedVOD = ref({});
 const txtLink = ref('');
 
 function onBtnDownloadClick() {
-  setBusy();
+  switchBusyState();
 
   socket.emit('verify-url', txtLink.value, (res) => {
-    unsetBusy();
+    switchBusyState();
     if (res.error) return actions.popError(res.error);
 
     txtLink.value = '';
@@ -106,11 +105,10 @@ onMounted(() => nextTick(() => {
 
 // Misc functions
 function download(VOD) {
-  setBusy();
-  window.ui('#modVODConfirm');
+  switchBusyState();
 
   socket.emit('download', VOD, (res) => {
-    unsetBusy();
+    switchBusyState();
     if (res.error) return actions.popError(res.error);
 
     downloadQueue.value.unshift(res);

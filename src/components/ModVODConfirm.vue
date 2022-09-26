@@ -26,19 +26,16 @@
       >
         Cancel
       </button>
-      <button @click="$emit('onConfirm', vVODData)">
+      <button
+          :data-ui="`#${vId}`"
+          @click="$emit('onConfirm', vVODData)"
+      >
         <i>download</i>
         <span>Download</span>
       </button>
     </nav>
   </div>
 </template>
-
-<script>
-export default {
-  name: "VODConfirm"
-};
-</script>
 
 <script setup>
 defineProps({
