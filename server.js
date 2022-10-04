@@ -3,7 +3,7 @@ const path = require('path');
 const express = require('express');
 const http = require('http');
 const clr = require('ansi-colors');
-const {readConfig, getConfig} = require('./server-modules/config-util');
+const {readConfig, getConfig, writeConfig} = require('./server-modules/config-util');
 const {getVODMeta, getVODStream} = require('./server-modules/net-util');
 const {sendError, sendVODMeta} = require('./server-modules/ws-util');
 const {openDLSession} = require('./server-modules/bin-util');
@@ -35,6 +35,7 @@ io.on('connection', (socket) => {
     socket.on('get-config', cb => cb(getConfig()));
     socket.on('verify-url', verifyVOD);
     socket.on('download', downloadVOD);
+    socket.on('save-config', saveConfig);
 });
 
 /* Start server
@@ -59,6 +60,15 @@ async function downloadVOD(VOD, cb) {
             ...VOD,
             hls: await getVODStream(VOD.id)
         }, cb);
+    } catch (error) {
+        sendError(error, cb);
+    }
+}
+
+function saveConfig(newConfig, cb) {
+    try {
+        writeConfig(newConfig);
+        cb();
     } catch (error) {
         sendError(error, cb);
     }
