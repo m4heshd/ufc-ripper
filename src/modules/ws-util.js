@@ -17,7 +17,17 @@ export function useWSUtil() {
         state.config = JSON.parse(JSON.stringify(newConfig));
     }
 
+    function verifyURL(url) {
+        return emitPromise('verify-url', url);
+    }
+
+    function downloadVOD(VOD) {
+        return emitPromise('download', VOD);
+    }
+
     return {
-        saveConfig
+        saveConfig,
+        verifyURL,
+        downloadVOD
     };
 }

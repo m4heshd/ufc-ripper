@@ -68,6 +68,8 @@
 <script setup>
 // Core
 import {ref, inject, nextTick, onMounted} from 'vue';
+// Modules
+import {useWSUtil} from '@/modules/ws-util';
 // Components
 import VODCard from '@/components/VODCard';
 import ModVODConfirm from '@/components/ModVODConfirm';
@@ -76,9 +78,11 @@ import Overlay from '@/components/Overlay';
 
 // Injects
 const {state, actions} = inject('store');
-const socket = inject('socket');
 
-// State
+// Composables
+const {downloadVOD, verifyURL} = useWSUtil();
+
+// Local state
 const busy = ref(false);
 const switchBusyState = (busyState) => busy.value = busyState === undefined ? !busy.value : busyState;
 const downloadQueue = ref([]);
@@ -90,15 +94,15 @@ const txtLink = ref('');
 function onBtnDownloadClick() {
   switchBusyState();
 
-  socket.emit('verify-url', txtLink.value, (res) => {
-    switchBusyState();
-    if (res.error) return actions.popError(res.error);
+  verifyURL(txtLink.value)
+      .then((res) => {
+        txtLink.value = '';
+        verifiedVOD.value = res;
 
-    txtLink.value = '';
-    verifiedVOD.value = res;
-
-    window.ui('#modVODConfirm');
-  });
+        window.ui('#modVODConfirm');
+      })
+      .catch(actions.popError)
+      .finally(switchBusyState);
 }
 
 function onBtnConfigClick() {
@@ -115,13 +119,13 @@ onMounted(() => nextTick(() => {
 function download(VOD) {
   switchBusyState();
 
-  socket.emit('download', VOD, (res) => {
-    switchBusyState();
-    if (res.error) return actions.popError(res.error);
-
-    downloadQueue.value.unshift(res);
-    actions.popInfo('Download started');
-  });
+  downloadVOD(VOD)
+      .then((res) => {
+        downloadQueue.value.unshift(res);
+        actions.popInfo('Download started');
+      })
+      .catch(actions.popError)
+      .finally(switchBusyState);
 }
 </script>
 
