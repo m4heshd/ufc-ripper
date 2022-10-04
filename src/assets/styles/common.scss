@@ -3,3 +3,17 @@
   justify-content: center;
   align-items: center;
 }
+
+.modal-title {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+
+  & > h5 {
+    margin: 0;
+  }
+
+  & > i {
+    font-size: 26rem;
+  }
+}

@@ -10,6 +10,11 @@ const state = reactive({
     config: {},
     ui: {
         overlay: true
+    },
+    modals: {
+        modConfig: {
+            data: {}
+        }
     }
 });
 
@@ -21,7 +26,8 @@ const actions = {
         toast.error(msg);
         console.error(error || msg);
     },
-    popInfo: msg => toast.info(msg)
+    popInfo: msg => toast.info(msg),
+    popSuccess: msg => toast.success(msg)
 };
 
 export default {state, actions};

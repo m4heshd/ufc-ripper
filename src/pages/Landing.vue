@@ -26,8 +26,8 @@
 
       <button
           class="square round large"
-          @click="onBtnDownloadClick"
           :disabled="busy"
+          @click="onBtnDownloadClick"
       >
         <i>download</i>
       </button>
@@ -35,6 +35,7 @@
       <button
           class="square round large"
           :disabled="busy"
+          @click="onBtnConfigClick"
       >
         <i>settings</i>
       </button>
@@ -57,6 +58,7 @@
         :vVODData="verifiedVOD"
         @onConfirm="download"
     ></ModVODConfirm>
+    <ModConfig></ModConfig>
 
     <!-- Overlay -->
     <Overlay :vActive="state.ui.overlay"></Overlay>
@@ -69,6 +71,7 @@ import {ref, inject, nextTick, onMounted} from 'vue';
 // Components
 import VODCard from '@/components/VODCard';
 import ModVODConfirm from '@/components/ModVODConfirm';
+import ModConfig from '@/components/ModConfig';
 import Overlay from '@/components/Overlay';
 
 // Injects
@@ -96,6 +99,11 @@ function onBtnDownloadClick() {
 
     window.ui('#modVODConfirm');
   });
+}
+
+function onBtnConfigClick() {
+  state.modals.modConfig.data = JSON.parse(JSON.stringify(state.config));
+  window.ui('#modConfig');
 }
 
 // Lifecycle hooks
