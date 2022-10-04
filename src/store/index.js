@@ -24,4 +24,4 @@ const actions = {
     popInfo: msg => toast.info(msg)
 };
 
-export {state, actions};
+export default {state, actions};

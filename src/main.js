@@ -1,7 +1,7 @@
 // Core
 import {createApp} from 'vue';
 // Store
-import {state, actions} from '@/store';
+import store from '@/store';
 // Modules
 import Toast, {POSITION} from "vue-toastification";
 import "vue-toastification/dist/index.css";
@@ -16,11 +16,11 @@ const socket = io();
 socket.on("connect", () => {
     socket.emit('get-config', (res) => {
         if (res.error) return console.error(res.error);
-        state.config = res;
+        store.state.config = res;
     });
-    actions.hideOverlay();
+    store.actions.hideOverlay();
 });
-socket.on("disconnect", actions.showOverlay);
+socket.on("disconnect", store.actions.showOverlay);
 
 // App theme
 window.ui("theme", "#df2722");
@@ -34,5 +34,5 @@ const toastOptions = {
 createApp(Landing)
     .use(Toast, toastOptions)
     .provide('socket', socket)
-    .provide('store', {state, actions})
+    .provide('store', store)
     .mount('#app');
