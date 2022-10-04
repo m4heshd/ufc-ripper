@@ -3,7 +3,10 @@
       :id="vId"
       class="modal mod-vod-confirm"
   >
-    <h5>Confirm download</h5>
+    <div class="modal-title">
+      <i>download</i>
+      <h5>Confirm download</h5>
+    </div>
 
     <article
         v-if="vVODData?.title"
@@ -50,7 +53,7 @@ defineEmits([
 
 <style lang="scss">
 .mod-vod-confirm {
-  max-width: 380px;
+  max-width: 420px;
 
   & > article {
     margin: 25px 10px;
