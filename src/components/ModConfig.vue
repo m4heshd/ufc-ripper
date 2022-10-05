@@ -11,9 +11,9 @@
     <div class="mod-config__content">
       <article class="border round mod-config__content__section">
         <h5>Account</h5>
-        <button :disabled="loggedIn">Login</button>
+        <button :disabled="store.isLoggedIn">Login</button>
         <button
-            :disabled="!loggedIn"
+            :disabled="!store.isLoggedIn"
             @click="onBtnLogoutClick"
         >
           Logout
@@ -40,8 +40,8 @@
 </template>
 
 <script setup>
-// Core
-import {inject, computed} from 'vue';
+// Store
+import {useAppStore} from '@/store';
 // Modules
 import {useWSUtil} from '@/modules/ws-util';
 
@@ -49,30 +49,30 @@ defineEmits([
   'onSave'
 ]);
 
-// Injects
-const {state, actions} = inject('store');
+// Store
+const store = useAppStore();
+const modConfig = store.modals.modConfig;
 
-// Composables
+// Websocket
 const {saveConfig} = useWSUtil();
 
 // Account
-const loggedIn = computed(() => !!state.modals.modConfig.data.authToken);
-
 function onBtnLogoutClick() {
-  state.modals.modConfig.data.authToken = "";
+  modConfig.data.authToken = "";
+  modConfig.data.refreshToken = "";
   save();
 }
 
 // Misc functions
 function save() {
-  saveConfig(state.modals.modConfig.data)
+  saveConfig(modConfig.data)
       .then(() => {
-        actions.popSuccess('Configuration successfully updated');
+        store.popSuccess('Configuration successfully updated');
         window.ui('#modConfig');
       })
       .catch((error) => {
-        actions.popError(error);
-        state.modals.modConfig.data = JSON.parse(JSON.stringify(state.config));
+        store.popError(error);
+        modConfig.data = JSON.parse(JSON.stringify(store.config));
       });
 }
 </script>

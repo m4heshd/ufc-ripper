@@ -61,13 +61,15 @@
     <ModConfig></ModConfig>
 
     <!-- Overlay -->
-    <Overlay :vActive="state.ui.overlay"></Overlay>
+    <Overlay :vActive="store.ui.overlay"></Overlay>
   </div>
 </template>
 
 <script setup>
 // Core
-import {ref, inject, nextTick, onMounted} from 'vue';
+import {ref, nextTick, onMounted} from 'vue';
+// Store
+import {useAppStore} from '@/store';
 // Modules
 import {useWSUtil} from '@/modules/ws-util';
 // Components
@@ -76,11 +78,14 @@ import ModVODConfirm from '@/components/ModVODConfirm';
 import ModConfig from '@/components/ModConfig';
 import Overlay from '@/components/Overlay';
 
-// Injects
-const {state, actions} = inject('store');
+// Store
+const store = useAppStore();
+const modConfig = store.modals.modConfig;
 
-// Composables
-const {downloadVOD, verifyURL} = useWSUtil();
+// Websocket
+const {downloadVOD, initSocket, verifyURL} = useWSUtil();
+
+initSocket();
 
 // Local state
 const busy = ref(false);
@@ -101,12 +106,12 @@ function onBtnDownloadClick() {
 
         window.ui('#modVODConfirm');
       })
-      .catch(actions.popError)
+      .catch(store.popError)
       .finally(switchBusyState);
 }
 
 function onBtnConfigClick() {
-  state.modals.modConfig.data = JSON.parse(JSON.stringify(state.config));
+  modConfig.data = JSON.parse(JSON.stringify(store.config));
   window.ui('#modConfig');
 }
 
@@ -122,9 +127,9 @@ function download(VOD) {
   downloadVOD(VOD)
       .then((res) => {
         downloadQueue.value.unshift(res);
-        actions.popInfo('Download started');
+        store.popInfo('Download started');
       })
-      .catch(actions.popError)
+      .catch(store.popError)
       .finally(switchBusyState);
 }
 </script>

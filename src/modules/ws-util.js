@@ -1,20 +1,47 @@
-// Core
-import {inject} from 'vue';
+// Store
+import {useAppStore} from '@/store';
+// Modules
+import {io} from 'socket.io-client';
+
+// Websocket
+let socket;
 
 export function useWSUtil() {
-    // Injects
-    const {state} = inject('store');
-    const socket = inject('socket');
+    // Store
+    const store = useAppStore();
 
     function emitPromise(event, ...args) {
         return new Promise((resolve, reject) => {
-            socket.emit(event, ...args, (res) => res?.error ? reject(res.error) : resolve(res));
+            if (socket) {
+                socket.emit(event, ...args, (res) => res?.error ? reject(res.error) : resolve(res));
+            } else {
+                reject(new Error('Socket not initiated'));
+            }
         });
+    }
+
+    function initSocket() {
+        socket = io(process.env.VUE_APP_WS_URI);
+
+        socket.on('connect', async () => {
+            await getConfig();
+            store.hideOverlay();
+            console.log('Connected to backend');
+        });
+        socket.on('disconnect', store.showOverlay);
+    }
+
+    async function getConfig() {
+        try {
+            store.config = await emitPromise('get-config');
+        } catch (error) {
+            store.popError(error);
+        }
     }
 
     async function saveConfig(newConfig) {
         await emitPromise('save-config', newConfig);
-        state.config = JSON.parse(JSON.stringify(newConfig));
+        store.config = JSON.parse(JSON.stringify(newConfig));
     }
 
     function verifyURL(url) {
@@ -26,6 +53,8 @@ export function useWSUtil() {
     }
 
     return {
+        initSocket,
+        getConfig,
         saveConfig,
         verifyURL,
         downloadVOD
