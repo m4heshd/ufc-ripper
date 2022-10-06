@@ -40,8 +40,7 @@ export function useWSUtil() {
     }
 
     async function saveConfig(newConfig) {
-        await emitPromise('save-config', newConfig);
-        store.config = JSON.parse(JSON.stringify(newConfig));
+        store.config = await emitPromise('save-config', newConfig);
     }
 
     function verifyURL(url) {

@@ -67,8 +67,7 @@ async function downloadVOD(VOD, cb) {
 
 function saveConfig(newConfig, cb) {
     try {
-        writeConfig(newConfig);
-        cb();
+        cb(writeConfig(newConfig));
     } catch (error) {
         sendError(error, cb);
     }

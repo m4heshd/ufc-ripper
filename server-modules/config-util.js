@@ -24,6 +24,8 @@ function writeConfig(newConfig) {
     fs.writeJSONSync('config.json', config, {
         spaces: 2
     });
+
+    return config;
 }
 
 function getConfig(key) {
