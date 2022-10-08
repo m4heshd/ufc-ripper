@@ -4,6 +4,7 @@ const {getConfig, writeConfig} = require('./config-util');
 const {getVODIDFromURL} = require('./txt-util');
 
 module.exports = {
+    fightPassLogin,
     refreshAuth,
     getVODMeta,
     getVODStream
@@ -20,6 +21,36 @@ function getHeaders(auth) {
     return auth ? {...headers, 'Authorization': `Bearer ${auth}`} : headers;
 }
 
+async function fightPassLogin(email, pass) {
+    const config = {
+        method: 'post',
+        url: 'https://dce-frontoffice.imggaming.com/api/v2/login',
+        headers: {
+            ...getHeaders(),
+            'Content-Type': 'application/json'
+        },
+        data: {
+            id: email,
+            secret: pass
+        }
+    };
+
+    try {
+        const {data} = await axios(config);
+
+        if (!(data?.authorisationToken && data?.refreshToken)) throw 'No auth returned';
+
+        return writeConfig({
+            user: email,
+            authToken: data.authorisationToken,
+            refreshToken: data.refreshToken
+        });
+    } catch (error) {
+        if (error.response?.status === 404) throw 'Incorrect email or password';
+        throw error;
+    }
+}
+
 async function refreshAuth() {
     const config = {
         method: 'post',
@@ -33,11 +64,11 @@ async function refreshAuth() {
         }
     };
 
-    const res = await axios(config);
+    const {data} = await axios(config);
 
-    if (res.data.authorisationToken) {
+    if (data?.authorisationToken) {
         writeConfig({
-            authToken: res.data.authorisationToken
+            authToken: data.authorisationToken
         });
     } else {
         throw 'No auth returned';
@@ -50,14 +81,14 @@ async function getVODMeta(url) {
     if (!id) throw 'Invalid URL';
 
     const runReq = async () => {
-        const res = await axios({
+        const {data} = await axios({
             method: 'get',
             url: `https://dce-frontoffice.imggaming.com/api/v2/vod/${id}`,
             headers: getHeaders(getConfig('authToken'))
         });
 
-        if (res.data) {
-            const {id, title, description, thumbnailUrl} = res.data;
+        if (data) {
+            const {id, title, description, thumbnailUrl} = data;
 
             return {
                 id,
@@ -90,13 +121,13 @@ async function getVODStream(id) {
         headers: getHeaders(getConfig('authToken'))
     };
 
-    let res = await axios(config);
+    let {data} = await axios(config);
 
-    if (res.data?.playerUrlCallback) {
-        res = await axios.get(res.data.playerUrlCallback);
+    if (data?.playerUrlCallback) {
+        data = (await axios.get(data.playerUrlCallback)).data;
 
-        if (res.data?.hls?.length) {
-            return res.data.hls[0].url;
+        if (data?.hls?.length) {
+            return data.hls[0].url;
         } else {
             throw 'No stream URL';
         }

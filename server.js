@@ -4,7 +4,7 @@ const express = require('express');
 const http = require('http');
 const clr = require('ansi-colors');
 const {readConfig, getConfig, writeConfig} = require('./server-modules/config-util');
-const {getVODMeta, getVODStream} = require('./server-modules/net-util');
+const {getVODMeta, getVODStream, fightPassLogin} = require('./server-modules/net-util');
 const {sendError, sendVODMeta} = require('./server-modules/ws-util');
 const {openDLSession} = require('./server-modules/bin-util');
 
@@ -33,6 +33,7 @@ io.on('connection', (socket) => {
     console.log(`GUI connected (ID - ${socket.id})\n`);
 
     socket.on('get-config', cb => cb(getConfig()));
+    socket.on('login', login);
     socket.on('verify-url', verifyVOD);
     socket.on('download', downloadVOD);
     socket.on('save-config', saveConfig);
@@ -46,6 +47,14 @@ xServer.listen(port, () => {
 
 /* Misc functions
 =================*/
+async function login(email, pass, cb) {
+    try {
+        cb(await fightPassLogin(email, pass));
+    } catch (error) {
+        sendError(error, cb);
+    }
+}
+
 async function verifyVOD(url, cb) {
     try {
         sendVODMeta(await getVODMeta(url), cb);

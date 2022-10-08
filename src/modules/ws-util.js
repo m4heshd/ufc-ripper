@@ -43,6 +43,10 @@ export function useWSUtil() {
         store.config = await emitPromise('save-config', newConfig);
     }
 
+    async function login(email, pass) {
+        store.config = await emitPromise('login', email, pass);
+    }
+
     function verifyURL(url) {
         return emitPromise('verify-url', url);
     }
@@ -55,6 +59,7 @@ export function useWSUtil() {
         initSocket,
         getConfig,
         saveConfig,
+        login,
         verifyURL,
         downloadVOD
     };
