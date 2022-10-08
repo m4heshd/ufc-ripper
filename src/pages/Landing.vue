@@ -80,7 +80,6 @@ import Overlay from '@/components/Overlay';
 
 // Store
 const store = useAppStore();
-const modConfig = store.modals.modConfig;
 
 // Websocket
 const {downloadVOD, initSocket, verifyURL} = useWSUtil();
@@ -111,8 +110,7 @@ function onBtnDownloadClick() {
 }
 
 function onBtnConfigClick() {
-  modConfig.data = JSON.parse(JSON.stringify(store.config));
-  window.ui('#modConfig');
+  store.showModConfig();
 }
 
 // Lifecycle hooks
