@@ -13,12 +13,13 @@
         class="no-padding round secondary-container"
     >
       <img
+          v-if="store.config.showThumb"
           class="responsive small top-round"
           :src="vVODData.thumb"
       >
       <div class="padding">
         <h5>{{ vVODData.title }}</h5>
-        <p>{{ vVODData.desc }}</p>
+        <p v-if="store.config.showDesc">{{ vVODData.desc }}</p>
       </div>
     </article>
 
@@ -41,6 +42,9 @@
 </template>
 
 <script setup>
+// Store
+import {useAppStore} from '@/store';
+
 defineProps({
   vId: String,
   vVODData: Object
@@ -49,6 +53,9 @@ defineProps({
 defineEmits([
   'onConfirm'
 ]);
+
+// Store
+const store = useAppStore();
 </script>
 
 <style lang="scss">

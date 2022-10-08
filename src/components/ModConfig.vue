@@ -15,7 +15,8 @@
             v-if="store.isLoggedIn"
             class="mod-config__content__account__user"
         >
-          User: {{ modConfig.data.user }}
+          <i>person</i>
+          {{ modConfig.data.user }}
         </div>
         <div
             v-else
@@ -52,6 +53,36 @@
         >Login
         </button>
       </article>
+
+      <article class="border round mod-config__content__section mod-config__content__previews">
+        <h5>Previews (spoilers)</h5>
+        <nav>
+          <div class="max">
+            <h6>Show thumbnails</h6>
+            <div>Thumbnail image on previews and downloads</div>
+          </div>
+          <label class="switch">
+            <input
+                v-model="modConfig.data.showThumb"
+                type="checkbox"
+            >
+            <span></span>
+          </label>
+        </nav>
+        <nav>
+          <div class="max">
+            <h6>Show description</h6>
+            <div>Bout/event description from Fight Pass</div>
+          </div>
+          <label class="switch">
+            <input
+                v-model="modConfig.data.showDesc"
+                type="checkbox"
+            >
+            <span></span>
+          </label>
+        </nav>
+      </article>
     </div>
 
     <nav class="right-align">
@@ -61,10 +92,7 @@
       >
         Cancel
       </button>
-      <button
-          data-ui="#modConfig"
-          @click="$emit('onSave')"
-      >
+      <button @click="save">
         <i>save</i>
         <span>Save</span>
       </button>
@@ -79,10 +107,6 @@ import {ref} from 'vue';
 import {useAppStore} from '@/store';
 // Modules
 import {useWSUtil} from '@/modules/ws-util';
-
-defineEmits([
-  'onSave'
-]);
 
 // Store
 const store = useAppStore();
@@ -141,6 +165,7 @@ function save() {
     &__section {
       & > h5 {
         font-size: 18px;
+        font-weight: bold;
         margin-bottom: 15px;
       }
 
@@ -149,13 +174,25 @@ function save() {
 
     &__account {
       &__user {
-        font-weight: bold;
         margin-bottom: 20px;
       }
 
       &__creds {
         & > div:first-child {
           margin-bottom: 5px;
+        }
+      }
+    }
+
+    &__previews {
+      & > nav > div {
+        & > h6 {
+          font-size: 15px;
+          font-weight: bold;
+        }
+
+        & > div {
+          font-size: 11px;
         }
       }
     }

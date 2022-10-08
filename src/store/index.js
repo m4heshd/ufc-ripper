@@ -36,7 +36,7 @@ export const useAppStore = defineStore('app', {
             this.ui.overlay = false;
         },
         showModConfig() {
-            this.modals.modConfig.data = this.config;
+            this.modals.modConfig.data = JSON.parse(JSON.stringify(this.config));
             window.ui('#modConfig');
         }
     }

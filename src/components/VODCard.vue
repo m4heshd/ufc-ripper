@@ -3,14 +3,15 @@
     <div class="grid no-space">
       <div class="s3">
         <img
+            v-if="store.config.showThumb"
             class="responsive"
             :src="vVODData.thumb"
         >
       </div>
-      <div class="s9">
+      <div :class="`${store.config.showThumb ? 's9' : 's12'}`">
         <div class="padding">
           <h5>{{ vVODData.title }}</h5>
-          <p>{{ vVODData.desc }}</p>
+          <p v-if="store.config.showDesc">{{ vVODData.desc }}</p>
         </div>
       </div>
     </div>
@@ -18,9 +19,15 @@
 </template>
 
 <script setup>
+// Store
+import {useAppStore} from '@/store';
+
 defineProps({
   vVODData: Object
 });
+
+// Store
+const store = useAppStore();
 </script>
 
 <style lang="scss">
