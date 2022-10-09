@@ -3,7 +3,7 @@ const path = require('path');
 const {exec} = require('child_process');
 const clr = require('ansi-colors');
 const {getConfig, writeConfig} = require('./config-util');
-const {sendError, sendVODDownload} = require('./ws-util');
+const {sendError, sendVODDownload} = require('./io-util');
 
 module.exports = {
     openDLSession
