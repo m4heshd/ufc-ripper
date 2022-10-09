@@ -44,7 +44,7 @@ async function fightPassLogin(email, pass) {
             user: email,
             authToken: data.authorisationToken,
             refreshToken: data.refreshToken
-        });
+        }, false);
     } catch (error) {
         if (error.response?.status === 404) throw 'Incorrect email or password';
         throw error;
@@ -69,7 +69,7 @@ async function refreshAuth() {
     if (data?.authorisationToken) {
         writeConfig({
             authToken: data.authorisationToken
-        });
+        }, false);
     } else {
         throw 'No auth returned';
     }

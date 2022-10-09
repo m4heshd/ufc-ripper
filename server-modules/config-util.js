@@ -15,7 +15,7 @@ function readConfig(key) {
     return getConfig(key);
 }
 
-function writeConfig(newConfig) {
+function writeConfig(newConfig, emitUpdate = true) {
     config = {
         ...config,
         ...newConfig
@@ -24,6 +24,7 @@ function writeConfig(newConfig) {
     fs.writeJSONSync('config.json', config, {
         spaces: 2
     });
+    if (emitUpdate) require('./io-util').emitConfigUpdate();
 
     return config;
 }

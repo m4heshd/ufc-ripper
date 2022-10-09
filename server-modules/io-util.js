@@ -11,7 +11,8 @@ module.exports = {
     initIO,
     sendError,
     sendVODMeta,
-    sendVODDownload
+    sendVODDownload,
+    emitConfigUpdate
 };
 
 function initIO(httpServer) {
@@ -63,7 +64,7 @@ async function downloadVOD(VOD, cb) {
 
 function saveConfig(newConfig, cb) {
     try {
-        cb(writeConfig(newConfig));
+        cb(writeConfig(newConfig, false));
     } catch (error) {
         sendError(error, cb);
     }
@@ -84,4 +85,11 @@ function sendVODMeta(VOD, cb) {
 
 function sendVODDownload(VOD, cb) {
     cb(VOD);
+}
+
+// IO emits
+function emitConfigUpdate() {
+    if (!io) throw 'WebSocket instance not initiated';
+
+    io.emit('config-update', getConfig());
 }

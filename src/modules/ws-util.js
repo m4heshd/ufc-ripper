@@ -23,14 +23,23 @@ export function useWSUtil() {
     function initSocket() {
         socket = io(process.env.VUE_APP_WS_URI);
 
-        socket.on('connect', async () => {
-            await getConfig();
-            store.hideOverlay();
-            console.log('Connected to backend');
-        });
+        socket.on('connect', onSocketConnection);
         socket.on('disconnect', store.showOverlay);
+        socket.on('config-update', onConfigUpdate);
     }
 
+    // Socket event handles
+    async function onSocketConnection() {
+        await getConfig();
+        store.hideOverlay();
+        console.log('Connected to backend');
+    }
+
+    function onConfigUpdate(newConfig) {
+        store.config = newConfig;
+    }
+
+    // Socket emits
     async function getConfig() {
         try {
             store.config = await emitPromise('get-config');
