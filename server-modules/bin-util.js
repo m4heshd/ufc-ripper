@@ -10,15 +10,29 @@ module.exports = {
 };
 
 function openDLSession(VOD, cb) {
-    const {vidQuality, audQuality, resolution, framerate, extension, dl_path, episode, dl_args} = getConfig();
     const {title, hls, vodURL} = VOD;
-    const fullTitle = `${episode > 0 ? `${episode}. ` : ''}${title}`;
-    const yt_dlp_cmd = `start .\\bin\\yt-dlp.exe -f "${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}" -o "${path.join(dl_path, `${fullTitle}.%(ext)s`)}" ${dl_args.join(' ')} ${hls}`;
+    const {
+        vidQuality,
+        audQuality,
+        resolution,
+        framerate,
+        extension,
+        dl_path,
+        numberFiles,
+        curNumber,
+        dl_args
+    } = getConfig();
+    const fullTitle = `${numberFiles ? `${curNumber}. ` : ''}${title}`;
+    const yt_dlp_cmd = 'start .\\bin\\yt-dlp.exe ' +
+        `-f "${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}" ` +
+        `-o "${path.join(dl_path, `${fullTitle}.%(ext)s`)}" ` +
+        `${dl_args.join(' ')} ` +
+        `${hls}`;
 
     console.log(clr.yellowBright.bgBlack.bold.underline(`Downloading "${title}"`));
     console.log(clr.dim(`${vodURL}\n`));
 
-    writeConfig({episode: episode + 1});
+    writeConfig({curNumber: curNumber + 1});
     sendVODDownload({
         ...VOD,
         title: fullTitle
@@ -26,7 +40,7 @@ function openDLSession(VOD, cb) {
 
     exec(yt_dlp_cmd, (err, stdout, stderr) => {
         if (err) {
-            writeConfig({episode: episode - 1});
+            writeConfig({curNumber: curNumber - 1});
             return cb ? sendError(err, cb) : null;
         }
         console.log(clr.greenBright.bgBlack.bold(`Completed download - "${title}"`));

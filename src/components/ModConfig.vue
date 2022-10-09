@@ -54,9 +54,9 @@
         </button>
       </article>
 
-      <article class="border round mod-config__content__section mod-config__content__previews">
+      <article class="border round mod-config__content__section">
         <h5>Previews (spoilers)</h5>
-        <nav>
+        <nav class="v-switch">
           <div class="max">
             <h6>Show thumbnails</h6>
             <div>Thumbnail image on previews and downloads</div>
@@ -69,7 +69,7 @@
             <span></span>
           </label>
         </nav>
-        <nav>
+        <nav class="v-switch">
           <div class="max">
             <h6>Show description</h6>
             <div>Bout/event description from Fight Pass</div>
@@ -82,6 +82,42 @@
             <span></span>
           </label>
         </nav>
+      </article>
+
+      <article class="border round mod-config__content__section mod-config__content__downloads">
+        <h5>Downloads (output)</h5>
+        <div class="field label suffix border round small">
+          <input
+              v-model="modConfig.data.dl_path"
+              type="text"
+              autocomplete="off"
+          >
+          <label>Location (directory)</label>
+          <i>folder_open</i>
+        </div>
+        <nav class="v-switch">
+          <div class="max">
+            <h6>Number files</h6>
+            <div>Number each file increasingly with each download</div>
+          </div>
+          <label class="switch">
+            <input
+                v-model="modConfig.data.numberFiles"
+                type="checkbox"
+            >
+            <span></span>
+          </label>
+        </nav>
+        <div class="mod-config__content__downloads__txtCurNumber">
+          <span>Current file number:</span>
+          <div class="field border round small no-margin">
+            <input
+                v-model.number="modConfig.data.curNumber"
+                type="number"
+                min="1"
+            >
+          </div>
+        </div>
       </article>
     </div>
 
@@ -159,9 +195,26 @@ function save() {
 <style lang="scss">
 .mod-config {
   width: 100%;
-  max-width: 400px;
+  max-width: 480px;
+  max-height: 80%;
+  display: grid;
+  grid-template-rows: max-content minmax(0px, 1fr) max-content;
+  overflow: hidden;
+
+  & .v-switch > div {
+    & > h6 {
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    & > div {
+      font-size: 11px;
+    }
+  }
 
   &__content {
+    overflow-y: auto;
+
     &__section {
       & > h5 {
         font-size: 18px;
@@ -184,15 +237,20 @@ function save() {
       }
     }
 
-    &__previews {
-      & > nav > div {
-        & > h6 {
-          font-size: 15px;
-          font-weight: bold;
-        }
+    &__downloads {
+      & > .field {
+        margin-top: 25px;
+        margin-bottom: 10px;
+      }
+
+      &__txtCurNumber {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 16rem 0 0 0;
 
         & > div {
-          font-size: 11px;
+          width: 100px;
         }
       }
     }

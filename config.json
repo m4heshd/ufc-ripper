@@ -12,7 +12,8 @@
   "vidQuality": "worstvideo",
   "audQuality": "bestaudio",
   "dl_path": "",
-  "episode": 1,
+  "numberFiles": true,
+  "curNumber": 1,
   "dl_args": [
     "--ffmpeg-location .\\bin",
     "--no-mtime",
