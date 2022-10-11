@@ -19,7 +19,7 @@ export const useAppStore = defineStore('app', {
         }
     }),
     getters: {
-        isLoggedIn: (state) => !!state.modals.modConfig.data.authToken
+        isLoggedIn: (state) => !!state.config.authToken
     },
     actions: {
         popError: (error) => {

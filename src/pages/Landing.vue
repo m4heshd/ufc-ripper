@@ -35,7 +35,7 @@
       <button
           class="square round large"
           :disabled="busy"
-          @click="onBtnConfigClick"
+          @click="store.showModConfig"
       >
         <i>settings</i>
       </button>
@@ -96,6 +96,8 @@ const verifiedVOD = ref({});
 const txtLink = ref('');
 
 function onBtnDownloadClick() {
+  if (!store.isLoggedIn) return store.popError('You need to be logged in to download videos');
+
   switchBusyState();
 
   verifyURL(txtLink.value)
@@ -107,10 +109,6 @@ function onBtnDownloadClick() {
       })
       .catch(store.popError)
       .finally(switchBusyState);
-}
-
-function onBtnConfigClick() {
-  store.showModConfig();
 }
 
 // Lifecycle hooks
@@ -168,6 +166,8 @@ function download(VOD) {
 
     & > h5 {
       margin-bottom: 30px;
+      color: var(--primary);
+      font-weight: bold;
     }
 
     &__downloads {

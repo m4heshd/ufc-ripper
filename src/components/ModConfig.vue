@@ -10,7 +10,7 @@
 
     <div class="mod-config__content">
       <article class="border round mod-config__content__section mod-config__content__account">
-        <h5>Account</h5>
+        <h5>Fight Pass account</h5>
         <div
             v-if="store.isLoggedIn"
             class="mod-config__content__account__user"
@@ -217,9 +217,10 @@ function save() {
 
     &__section {
       & > h5 {
+        margin-bottom: 15px;
+        color: var(--primary);
         font-size: 18px;
         font-weight: bold;
-        margin-bottom: 15px;
       }
 
       margin: 15px 0;
