@@ -23,7 +23,9 @@ export const useAppStore = defineStore('app', {
     },
     actions: {
         popError: (error) => {
-            const msg = typeof error === 'string' ? error : error?.message || 'Task failed. Check console for the error information';
+            const msg = typeof error === 'string' ?
+                error :
+                error?.userMsg || error?.message || 'Task failed. Check the console for error information';
             toast.error(msg);
             console.error(error || msg);
         },

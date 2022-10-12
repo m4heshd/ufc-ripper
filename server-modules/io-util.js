@@ -3,6 +3,7 @@ const {Server} = require('socket.io');
 const {randomUUID} = require('crypto');
 const {fightPassLogin, getVODMeta, getVODStream} = require('./net-util');
 const {writeConfig, getConfig} = require('./config-util');
+const {getEnumerableError, createUFCRError} = require('./error-util');
 
 // Websocket
 let io;
@@ -73,7 +74,7 @@ function saveConfig(newConfig, cb) {
 // Socket callbacks
 function sendError(error, cb) {
     console.error(`${error}\n`);
-    cb({error});
+    cb({error: getEnumerableError(error)});
 }
 
 function sendVODMeta(VOD, cb) {
@@ -89,7 +90,7 @@ function sendVODDownload(VOD, cb) {
 
 // IO emits
 function emitConfigUpdate() {
-    if (!io) throw 'WebSocket instance not initiated';
+    if (!io) throw createUFCRError('WebSocket instance not initiated');
 
     io.emit('config-update', getConfig());
 }
