@@ -14,7 +14,8 @@ module.exports = {
     sendVODMeta,
     sendVODDownload,
     emitConfigUpdate,
-    emitError
+    emitError,
+    emitDownloadProgress
 };
 
 function initIO(httpServer) {
@@ -103,4 +104,9 @@ function emitError(error) {
     console.error(`${error}\n`);
     checkIO();
     io.emit('server-error', getEnumerableError(error));
+}
+
+function emitDownloadProgress(qID, updates) {
+    checkIO();
+    io.emit('dl-progress', qID, updates);
 }

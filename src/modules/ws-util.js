@@ -27,6 +27,7 @@ export function useWSUtil() {
         socket.on('disconnect', store.showOverlay);
         socket.on('config-update', onConfigUpdate);
         socket.on('server-error', onServerError);
+        socket.on('dl-progress', onDownloadProgress);
     }
 
     // Socket event handles
@@ -42,6 +43,13 @@ export function useWSUtil() {
 
     function onServerError(error) {
         store.popError(error);
+    }
+
+    function onDownloadProgress(qID, updates) {
+        store.downloads[qID] = {
+            ...store.downloads[qID],
+            ...updates
+        };
     }
 
     // Socket emits
