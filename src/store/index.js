@@ -8,6 +8,7 @@ const toast = useToast();
 
 export const useAppStore = defineStore('app', {
     state: () => ({
+        downloads: {},
         config: {},
         ui: {
             overlay: true
@@ -19,7 +20,8 @@ export const useAppStore = defineStore('app', {
         }
     }),
     getters: {
-        isLoggedIn: (state) => !!state.config.authToken
+        isLoggedIn: (state) => !!state.config.authToken,
+        downloadQueue: (state) => Object.values(state.downloads).sort((a, b) => b.idx - a.idx)
     },
     actions: {
         popError: (error) => {
@@ -40,6 +42,12 @@ export const useAppStore = defineStore('app', {
         showModConfig() {
             this.modals.modConfig.data = JSON.parse(JSON.stringify(this.config));
             window.ui('#modConfig');
+        },
+        addDownload(vod) {
+            this.downloads[vod.qID] = {
+                ...vod,
+                idx: this.downloadQueue.length + 1
+            };
         }
     }
 });

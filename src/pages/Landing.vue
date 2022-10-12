@@ -46,7 +46,7 @@
 
       <div class="dls-section__downloads">
         <VODCard
-            v-for="vod of downloadQueue"
+            v-for="vod of store.downloadQueue"
             :vVODData="vod"
         ></VODCard>
       </div>
@@ -89,7 +89,6 @@ initSocket();
 // Local state
 const busy = ref(false);
 const switchBusyState = (busyState) => busy.value = busyState === undefined ? !busy.value : busyState;
-const downloadQueue = ref([]);
 const verifiedVOD = ref({});
 
 // URL Section
@@ -122,7 +121,7 @@ function download(VOD) {
 
   downloadVOD(VOD)
       .then((res) => {
-        downloadQueue.value.unshift(res);
+        store.addDownload(res);
         store.popInfo('Download started');
       })
       .catch(store.popError)
