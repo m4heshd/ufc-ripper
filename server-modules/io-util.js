@@ -13,7 +13,8 @@ module.exports = {
     sendError,
     sendVODMeta,
     sendVODDownload,
-    emitConfigUpdate
+    emitConfigUpdate,
+    emitError
 };
 
 function initIO(httpServer) {
@@ -33,6 +34,10 @@ function initIO(httpServer) {
         socket.on('download', downloadVOD);
         socket.on('save-config', saveConfig);
     });
+}
+
+function checkIO() {
+    if (!io) throw createUFCRError('WebSocket instance not initiated');
 }
 
 // Socket handles
@@ -90,7 +95,12 @@ function sendVODDownload(VOD, cb) {
 
 // IO emits
 function emitConfigUpdate() {
-    if (!io) throw createUFCRError('WebSocket instance not initiated');
-
+    checkIO();
     io.emit('config-update', getConfig());
+}
+
+function emitError(error) {
+    console.error(`${error}\n`);
+    checkIO();
+    io.emit('server-error', getEnumerableError(error));
 }

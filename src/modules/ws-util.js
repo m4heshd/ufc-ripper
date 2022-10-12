@@ -26,6 +26,7 @@ export function useWSUtil() {
         socket.on('connect', onSocketConnection);
         socket.on('disconnect', store.showOverlay);
         socket.on('config-update', onConfigUpdate);
+        socket.on('server-error', onServerError);
     }
 
     // Socket event handles
@@ -37,6 +38,10 @@ export function useWSUtil() {
 
     function onConfigUpdate(newConfig) {
         store.config = newConfig;
+    }
+
+    function onServerError(error) {
+        store.popError(error);
     }
 
     // Socket emits
