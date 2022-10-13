@@ -11,3 +11,28 @@ html, body, #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Scroll bar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+
+  &-track {
+    border-radius: 5px;
+    background: var(--surface);
+  }
+
+  &-thumb {
+    border-radius: 5px;
+    background: var(--secondary-container);
+    transition: all .2s ease-in-out;
+  }
+
+  &-thumb:hover {
+    background: var(--on-secondary);
+  }
+
+  &-corner {
+    background: transparent;
+  }
+}
