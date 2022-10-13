@@ -26,6 +26,7 @@
 
       <button
           class="square round large"
+          title="Download"
           :disabled="busy"
           @click="onBtnDownloadClick"
       >
@@ -34,6 +35,7 @@
 
       <button
           class="square round large"
+          title="Configuration"
           :disabled="busy"
           @click="store.showModConfig"
       >

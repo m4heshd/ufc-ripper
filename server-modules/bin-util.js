@@ -5,6 +5,7 @@ const clr = require('ansi-colors');
 const {getConfig, writeConfig} = require('./config-util');
 const {sendVODDownload, emitError, emitDownloadProgress} = require('./io-util');
 const {createUFCRError} = require('./error-util');
+const {processYTDLPOutput} = require('./txt-util');
 
 module.exports = {
     openDLSession
@@ -38,7 +39,11 @@ function openDLSession(VOD, cb) {
     sendVODDownload({
         ...VOD,
         title: fullTitle,
-        status: 'downloading'
+        status: 'downloading',
+        progress: 0,
+        size: 'N/A',
+        speed: 'N/A',
+        eta: 'N/A'
     }, cb);
 
     const dl = spawn('.\\bin\\yt-dlp.exe', [
@@ -63,6 +68,11 @@ function openDLSession(VOD, cb) {
             console.log(clr.greenBright.bgBlack.bold(`Completed download - "${title}"`));
             emitDownloadProgress(qID, {status: 'completed'});
         }
+    });
+
+    dl.stdout.on('data', (data) => {
+        const dlStats = processYTDLPOutput(data);
+        if (dlStats) emitDownloadProgress(qID, dlStats);
     });
 
     dl.stderr.on('data', (data) => {

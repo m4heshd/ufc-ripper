@@ -1,10 +1,15 @@
 <template>
   <article class="no-padding vod-card">
+    <div
+        v-if="isDownloading"
+        class="vod-card__progress"
+    ></div>
     <div class="grid no-space">
       <div class="s3">
         <img
             v-if="store.config.showThumb"
             class="responsive"
+            :class="{'downloading': isDownloading}"
             :src="vVODData.thumb"
         >
       </div>
@@ -12,15 +17,25 @@
           class="vod-card__details"
           :class="`${store.config.showThumb ? 's9' : 's12'}`"
       >
-        <div class="padding">
+        <div class="padding vod-card__details__meta">
           <h5>{{ vVODData.title }}</h5>
           <p v-if="store.config.showDesc">{{ vVODData.desc }}</p>
+          <div
+              v-if="isDownloading"
+              class="vod-card__details__meta__stats"
+          >
+            <span>Size: {{ vVODData.size }}</span>
+            <span>Speed: {{ vVODData.speed }}</span>
+            <span>ETA: {{ vVODData.eta }}</span>
+          </div>
         </div>
         <div
             class="center-content vod-card__details__status"
             :class="vVODData.status"
+            :title="statusTitles[vVODData.status]"
         >
-          <i v-if="statusIcons[vVODData.status]">{{ statusIcons[vVODData.status] }}</i>
+          <span v-if="isDownloading">{{ `${vVODData.progress}%` }}</span>
+          <i v-else>{{ statusIcons[vVODData.status] }}</i>
         </div>
       </div>
     </div>
@@ -28,32 +43,66 @@
 </template>
 
 <script setup>
+// Core
+import {computed} from 'vue';
 // Store
 import {useAppStore} from '@/store';
 
-defineProps({
+// Props
+const props = defineProps({
   vVODData: Object
 });
 
 // Store
 const store = useAppStore();
 
-// Status
+// Status and progress
+const isDownloading = computed(() => props.vVODData.status === 'downloading');
 const statusIcons = {
   completed: 'check_circle',
   failed: 'error'
 };
+const statusTitles = {
+  completed: 'Download is complete',
+  failed: 'Download failed'
+};
+const progressBar = computed(() => `0% 0%, 0% 100%, ${props.vVODData.progress}% 100%, ${props.vVODData.progress}% 0%`);
 </script>
 
 <style lang="scss">
 .vod-card {
+  &__progress {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--active);
+    transition: var(--speed4) clip-path;
+    clip-path: polygon(v-bind(progressBar));
+  }
+
   & img {
     aspect-ratio: 16/9;
     max-width: 300px;
+
+    &.downloading {
+      opacity: 0.6;
+    }
   }
 
   &__details {
     display: flex;
+
+    &__meta {
+      &__stats {
+        display: flex;
+        gap: 20px;
+        font-weight: bold;
+        font-size: 15px;
+        color: var(--warning);
+      }
+    }
 
     &__status {
       min-width: 65px;
@@ -64,6 +113,16 @@ const statusIcons = {
 
       &.completed {
         color: var(--success);
+      }
+
+      & > span {
+        font-weight: bold;
+        font-size: 15px;
+        color: var(--warning);
+      }
+
+      & > i {
+        cursor: default;
       }
     }
   }
