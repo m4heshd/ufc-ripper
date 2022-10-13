@@ -37,7 +37,7 @@
 
         <div
             class="center-content vod-card__details__status"
-            :class="vVODData.status"
+            :class="`vod-card__details__status-${vVODData.status}`"
             :title="statusTitles[vVODData.status]"
         >
           <div
@@ -118,7 +118,8 @@ const progressBar = computed(() => `0% 0%, 0% 100%, ${props.vVODData.progress}% 
   }
 
   &__details {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto max-content;
 
     &__meta {
       &__stats {
@@ -143,11 +144,11 @@ const progressBar = computed(() => `0% 0%, 0% 100%, ${props.vVODData.progress}% 
         }
       }
 
-      &.failed, &.cancelled {
+      &-failed, &-cancelled {
         color: var(--failure);
       }
 
-      &.completed {
+      &-completed {
         color: var(--success);
       }
 

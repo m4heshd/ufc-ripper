@@ -24,10 +24,10 @@ function openDLSession(VOD, cb) {
         resolution,
         framerate,
         extension,
-        dl_path,
+        dlPath,
         numberFiles,
         curNumber,
-        dl_args
+        dlArgs
     } = getConfig();
     const fullTitle = `${numberFiles ? `${curNumber}. ` : ''}${title}`;
     const failDL = (error, consoleMsg, userMsg) => {
@@ -53,8 +53,8 @@ function openDLSession(VOD, cb) {
 
     const dl = spawn('.\\bin\\yt-dlp.exe', [
         '-f', `"${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}"`,
-        '-o', `"${path.join(dl_path, `${fullTitle}.%(ext)s`)}"`,
-        ...dl_args,
+        '-o', `"${path.join(dlPath, `${fullTitle}.%(ext)s`)}"`,
+        ...dlArgs,
         hls
     ], {
         windowsVerbatimArguments: true

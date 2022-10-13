@@ -1,5 +1,6 @@
 {
   "port": 8383,
+  "verboseLogging": false,
   "apiKey": "857a1e5d-e35e-4fdf-805b-a87b6f8364bf",
   "user": "",
   "refreshToken": "",
@@ -11,10 +12,10 @@
   "extension": "mp4",
   "vidQuality": "worstvideo",
   "audQuality": "bestaudio",
-  "dl_path": "",
+  "dlPath": "",
   "numberFiles": true,
   "curNumber": 1,
-  "dl_args": [
+  "dlArgs": [
     "--ffmpeg-location",
     ".\\bin",
     "--no-mtime",

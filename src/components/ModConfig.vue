@@ -88,7 +88,7 @@
         <h5>Downloads (output)</h5>
         <div class="field label suffix border round small">
           <input
-              v-model="modConfig.data.dl_path"
+              v-model="modConfig.data.dlPath"
               type="text"
               autocomplete="off"
           >

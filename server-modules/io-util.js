@@ -88,7 +88,7 @@ function saveConfig(newConfig, cb) {
 
 // Socket callbacks
 function sendError(error, cb) {
-    console.error(`${error}\n`);
+    console.error(`${getConfig('verboseLogging') ? error.stack : error}\n`);
     cb({error: getEnumerableError(error)});
 }
 
@@ -110,7 +110,7 @@ function emitConfigUpdate() {
 }
 
 function emitError(error) {
-    console.error(`${error}\n`);
+    console.error(`${getConfig('verboseLogging') ? error.stack : error}\n`);
     checkIO();
     io.emit('server-error', getEnumerableError(error));
 }
