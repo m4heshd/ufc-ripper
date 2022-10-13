@@ -33,6 +33,7 @@ function initIO(httpServer) {
         socket.on('login', login);
         socket.on('verify-url', verifyVOD);
         socket.on('download', downloadVOD);
+        socket.on('cancel-download', cancelDownload);
         socket.on('save-config', saveConfig);
     });
 }
@@ -64,6 +65,14 @@ async function downloadVOD(VOD, cb) {
             ...VOD,
             hls: await getVODStream(VOD.id)
         }, cb);
+    } catch (error) {
+        sendError(error, cb);
+    }
+}
+
+async function cancelDownload(VOD, cb) {
+    try {
+        require('./bin-util').cancelDLSession(VOD, cb);
     } catch (error) {
         sendError(error, cb);
     }

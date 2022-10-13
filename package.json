@@ -25,6 +25,7 @@
     "pinia": "2.0.22",
     "socket.io": "4.5.2",
     "socket.io-client": "4.5.2",
+    "tree-kill": "1.2.2",
     "vue": "3.2.40",
     "vue-toastification": "2.0.0-rc.5"
   },

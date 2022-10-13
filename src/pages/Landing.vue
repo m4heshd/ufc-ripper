@@ -50,6 +50,7 @@
         <VODCard
             v-for="vod of store.downloadQueue"
             :vVODData="vod"
+            @cancelDL="onDownloadCancel"
         ></VODCard>
       </div>
     </article>
@@ -84,7 +85,7 @@ import Overlay from '@/components/Overlay';
 const store = useAppStore();
 
 // Websocket
-const {downloadVOD, initSocket, verifyURL} = useWSUtil();
+const {cancelDownload, downloadVOD, initSocket, verifyURL} = useWSUtil();
 
 initSocket();
 
@@ -110,6 +111,15 @@ function onBtnDownloadClick() {
       })
       .catch(store.popError)
       .finally(switchBusyState);
+}
+
+// Downloads
+function onDownloadCancel(VOD) {
+  cancelDownload(VOD)
+      .then(() => {
+        store.setDownloadCancelled(VOD.qID);
+      })
+      .catch(store.popError);
 }
 
 // Lifecycle hooks

@@ -48,6 +48,9 @@ export const useAppStore = defineStore('app', {
                 ...vod,
                 idx: this.downloadQueue.length + 1
             };
+        },
+        setDownloadCancelled(qID) {
+            this.downloads[qID].status = 'cancelled';
         }
     }
 });

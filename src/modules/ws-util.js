@@ -77,12 +77,17 @@ export function useWSUtil() {
         return emitPromise('download', VOD);
     }
 
+    function cancelDownload(VOD) {
+        return emitPromise('cancel-download', VOD);
+    }
+
     return {
         initSocket,
         getConfig,
         saveConfig,
         login,
         verifyURL,
-        downloadVOD
+        downloadVOD,
+        cancelDownload
     };
 }

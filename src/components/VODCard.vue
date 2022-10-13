@@ -1,9 +1,13 @@
 <template>
-  <article class="no-padding vod-card">
+  <article
+      class="no-padding vod-card"
+      :class="{'vod-card-failed': isFailed}"
+  >
     <div
         v-if="isDownloading"
         class="vod-card__progress"
     ></div>
+
     <div class="grid no-space">
       <div class="s3">
         <img
@@ -13,6 +17,7 @@
             :src="vVODData.thumb"
         >
       </div>
+
       <div
           class="vod-card__details"
           :class="`${store.config.showThumb ? 's9' : 's12'}`"
@@ -24,17 +29,30 @@
               v-if="isDownloading"
               class="vod-card__details__meta__stats"
           >
-            <span>Size: {{ vVODData.size }}</span>
+            <span>Size: ~{{ vVODData.size }}</span>
             <span>Speed: {{ vVODData.speed }}</span>
             <span>ETA: {{ vVODData.eta }}</span>
           </div>
         </div>
+
         <div
             class="center-content vod-card__details__status"
             :class="vVODData.status"
             :title="statusTitles[vVODData.status]"
         >
-          <span v-if="isDownloading">{{ `${vVODData.progress}%` }}</span>
+          <div
+              v-if="isDownloading"
+              class="vod-card__details__status__actions"
+          >
+            <button
+                class="square round fill small"
+                title="Cancel download"
+                @click="$emit('cancelDL',vVODData)"
+            >
+              <i>close</i>
+            </button>
+            <span>{{ `${vVODData.progress}%` }}</span>
+          </div>
           <i v-else>{{ statusIcons[vVODData.status] }}</i>
         </div>
       </div>
@@ -53,24 +71,35 @@ const props = defineProps({
   vVODData: Object
 });
 
+defineEmits([
+  'cancelDL'
+]);
+
 // Store
 const store = useAppStore();
 
 // Status and progress
 const isDownloading = computed(() => props.vVODData.status === 'downloading');
+const isFailed = computed(() => props.vVODData.status === 'failed' || props.vVODData.status === 'cancelled');
 const statusIcons = {
   completed: 'check_circle',
-  failed: 'error'
+  failed: 'error',
+  cancelled: 'block'
 };
 const statusTitles = {
   completed: 'Download is complete',
-  failed: 'Download failed'
+  failed: 'Download failed',
+  cancelled: 'Download cancelled by user'
 };
 const progressBar = computed(() => `0% 0%, 0% 100%, ${props.vVODData.progress}% 100%, ${props.vVODData.progress}% 0%`);
 </script>
 
 <style lang="scss">
 .vod-card {
+  &-failed {
+    background: var(--failure-bg) !important;
+  }
+
   &__progress {
     position: absolute;
     top: 0;
@@ -107,7 +136,17 @@ const progressBar = computed(() => `0% 0%, 0% 100%, ${props.vVODData.progress}% 
     &__status {
       min-width: 65px;
 
-      &.failed {
+      &:hover > &__actions {
+        & > span {
+          display: none;
+        }
+
+        & > button {
+          display: block;
+        }
+      }
+
+      &.failed, &.cancelled {
         color: var(--failure);
       }
 
@@ -115,10 +154,16 @@ const progressBar = computed(() => `0% 0%, 0% 100%, ${props.vVODData.progress}% 
         color: var(--success);
       }
 
-      & > span {
-        font-weight: bold;
-        font-size: 15px;
-        color: var(--warning);
+      &__actions {
+        & > button {
+          display: none;
+        }
+
+        & > span {
+          font-weight: bold;
+          font-size: 15px;
+          color: var(--warning);
+        }
       }
 
       & > i {

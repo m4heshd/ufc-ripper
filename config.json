@@ -15,9 +15,11 @@
   "numberFiles": true,
   "curNumber": 1,
   "dl_args": [
-    "--ffmpeg-location .\\bin",
+    "--ffmpeg-location",
+    ".\\bin",
     "--no-mtime",
-    "--output-na-placeholder \"\"",
+    "--output-na-placeholder",
+    "\"\"",
     "--add-metadata",
     "--no-cache-dir",
     "--ignore-config",

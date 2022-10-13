@@ -1,14 +1,19 @@
 // Modules
 const path = require('path');
 const {spawn} = require('child_process');
+const kill = require('tree-kill');
 const clr = require('ansi-colors');
 const {getConfig, writeConfig} = require('./config-util');
 const {sendVODDownload, emitError, emitDownloadProgress} = require('./io-util');
 const {createUFCRError} = require('./error-util');
 const {processYTDLPOutput} = require('./txt-util');
 
+// yt-dlp child processes
+const downloads = {};
+
 module.exports = {
-    openDLSession
+    openDLSession,
+    cancelDLSession
 };
 
 function openDLSession(VOD, cb) {
@@ -47,13 +52,15 @@ function openDLSession(VOD, cb) {
     }, cb);
 
     const dl = spawn('.\\bin\\yt-dlp.exe', [
-        `-f "${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}"`,
-        `-o "${path.join(dl_path, `${fullTitle}.%(ext)s`)}"`,
+        '-f', `"${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}"`,
+        '-o', `"${path.join(dl_path, `${fullTitle}.%(ext)s`)}"`,
         ...dl_args,
         hls
     ], {
-        shell: true
+        windowsVerbatimArguments: true
     });
+
+    downloads[qID] = dl;
 
     dl.on('error', (error) => {
         failDL(
@@ -81,5 +88,15 @@ function openDLSession(VOD, cb) {
             `Download failed - "${title}"`,
             'A download has unexpectedly ended with an error.\nCheck the console for error information'
         );
+    });
+}
+
+function cancelDLSession(VOD, cb) {
+    if (!downloads[VOD.qID]) throw createUFCRError('Download process is not present');
+
+    kill(downloads[VOD.qID].pid, 'SIGKILL', (error) => {
+        if (error) throw createUFCRError(error, 'Unable to cancel the download');
+        console.error(clr.redBright.bgBlack.bold(`Download cancelled by user - "${VOD.title}"`));
+        if (cb) cb();
     });
 }
