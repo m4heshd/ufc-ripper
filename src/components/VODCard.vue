@@ -11,7 +11,7 @@
     <div class="grid no-space">
       <div class="s3">
         <img
-            v-if="store.config.showThumb"
+            v-if="vShowThumb"
             class="responsive"
             :class="{'downloading': isDownloading}"
             :src="vVODData.thumb"
@@ -20,11 +20,11 @@
 
       <div
           class="vod-card__details"
-          :class="`${store.config.showThumb ? 's9' : 's12'}`"
+          :class="`${vShowThumb ? 's9' : 's12'}`"
       >
         <div class="padding vod-card__details__meta">
           <h5>{{ vVODData.title }}</h5>
-          <p v-if="store.config.showDesc">{{ vVODData.desc }}</p>
+          <p v-if="vShowDesc">{{ vVODData.desc }}</p>
           <div
               v-if="isDownloading"
               class="vod-card__details__meta__stats"
@@ -63,20 +63,17 @@
 <script setup>
 // Core
 import {computed} from 'vue';
-// Store
-import {useAppStore} from '@/store';
 
 // Props
 const props = defineProps({
-  vVODData: Object
+  vVODData: Object,
+  vShowThumb: Boolean,
+  vShowDesc: Boolean
 });
 
 defineEmits([
   'cancelDL'
 ]);
-
-// Store
-const store = useAppStore();
 
 // Status and progress
 const isDownloading = computed(() => props.vVODData.status === 'downloading');

@@ -1,6 +1,6 @@
 <template>
   <div
-      :id="vId"
+      :id="vID"
       class="modal mod-vod-confirm"
   >
     <div class="modal-title">
@@ -13,25 +13,25 @@
         class="no-padding round secondary-container"
     >
       <img
-          v-if="store.config.showThumb"
+          v-if="vShowThumb"
           class="responsive small top-round"
           :src="vVODData.thumb"
       >
       <div class="padding">
         <h5>{{ vVODData.title }}</h5>
-        <p v-if="store.config.showDesc">{{ vVODData.desc }}</p>
+        <p v-if="vShowDesc">{{ vVODData.desc }}</p>
       </div>
     </article>
 
     <nav class="right-align">
       <button
           class="border"
-          :data-ui="`#${vId}`"
+          :data-ui="`#${vID}`"
       >
         Cancel
       </button>
       <button
-          :data-ui="`#${vId}`"
+          :data-ui="`#${vID}`"
           @click="$emit('onConfirm', vVODData)"
       >
         <i>download</i>
@@ -42,20 +42,16 @@
 </template>
 
 <script setup>
-// Store
-import {useAppStore} from '@/store';
-
 defineProps({
-  vId: String,
-  vVODData: Object
+  vID: String,
+  vVODData: Object,
+  vShowThumb: Boolean,
+  vShowDesc: Boolean
 });
 
 defineEmits([
   'onConfirm'
 ]);
-
-// Store
-const store = useAppStore();
 </script>
 
 <style lang="scss">

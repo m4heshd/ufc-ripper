@@ -50,6 +50,8 @@
         <VODCard
             v-for="vod of store.downloadQueue"
             :vVODData="vod"
+            :vShowThumb="store.config.showThumb"
+            :vShowDesc="store.config.showDesc"
             @cancelDL="onDownloadCancel"
         ></VODCard>
       </div>
@@ -57,8 +59,10 @@
 
     <!-- Modals -->
     <ModVODConfirm
-        vId="modVODConfirm"
+        vID="modVODConfirm"
         :vVODData="verifiedVOD"
+        :vShowThumb="store.config.showThumb"
+        :vShowDesc="store.config.showDesc"
         @onConfirm="download"
     ></ModVODConfirm>
     <ModConfig></ModConfig>
