@@ -108,13 +108,35 @@
             <span></span>
           </label>
         </nav>
-        <div class="mod-config__content__downloads__txtCurNumber">
+        <div class="short-text">
           <span>Current file number:</span>
           <div class="field border round small no-margin">
             <input
                 v-model.number="modConfig.data.curNumber"
                 type="number"
                 min="1"
+            >
+          </div>
+        </div>
+        <nav class="v-switch">
+          <div class="max">
+            <h6>Throttle downloads</h6>
+            <div>Limit the speed of each download to the following</div>
+          </div>
+          <label class="switch">
+            <input
+                v-model="modConfig.data.throttle"
+                type="checkbox"
+            >
+            <span></span>
+          </label>
+        </nav>
+        <div class="short-text">
+          <span>Download speed:</span>
+          <div class="field border round small no-margin">
+            <input
+                v-model="modConfig.data.dlRate"
+                type="text"
             >
           </div>
         </div>
@@ -216,6 +238,8 @@ function save() {
     overflow-y: auto;
 
     &__section {
+      margin: 15px 0;
+
       & > h5 {
         margin-bottom: 15px;
         color: var(--primary);
@@ -223,7 +247,16 @@ function save() {
         font-weight: bold;
       }
 
-      margin: 15px 0;
+      & .short-text {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 16rem 0 0 0;
+
+        & > div {
+          width: 100px;
+        }
+      }
     }
 
     &__account {
@@ -242,17 +275,6 @@ function save() {
       & > .field {
         margin-top: 25px;
         margin-bottom: 10px;
-      }
-
-      &__txtCurNumber {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        margin: 16rem 0 0 0;
-
-        & > div {
-          width: 100px;
-        }
       }
     }
   }

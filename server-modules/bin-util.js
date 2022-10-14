@@ -27,9 +27,20 @@ function openDLSession(VOD, cb) {
         dlPath,
         numberFiles,
         curNumber,
+        throttle,
+        dlRate,
         dlArgs
     } = getConfig();
+
+    // Download configuration
     const fullTitle = `${numberFiles ? `${curNumber}. ` : ''}${title}`;
+    const downloadConfig = {
+        '--format': `"${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}"`,
+        '--output': `"${path.join(dlPath, `${fullTitle}.%(ext)s`)}"`
+    };
+    if (throttle) downloadConfig['--limit-rate'] = dlRate;
+
+    // Fail action
     const failDL = (error, consoleMsg, userMsg) => {
         console.error(clr.redBright.bgBlack.bold(consoleMsg));
         decFileNumber();
@@ -37,6 +48,7 @@ function openDLSession(VOD, cb) {
         emitDownloadProgress(qID, {status: 'failed'});
     };
 
+    // Begin download process
     console.log(clr.yellowBright.bgBlack.bold.underline(`Downloading "${title}"`));
     console.log(clr.dim(`${vodURL}\n`));
 
@@ -51,9 +63,9 @@ function openDLSession(VOD, cb) {
         eta: 'N/A'
     }, cb);
 
+    // Launch and handle yt-dlp process
     const dl = spawn('.\\bin\\yt-dlp.exe', [
-        '-f', `"${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}"`,
-        '-o', `"${path.join(dlPath, `${fullTitle}.%(ext)s`)}"`,
+        ...Object.entries(downloadConfig).flat(),
         ...dlArgs,
         hls
     ], {
@@ -92,11 +104,13 @@ function openDLSession(VOD, cb) {
 }
 
 function cancelDLSession(VOD, cb) {
-    if (!downloads[VOD.qID]) throw createUFCRError('Download process is not present');
+    const {qID, title} = VOD;
 
-    kill(downloads[VOD.qID].pid, 'SIGKILL', (error) => {
+    if (!downloads[qID]) throw createUFCRError('Download process is not present');
+
+    kill(downloads[qID].pid, 'SIGKILL', (error) => {
         if (error) throw createUFCRError(error, 'Unable to cancel the download');
-        console.error(clr.redBright.bgBlack.bold(`Download cancelled by user - "${VOD.title}"`));
+        console.error(clr.redBright.bgBlack.bold(`Download cancelled by user - "${title}"`));
         if (cb) cb();
     });
 }
