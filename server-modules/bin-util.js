@@ -56,6 +56,7 @@ function openDLSession(VOD, cb) {
     sendVODDownload({
         ...VOD,
         title: fullTitle,
+        task: 'prepare',
         status: 'downloading',
         progress: 0,
         size: 'N/A',

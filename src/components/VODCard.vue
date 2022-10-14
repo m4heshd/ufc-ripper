@@ -2,7 +2,7 @@
   <article
       class="no-padding vod-card"
       :class="{'vod-card-failed': isFailed}"
-      :title="statusTitles[vVODData.status]"
+      :title="statusDescs[vVODData.status]"
   >
     <div
         v-if="isDownloading"
@@ -30,9 +30,12 @@
               v-if="isDownloading"
               class="vod-card__details__meta__stats"
           >
-            <span>Size: ~{{ vVODData.size }}</span>
-            <span>Speed: {{ vVODData.speed }}</span>
-            <span>ETA: {{ vVODData.eta }}</span>
+            <span>{{ taskDescs[vVODData.task] }}</span>
+            <div v-if="isData">
+              <span>Size: ~{{ vVODData.size }}</span>
+              <span>Speed: {{ vVODData.speed }}</span>
+              <span>ETA: {{ vVODData.eta }}</span>
+            </div>
           </div>
         </div>
 
@@ -76,20 +79,29 @@ defineEmits([
 ]);
 
 // Status and progress
+const progressBar = computed(() => `0% 0%, 0% 100%, ${props.vVODData.progress}% 100%, ${props.vVODData.progress}% 0%`);
 const isDownloading = computed(() => props.vVODData.status === 'downloading');
+const isData = computed(() => props.vVODData.task === 'video' || props.vVODData.task === 'audio');
 const isFailed = computed(() => props.vVODData.status === 'failed' || props.vVODData.status === 'cancelled');
 const statusIcons = {
   completed: 'check_circle',
   failed: 'error',
   cancelled: 'block'
 };
-const statusTitles = {
+const statusDescs = {
   downloading: 'File is being downloaded',
   completed: 'Download is complete',
   failed: 'Download failed',
   cancelled: 'Download cancelled by user'
 };
-const progressBar = computed(() => `0% 0%, 0% 100%, ${props.vVODData.progress}% 100%, ${props.vVODData.progress}% 0%`);
+const taskDescs = {
+  prepare: 'Preparing download...',
+  video: '[video]',
+  audio: '[audio]',
+  merge: 'Merging files...',
+  cleanup: 'Removing temporary files...',
+  meta: 'Adding video metadata...'
+};
 </script>
 
 <style lang="scss">
@@ -123,7 +135,7 @@ const progressBar = computed(() => `0% 0%, 0% 100%, ${props.vVODData.progress}% 
     grid-template-columns: auto max-content;
 
     &__meta {
-      &__stats {
+      &__stats, &__stats > div {
         display: flex;
         gap: 20px;
         font-weight: bold;
