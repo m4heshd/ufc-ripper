@@ -7,7 +7,9 @@ module.exports = {
     config,
     readConfig,
     writeConfig,
-    getConfig
+    getConfig,
+    incFileNumber,
+    decFileNumber
 };
 
 function readConfig(key) {
@@ -31,4 +33,12 @@ function writeConfig(newConfig, emitUpdate = true) {
 
 function getConfig(key) {
     return key ? config[key] : config;
+}
+
+function incFileNumber(step = 1) {
+    return config.numberFiles ? writeConfig({curNumber: config.curNumber + step}) : config;
+}
+
+function decFileNumber(step = 1) {
+    return config.numberFiles ? writeConfig({curNumber: config.curNumber - step}) : config;
 }

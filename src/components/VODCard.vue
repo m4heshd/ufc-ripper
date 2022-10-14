@@ -2,6 +2,7 @@
   <article
       class="no-padding vod-card"
       :class="{'vod-card-failed': isFailed}"
+      :title="statusTitles[vVODData.status]"
   >
     <div
         v-if="isDownloading"
@@ -38,7 +39,6 @@
         <div
             class="center-content vod-card__details__status"
             :class="`vod-card__details__status-${vVODData.status}`"
-            :title="statusTitles[vVODData.status]"
         >
           <div
               v-if="isDownloading"
@@ -84,6 +84,7 @@ const statusIcons = {
   cancelled: 'block'
 };
 const statusTitles = {
+  downloading: 'File is being downloaded',
   completed: 'Download is complete',
   failed: 'Download failed',
   cancelled: 'Download cancelled by user'

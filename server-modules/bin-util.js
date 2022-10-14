@@ -3,7 +3,7 @@ const path = require('path');
 const {spawn} = require('child_process');
 const kill = require('tree-kill');
 const clr = require('ansi-colors');
-const {getConfig, writeConfig} = require('./config-util');
+const {getConfig, incFileNumber, decFileNumber} = require('./config-util');
 const {sendVODDownload, emitError, emitDownloadProgress} = require('./io-util');
 const {createUFCRError} = require('./error-util');
 const {processYTDLPOutput} = require('./txt-util');
@@ -32,7 +32,7 @@ function openDLSession(VOD, cb) {
     const fullTitle = `${numberFiles ? `${curNumber}. ` : ''}${title}`;
     const failDL = (error, consoleMsg, userMsg) => {
         console.error(clr.redBright.bgBlack.bold(consoleMsg));
-        writeConfig({curNumber: curNumber - 1});
+        decFileNumber();
         emitError(createUFCRError(error, userMsg));
         emitDownloadProgress(qID, {status: 'failed'});
     };
@@ -40,7 +40,7 @@ function openDLSession(VOD, cb) {
     console.log(clr.yellowBright.bgBlack.bold.underline(`Downloading "${title}"`));
     console.log(clr.dim(`${vodURL}\n`));
 
-    writeConfig({curNumber: curNumber + 1});
+    incFileNumber();
     sendVODDownload({
         ...VOD,
         title: fullTitle,
