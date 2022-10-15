@@ -141,6 +141,59 @@
           </div>
         </div>
       </article>
+
+      <article class="border round mod-config__content__section">
+        <h5>Video</h5>
+        <div class="field label suffix border round small">
+          <select v-model="modConfig.data.resolution">
+            <option value="288">288p</option>
+            <option value="360">360p</option>
+            <option value="504">504p</option>
+            <option value="720">720p</option>
+            <option value="1080">1080p</option>
+          </select>
+          <label class="active">Resolution</label>
+          <i>arrow_drop_down</i>
+        </div>
+        <div class="field label suffix border round small">
+          <select v-model="modConfig.data.framerate">
+            <option value="30">30 FPS</option>
+          </select>
+          <label class="active">Framerate</label>
+          <i>arrow_drop_down</i>
+        </div>
+        <div class="field label suffix border round small">
+          <select v-model="modConfig.data.vidQuality">
+            <option value="bestvideo">Best (huge filesize)</option>
+            <option value="worstvideo">Worst</option>
+          </select>
+          <label class="active">Quality</label>
+          <i>arrow_drop_down</i>
+        </div>
+        <div class="field label suffix border round small">
+          <select v-model="modConfig.data.mergeExt">
+            <option value="mp4">mp4</option>
+            <option value="mkv">mkv</option>
+            <option value="mov">mov</option>
+            <option value="avi">avi</option>
+            <option value="webm">webm</option>
+          </select>
+          <label class="active">Extension (container)</label>
+          <i>arrow_drop_down</i>
+        </div>
+      </article>
+
+      <article class="border round mod-config__content__section">
+        <h5>Audio</h5>
+        <div class="field label suffix border round small">
+          <select v-model="modConfig.data.audQuality">
+            <option value="bestaudio">Best</option>
+            <option value="worstaudio">Worst</option>
+          </select>
+          <label class="active">Quality</label>
+          <i>arrow_drop_down</i>
+        </div>
+      </article>
     </div>
 
     <nav class="right-align">
@@ -255,6 +308,14 @@ function save() {
 
         & > div {
           width: 100px;
+        }
+      }
+
+      & > .field {
+        margin-bottom: 16rem;
+
+        &:last-child {
+          margin-bottom: 0;
         }
       }
     }

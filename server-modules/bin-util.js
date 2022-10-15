@@ -24,6 +24,7 @@ function openDLSession(VOD, cb) {
         resolution,
         framerate,
         extension,
+        mergeExt,
         dlPath,
         numberFiles,
         curNumber,
@@ -36,6 +37,7 @@ function openDLSession(VOD, cb) {
     const fullTitle = `${numberFiles ? `${curNumber}. ` : ''}${title}`;
     const downloadConfig = {
         '--format': `"${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}"`,
+        '--merge-output-format': mergeExt,
         '--output': `"${path.join(dlPath, `${fullTitle}.%(ext)s`)}"`
     };
     if (throttle) downloadConfig['--limit-rate'] = dlRate;
@@ -44,7 +46,7 @@ function openDLSession(VOD, cb) {
     const failDL = (error, consoleMsg, userMsg) => {
         console.error(clr.redBright.bgBlack.bold(consoleMsg));
         decFileNumber();
-        emitError(createUFCRError(error, userMsg));
+        emitError(createUFCRError(error, `${userMsg}\nCheck the console for error information`));
         emitDownloadProgress(qID, {status: 'failed'});
     };
 
@@ -79,7 +81,7 @@ function openDLSession(VOD, cb) {
         failDL(
             error,
             `Failed to start the download process - "${title}"`,
-            'Failed to start the download process.\nCheck the console for error information'
+            'Failed to start the download process.'
         );
     });
 
@@ -99,7 +101,7 @@ function openDLSession(VOD, cb) {
         failDL(
             data.toString(),
             `Download failed - "${title}"`,
-            'A download has unexpectedly ended with an error.\nCheck the console for error information'
+            'A download has unexpectedly ended with an error.'
         );
     });
 }
