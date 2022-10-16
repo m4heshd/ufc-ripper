@@ -51,6 +51,13 @@ export const useAppStore = defineStore('app', {
         },
         setDownloadCancelled(qID) {
             this.downloads[qID].status = 'cancelled';
+        },
+        clearDownloadQueue(clearAll = false) {
+            if (clearAll) return (this.downloads = {});
+
+            for (const dl of Object.keys(this.downloads)) {
+                if (this.downloads[dl].status !== 'downloading') delete this.downloads[dl];
+            }
         }
     }
 });

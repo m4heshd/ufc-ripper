@@ -54,6 +54,13 @@
           >
             <i>folder_open</i>
           </button>
+          <button
+              class="border square round small"
+              title="Clear downloads queue"
+              @click="onBtnClearDLQueueClick"
+          >
+            <i>playlist_remove</i>
+          </button>
         </div>
       </div>
 
@@ -131,6 +138,10 @@ function onBtnDownloadClick() {
 // Downloads
 function onBtnOpenDLDir() {
   openDownloadsDir().catch(store.popError);
+}
+
+function onBtnClearDLQueueClick() {
+  store.clearDownloadQueue();
 }
 
 function onDownloadCancel(VOD) {
