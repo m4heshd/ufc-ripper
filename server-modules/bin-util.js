@@ -37,10 +37,19 @@ function openDLSession(VOD, cb) {
 
     // Download configuration
     const fullTitle = `${numberFiles ? `${curNumber}. ` : ''}${title}`;
+    const progressTemplate = JSON.stringify({
+        '"status"': '"%(progress.status)s"',
+        '"progress"': '"%(progress._percent_str)s"',
+        '"size"': '"%(progress._total_bytes_estimate_str)s"',
+        '"speed"': '"%(progress._speed_str)s"',
+        '"eta"': '"%(progress._eta_str)s"',
+        '"videoExt"': '"%(info.video_ext)s"'
+    });
     const downloadConfig = {
         '--format': `"${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}"`,
         '--merge-output-format': mergeExt,
-        '--output': `"${path.join(dlPath, `${fullTitle}.%(ext)s`)}"`
+        '--output': `"${path.join(dlPath, `${fullTitle}.%(ext)s`)}"`,
+        '--progress-template': `"${progressTemplate}"`
     };
     if (throttle) downloadConfig['--limit-rate'] = dlRate;
 
@@ -95,8 +104,7 @@ function openDLSession(VOD, cb) {
     });
 
     dl.stdout.on('data', (data) => {
-        const dlStats = processYTDLPOutput(data);
-        if (dlStats) emitDownloadProgress(qID, dlStats);
+        emitDownloadProgress(qID, processYTDLPOutput(data));
     });
 
     dl.stderr.on('data', (data) => {

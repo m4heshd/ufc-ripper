@@ -1,3 +1,6 @@
+// Modules
+const {getConfig} = require('./config-util');
+
 module.exports = {
     getVODIDFromURL,
     processYTDLPOutput
@@ -13,18 +16,26 @@ function processYTDLPOutput(output) {
     let type = outString.match(/(?<=\[)(.*)(?=])/)?.[0];
     let dlStats = {};
 
-    if (outString.includes('Destination:')) type = 'download:begin';
     if (outString.includes('Deleting')) type = 'cleanup';
+    if (outString.includes('"status":"downloading"')) type = 'progress';
 
     switch (type) {
-        case 'download:begin':
-            dlStats.task = outString.includes('.faudio-') ? 'audio' : 'video';
-            break;
-        case 'download':
-            dlStats.progress = Number(outString.match(/\d+(?:\.\d+)?(?=%)/)?.[0] || 0);
-            dlStats.size = outString.match(/(?<=~)(.*)(?= at)/)?.[0];
-            dlStats.speed = outString.match(/\d+(?:\.\d+)?([a-zA-Z]+\/s)/)?.[0];
-            dlStats.eta = outString.match(/(?<=ETA )(.*)(?= \()/)?.[0];
+        case 'progress':
+            try {
+                const outObj = JSON.parse(outString.trim());
+
+                dlStats.progress = Number(outObj.progress.trim().replace('%', '') || 0);
+                dlStats.size = (outObj.size || '').trim();
+                dlStats.speed = (outObj.speed || '').trim();
+                dlStats.eta = (outObj.eta || '').trim();
+                dlStats.task = outObj.videoExt === 'none' ? 'audio' : 'video';
+            } catch (error) {
+                console.error(
+                    'Could not parse the progress output:\n',
+                    outString,
+                    `${getConfig('verboseLogging') ? error.stack : error}\n`
+                );
+            }
             break;
         case 'Merger':
             dlStats.task = 'merge';
