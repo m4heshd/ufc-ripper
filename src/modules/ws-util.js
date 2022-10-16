@@ -81,6 +81,10 @@ export function useWSUtil() {
         return emitPromise('cancel-download', VOD);
     }
 
+    function openDownloadsDir() {
+        return emitPromise('open-dl-dir');
+    }
+
     return {
         initSocket,
         getConfig,
@@ -88,6 +92,7 @@ export function useWSUtil() {
         login,
         verifyURL,
         downloadVOD,
-        cancelDownload
+        cancelDownload,
+        openDownloadsDir
     };
 }

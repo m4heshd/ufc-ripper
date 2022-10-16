@@ -1,6 +1,7 @@
 // Modules
 const path = require('path');
-const {spawn} = require('child_process');
+const {spawn, execSync} = require('child_process');
+const {platform} = require('os');
 const kill = require('tree-kill');
 const clr = require('ansi-colors');
 const {getConfig, incFileNumber, decFileNumber} = require('./config-util');
@@ -13,7 +14,8 @@ const downloads = {};
 
 module.exports = {
     openDLSession,
-    cancelDLSession
+    cancelDLSession,
+    openDLDir
 };
 
 function openDLSession(VOD, cb) {
@@ -116,4 +118,13 @@ function cancelDLSession(VOD, cb) {
         console.error(clr.redBright.bgBlack.bold(`Download cancelled by user - "${title}"`));
         if (cb) cb();
     });
+}
+
+function openDLDir(cb) {
+    try {
+        if (platform() === 'win32') execSync(`start "" "${getConfig('dlPath')}"`);
+        if (cb) cb();
+    } catch (error) {
+        throw createUFCRError(error, 'Unable to open the download directory');
+    }
 }

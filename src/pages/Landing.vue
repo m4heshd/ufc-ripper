@@ -44,7 +44,18 @@
     </div>
 
     <article class="border round dls-section">
-      <h5>Downloads</h5>
+      <div class="dls-section__header">
+        <h5>Downloads</h5>
+        <div class="dls-section__header__actions">
+          <button
+              class="border square round small"
+              title="Open downloads directory"
+              @click="onBtnOpenDLDir"
+          >
+            <i>folder_open</i>
+          </button>
+        </div>
+      </div>
 
       <div class="dls-section__downloads">
         <VODCard
@@ -89,7 +100,7 @@ import Overlay from '@/components/Overlay';
 const store = useAppStore();
 
 // Websocket
-const {cancelDownload, downloadVOD, initSocket, verifyURL} = useWSUtil();
+const {cancelDownload, downloadVOD, initSocket, openDownloadsDir, verifyURL} = useWSUtil();
 
 initSocket();
 
@@ -118,6 +129,10 @@ function onBtnDownloadClick() {
 }
 
 // Downloads
+function onBtnOpenDLDir() {
+  openDownloadsDir().catch(store.popError);
+}
+
 function onDownloadCancel(VOD) {
   cancelDownload(VOD)
       .then(() => {
@@ -179,10 +194,15 @@ function download(VOD) {
     width: 100%;
     margin: 0;
 
-    & > h5 {
-      margin-bottom: 30px;
-      color: var(--primary);
-      font-weight: bold;
+    &__header {
+      display: grid;
+      grid-template-columns: auto max-content;
+
+      & > h5 {
+        margin-bottom: 30px;
+        color: var(--primary);
+        font-weight: bold;
+      }
     }
 
     &__downloads {

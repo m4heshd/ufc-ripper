@@ -35,6 +35,7 @@ function initIO(httpServer) {
         socket.on('download', downloadVOD);
         socket.on('cancel-download', cancelDownload);
         socket.on('save-config', saveConfig);
+        socket.on('open-dl-dir', openDownloadsDir);
     });
 }
 
@@ -81,6 +82,14 @@ async function cancelDownload(VOD, cb) {
 function saveConfig(newConfig, cb) {
     try {
         cb(writeConfig(newConfig, false));
+    } catch (error) {
+        sendError(error, cb);
+    }
+}
+
+function openDownloadsDir(cb) {
+    try {
+        require('./bin-util').openDLDir(cb);
     } catch (error) {
         sendError(error, cb);
     }
