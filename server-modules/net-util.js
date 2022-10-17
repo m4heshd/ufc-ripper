@@ -89,13 +89,14 @@ async function getVODMeta(url) {
         });
 
         if (data) {
-            const {id, title, description, thumbnailUrl} = data;
+            const {id, title, description, thumbnailUrl, accessLevel} = data;
 
             return {
                 id,
                 title,
                 desc: description,
                 thumb: thumbnailUrl,
+                access: accessLevel !== 'DENIED',
                 vodURL: url
             };
         } else {
