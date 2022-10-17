@@ -43,7 +43,7 @@ function openDLSession(VOD, cb) {
         '"size"': '"%(progress._total_bytes_estimate_str)s"',
         '"speed"': '"%(progress._speed_str)s"',
         '"eta"': '"%(progress._eta_str)s"',
-        '"videoExt"': '"%(info.video_ext)s"'
+        '"vcodec"': '"%(info.vcodec)s"'
     });
     const downloadConfig = {
         '--format': `"${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}"`,

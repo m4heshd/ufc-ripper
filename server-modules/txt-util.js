@@ -28,7 +28,7 @@ function processYTDLPOutput(output) {
                 dlStats.size = (outObj.size || '').trim();
                 dlStats.speed = (outObj.speed || '').trim();
                 dlStats.eta = (outObj.eta || '').trim();
-                dlStats.task = outObj.videoExt === 'none' ? 'audio' : 'video';
+                dlStats.task = outObj.vcodec === 'none' || outObj.vcodec === null ? 'audio' : 'video';
             } catch (error) {
                 console.error(
                     'Could not parse the progress output:\n',
