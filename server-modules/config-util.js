@@ -1,7 +1,40 @@
 // Modules
+const {homedir} = require('os');
+const path = require('path');
 const fs = require('fs-extra');
 
-let config = {};
+let config = {
+    port: 8383,
+    verboseLogging: false,
+    apiKey: '857a1e5d-e35e-4fdf-805b-a87b6f8364bf',
+    user: '',
+    refreshToken: '',
+    authToken: '',
+    showThumb: true,
+    showDesc: true,
+    resolution: '720',
+    framerate: '30',
+    extension: 'mp4',
+    mergeExt: 'mp4',
+    vidQuality: 'worstvideo',
+    audQuality: 'bestaudio',
+    dlPath: '',
+    numberFiles: true,
+    curNumber: 1,
+    throttle: false,
+    dlRate: '100K',
+    dlArgs: [
+        '--ffmpeg-location',
+        '.\\bin',
+        '--no-mtime',
+        '--output-na-placeholder',
+        '""',
+        '--add-metadata',
+        '--no-cache-dir',
+        '--ignore-config',
+        '--no-check-certificate'
+    ]
+};
 
 module.exports = {
     config,
@@ -13,11 +46,26 @@ module.exports = {
 };
 
 function readConfig(key) {
-    config = fs.readJSONSync('config.json');
+    try {
+        config = {
+            ...config,
+            ...fs.readJSONSync('config.json')
+        };
+    } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+        writeConfig({}, false);
+    }
+
+    if (config.dlPath === '') {
+        config = writeConfig({
+            dlPath: path.join(homedir(), 'Downloads')
+        }, false);
+    }
+
     return getConfig(key);
 }
 
-function writeConfig(newConfig, emitUpdate = true) {
+function writeConfig(newConfig = {}, emitUpdate = true) {
     config = {
         ...config,
         ...newConfig
