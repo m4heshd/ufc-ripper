@@ -28,6 +28,7 @@
     "@types/fs-extra": "9.0.13",
     "@vue/cli-plugin-babel": "5.0.8",
     "@vue/cli-service": "5.0.8",
+    "adm-zip": "0.5.9",
     "beercss": "2.2.11",
     "core-js": "3.25.2",
     "cross-env": "7.0.3",

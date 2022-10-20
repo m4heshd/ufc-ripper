@@ -5,9 +5,12 @@ const clr = require('ansi-colors');
 const project = require('./package.json');
 const {exec} = require('pkg');
 const ResEdit = require('resedit');
+const zip = require('adm-zip');
 
-let outDir = path.join(__dirname, 'package', 'win32');
+let pkgDir = path.join(__dirname, 'package');
+let outDir = path.join(pkgDir, 'win32');
 let output = path.join(outDir, 'ufc-ripper.exe');
+let outArchive = path.join(pkgDir, 'artifacts', 'ufc-ripper-win-x64.zip');
 let target = 'node16-win-x64';
 
 const platform = process.argv[2]?.trim() || 'win';
@@ -31,8 +34,8 @@ function runBuild() {
     ]).then(() => {
         try {
             fs.copySync(path.join(__dirname, 'config.json'), path.join(outDir, 'config.json'));
-
             if (platform === 'win') windowsPostBuild();
+            createArchive();
         } catch (error) {
             console.error(clr.redBright.bgBlack.bold('Post-build process failed:'));
             console.error(error);
@@ -82,4 +85,13 @@ function windowsPostBuild() {
 
     res.outputResource(exe);
     fs.writeFileSync(output, Buffer.from(exe.generate()));
+}
+
+function createArchive() {
+    console.log(clr.cyanBright.bgBlack.bold('Creating archive...\n'));
+
+    const archive = new zip();
+
+    archive.addLocalFolder(outDir);
+    archive.writeZip(outArchive);
 }
