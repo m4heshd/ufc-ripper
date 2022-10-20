@@ -3,6 +3,7 @@ node_modules
 /dist
 /bin
 /project-res/temp
+/package
 
 # local env files
 .env.local
