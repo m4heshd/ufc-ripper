@@ -11,6 +11,7 @@ const {processYTDLPOutput} = require('./txt-util');
 
 // yt-dlp child processes
 const downloads = {};
+const failedDownloads = [];
 
 module.exports = {
     openDLSession,
@@ -55,14 +56,17 @@ function openDLSession(VOD, cb) {
 
     // Fail action
     const failDL = (error, consoleMsg, userMsg) => {
-        console.error(clr.redBright.bgBlack.bold(consoleMsg));
-        decFileNumber();
-        emitError(createUFCRError(error, `${userMsg}\nCheck the console for error information`));
-        emitDownloadProgress(qID, {status: 'failed'});
+        if (!failedDownloads.includes(qID)) {
+            console.error(clr.redBright.bgBlack.bold(consoleMsg));
+            failedDownloads.push(qID);
+            decFileNumber();
+            emitError(createUFCRError(error, `${userMsg}\nCheck the console for error information`));
+            emitDownloadProgress(qID, {status: 'failed'});
+        }
     };
 
     // Begin download process
-    console.log(clr.yellowBright.bgBlack.bold.underline(`Downloading "${title}"`));
+    console.log(clr.yellowBright.bgBlack.bold.underline(`Downloading "${fullTitle}"`));
     console.log(clr.dim(`${vodURL}\n`));
 
     incFileNumber();
@@ -91,14 +95,14 @@ function openDLSession(VOD, cb) {
     dl.on('error', (error) => {
         failDL(
             error,
-            `Failed to start the download process - "${title}"`,
+            `Failed to start the download process - "${fullTitle}"`,
             'Failed to start the download process.'
         );
     });
 
     dl.on('close', (code) => {
         if (code === 0) {
-            console.log(clr.greenBright.bgBlack.bold(`Completed download - "${title}"`));
+            console.log(clr.greenBright.bgBlack.bold(`Completed download - "${fullTitle}"`));
             emitDownloadProgress(qID, {status: 'completed'});
         }
     });

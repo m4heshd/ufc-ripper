@@ -22,7 +22,7 @@ function processYTDLPOutput(output) {
     switch (type) {
         case 'progress':
             try {
-                const outObj = JSON.parse(outString.trim());
+                const outObj = JSON.parse(outString.trim().split('\r')[0]);
 
                 dlStats.progress = Number(outObj.progress.trim().replace('%', '') || 0);
                 dlStats.size = (outObj.size || '').trim();
@@ -30,11 +30,12 @@ function processYTDLPOutput(output) {
                 dlStats.eta = (outObj.eta || '').trim();
                 dlStats.task = outObj.vcodec === 'none' || outObj.vcodec === null ? 'audio' : 'video';
             } catch (error) {
-                console.error(
-                    'Could not parse the progress output:\n',
-                    outString,
-                    `${getConfig('verboseLogging') ? error.stack : error}\n`
-                );
+                if (getConfig('verboseLogging'))
+                    console.error(
+                        'Could not parse the progress output:\n',
+                        outString,
+                        `${error.stack}\n`
+                    );
             }
             break;
         case 'Merger':

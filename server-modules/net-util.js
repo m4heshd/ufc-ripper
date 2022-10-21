@@ -107,7 +107,7 @@ async function getVODMeta(url) {
     try {
         return await runReq();
     } catch (error) {
-        if (error.response.status === 401) {
+        if (error.response?.status === 401) {
             await refreshAuth();
             return await runReq();
         } else {
