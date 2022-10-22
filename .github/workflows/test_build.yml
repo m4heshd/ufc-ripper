@@ -1,0 +1,41 @@
+name: test_build
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform'
+        required: true
+        default: 'windows-latest'
+        type: choice
+        options:
+          - windows-latest
+
+jobs:
+  # Build and upload as artifacts
+  build:
+    name: Building for tests on ${{ inputs.platform }}
+    runs-on: ${{ inputs.platform }}
+    env:
+      PACKAGE_NAME: ${{ fromJSON('{"windows-latest":"ufc-ripper-win-x64.zip"}')[ inputs.platform ] }}
+    steps:
+      # Checkout repo
+      - uses: actions/checkout@v2
+      # Install node
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      # Install deps
+      - run: npm install --no-audit
+      # Build Vue app
+      - name: Build front-end
+        run: npm run build
+      # Package app
+      - name: Package for distribution
+        run: npm run pack
+      # Upload build artifact
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ufc-ripper-test-build-${{ github.run_number }}-artifacts
+          path: package/artifacts/${{ env.PACKAGE_NAME }}
