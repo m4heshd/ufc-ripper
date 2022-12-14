@@ -1,4 +1,5 @@
 // Modules
+const fs = require('fs-extra');
 const path = require('path');
 const {spawn, execSync} = require('child_process');
 const {platform} = require('os');
@@ -9,15 +10,35 @@ const {sendVODDownload, emitError, emitDownloadProgress} = require('./io-util');
 const {createUFCRError} = require('./error-util');
 const {processYTDLPOutput} = require('./txt-util');
 
-// yt-dlp child processes
-const downloads = {};
+const downloads = {}; // yt-dlp child processes
 const failedDownloads = [];
+const binPath = path.resolve('.', 'bin');
+const bins = {
+    atomicParsley: path.join(binPath, {win32: 'AtomicParsley.exe', linux: 'AtomicParsley'}[platform()]),
+    ffmpeg: path.join(binPath, {win32: 'ffmpeg.exe', linux: 'ffmpeg'}[platform()]),
+    ffprobe: path.join(binPath, {win32: 'ffprobe.exe', linux: 'ffprobe'}[platform()]),
+    ytDlp: path.join(binPath, {win32: 'yt-dlp.exe', linux: 'yt-dlp'}[platform()])
+};
 
 module.exports = {
+    validateBins,
     openDLSession,
     cancelDLSession,
     openDLDir
 };
+
+function validateBins(cb) {
+    try {
+        cb({
+            atomicParsley: fs.existsSync(bins.atomicParsley),
+            ffmpeg: fs.existsSync(bins.ffmpeg),
+            ffprobe: fs.existsSync(bins.ffprobe),
+            ytDlp: fs.existsSync(bins.ytDlp)
+        });
+    } catch (error) {
+        throw createUFCRError(error, 'Unable to validate helper tools');
+    }
+}
 
 function openDLSession(VOD, cb) {
     const {qID, title, hls, vodURL} = VOD;
@@ -82,15 +103,19 @@ function openDLSession(VOD, cb) {
     }, cb);
 
     // Launch and handle yt-dlp process
-    const dl = spawn('.\\bin\\yt-dlp.exe', [
+    const dlArgsAll = [
         ...Object.entries(downloadConfig).flat(),
         ...dlArgs,
         hls
-    ], {
+    ];
+
+    const dl = spawn(path.join(bins.ytDlp), dlArgsAll, {
         windowsVerbatimArguments: true
     });
 
     downloads[qID] = dl;
+
+    if (getConfig('verboseLogging')) console.log(`[yt-dlp-args] ${dlArgsAll.join(' ')}\n`);
 
     dl.on('error', (error) => {
         failDL(

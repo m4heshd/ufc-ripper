@@ -36,6 +36,7 @@ function initIO(httpServer) {
         socket.on('cancel-download', cancelDownload);
         socket.on('save-config', saveConfig);
         socket.on('open-dl-dir', openDownloadsDir);
+        socket.on('validate-bins', validateHelperTools);
     });
 }
 
@@ -90,6 +91,14 @@ function saveConfig(newConfig, cb) {
 function openDownloadsDir(cb) {
     try {
         require('./bin-util').openDLDir(cb);
+    } catch (error) {
+        sendError(error, cb);
+    }
+}
+
+function validateHelperTools(cb) {
+    try {
+        require('./bin-util').validateBins(cb);
     } catch (error) {
         sendError(error, cb);
     }
