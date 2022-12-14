@@ -1,4 +1,5 @@
 // Modules
+const {platform} = require('os');
 const axios = require('axios');
 const {getConfig, writeConfig} = require('./config-util');
 const {getVODIDFromURL} = require('./txt-util');
@@ -8,7 +9,8 @@ module.exports = {
     fightPassLogin,
     refreshAuth,
     getVODMeta,
-    getVODStream
+    getVODStream,
+    getMediaToolsInfo
 };
 
 function getHeaders(auth) {
@@ -136,4 +138,17 @@ async function getVODStream(id) {
     } else {
         throw createUFCRError('No playback URL in the API response');
     }
+}
+
+async function getMediaToolsInfo() {
+    const config = {
+        method: 'get',
+        url: 'https://raw.githubusercontent.com/m4heshd/media-tools/master/versions.json'
+    };
+
+    const {data} = await axios(config);
+    const bins = data?.[platform()];
+
+    if (bins) return bins;
+    throw createUFCRError('No media tools info in the response');
 }
