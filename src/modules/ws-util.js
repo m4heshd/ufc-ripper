@@ -35,6 +35,10 @@ export function useWSUtil() {
         await getConfig();
         store.hideOverlay();
         console.log('Connected to backend');
+
+        store.modals.modBinDL.data.bins = await validateHelperTools();
+
+        if (store.missingBins.length) window.ui('#modBinDL');
     }
 
     function onConfigUpdate(newConfig) {
@@ -67,6 +71,10 @@ export function useWSUtil() {
 
     async function login(email, pass) {
         store.config = await emitPromise('login', email, pass);
+    }
+
+    function validateHelperTools() {
+        return emitPromise('validate-bins');
     }
 
     function verifyURL(url) {

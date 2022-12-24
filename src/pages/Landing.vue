@@ -84,6 +84,7 @@
         @onConfirm="download"
     ></ModVODConfirm>
     <ModConfig></ModConfig>
+    <ModBinDL></ModBinDL>
 
     <!-- Overlay -->
     <Overlay :vActive="store.ui.overlay"></Overlay>
@@ -102,6 +103,7 @@ import VODCard from '@/components/VODCard';
 import ModVODConfirm from '@/components/ModVODConfirm';
 import ModConfig from '@/components/ModConfig';
 import Overlay from '@/components/Overlay';
+import ModBinDL from '@/components/ModBinDL';
 
 // Store
 const store = useAppStore();

@@ -16,12 +16,23 @@ export const useAppStore = defineStore('app', {
         modals: {
             modConfig: {
                 data: {}
+            },
+            modBinDL: {
+                data: {
+                    bins: {
+                        atomicParsley: true,
+                        ffmpeg: false,
+                        ffprobe: true,
+                        ytDlp: false
+                    }
+                }
             }
         }
     }),
     getters: {
         isLoggedIn: (state) => !!state.config.authToken,
-        downloadQueue: (state) => Object.values(state.downloads).sort((a, b) => b.idx - a.idx)
+        downloadQueue: (state) => Object.values(state.downloads).sort((a, b) => b.idx - a.idx),
+        missingBins: (state) => Object.keys(state.modals.modBinDL.data.bins).filter((bin) => state.modals.modBinDL.data.bins[bin] === false)
     },
     actions: {
         popError: (error) => {
@@ -55,7 +66,7 @@ export const useAppStore = defineStore('app', {
         clearDownloadQueue(clearAll = false) {
             if (clearAll) return (this.downloads = {});
 
-            for (const dl of Object.keys(this.downloads)) {
+            for (const dl in this.downloads) {
                 if (this.downloads[dl].status !== 'downloading') delete this.downloads[dl];
             }
         }
