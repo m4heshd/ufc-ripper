@@ -21,6 +21,7 @@ const bins = {
 };
 
 module.exports = {
+    binPath,
     validateBins,
     openDLSession,
     cancelDLSession,

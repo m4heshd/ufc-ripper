@@ -1,7 +1,7 @@
 // Modules
 const {Server} = require('socket.io');
 const {randomUUID} = require('crypto');
-const {fightPassLogin, getVODMeta, getVODStream} = require('./net-util');
+const {fightPassLogin, getVODMeta, getVODStream, downloadMediaTools} = require('./net-util');
 const {writeConfig, getConfig} = require('./config-util');
 const {getEnumerableError, createUFCRError} = require('./error-util');
 
@@ -15,7 +15,8 @@ module.exports = {
     sendVODDownload,
     emitConfigUpdate,
     emitError,
-    emitDownloadProgress
+    emitDownloadProgress,
+    emitMediaToolDLProgress
 };
 
 function initIO(httpServer) {
@@ -36,7 +37,8 @@ function initIO(httpServer) {
         socket.on('cancel-download', cancelDownload);
         socket.on('save-config', saveConfig);
         socket.on('open-dl-dir', openDownloadsDir);
-        socket.on('validate-bins', validateHelperTools);
+        socket.on('validate-bins', validateMediaTools);
+        socket.on('get-media-tools', getMediaTools);
     });
 }
 
@@ -96,9 +98,18 @@ function openDownloadsDir(cb) {
     }
 }
 
-function validateHelperTools(cb) {
+function validateMediaTools(cb) {
     try {
         require('./bin-util').validateBins(cb);
+    } catch (error) {
+        sendError(error, cb);
+    }
+}
+
+async function getMediaTools(missingBins, cb) {
+    try {
+        await downloadMediaTools(missingBins);
+        cb();
     } catch (error) {
         sendError(error, cb);
     }
@@ -136,4 +147,9 @@ function emitError(error) {
 function emitDownloadProgress(qID, updates) {
     checkIO();
     io.emit('dl-progress', qID, updates);
+}
+
+function emitMediaToolDLProgress(tool, updates) {
+    checkIO();
+    io.emit('media-tool-dl-progress', tool, updates);
 }

@@ -1,16 +1,20 @@
 // Modules
+const {createWriteStream} = require('fs-extra');
 const {platform} = require('os');
 const axios = require('axios');
 const {getConfig, writeConfig} = require('./config-util');
 const {getVODIDFromURL} = require('./txt-util');
 const {createUFCRError} = require('./error-util');
+const path = require('path');
 
 module.exports = {
     fightPassLogin,
     refreshAuth,
     getVODMeta,
     getVODStream,
-    getMediaToolsInfo
+    downloadFile,
+    getMediaToolsInfo,
+    downloadMediaTools
 };
 
 function getHeaders(auth) {
@@ -140,6 +144,39 @@ async function getVODStream(id) {
     }
 }
 
+function downloadFile(url, savePath, onProgress) {
+    return new Promise((resolve, reject) => {
+        const config = {
+            method: 'get',
+            responseType: 'stream',
+            url
+        };
+
+        axios(config)
+            .then((res) => {
+                const {data, headers} = res;
+                const size = headers['content-length'];
+                const dest = createWriteStream(savePath);
+                let downloaded = 0;
+                let progress = 0;
+
+                dest.on('finish', resolve);
+
+                data
+                    .on('error', reject)
+                    .on('data', (chunk) => {
+                        const newProgress = Math.floor(((downloaded += chunk.length) / size) * 100);
+                        if (newProgress !== progress) {
+                            progress = newProgress;
+                            onProgress(progress);
+                        }
+                    })
+                    .pipe(dest);
+            })
+            .catch(reject);
+    });
+}
+
 async function getMediaToolsInfo() {
     const config = {
         method: 'get',
@@ -150,5 +187,27 @@ async function getMediaToolsInfo() {
     const bins = data?.[platform()];
 
     if (bins) return bins;
-    throw createUFCRError('No media tools info in the response');
+    throw createUFCRError('No media tools info in the response or platform not supported');
+}
+
+async function downloadMediaTools(tools) {
+    const toolsInfo = await getMediaToolsInfo();
+    const dlPath = require('./bin-util').binPath;
+    const {emitMediaToolDLProgress} = require('./io-util');
+    const onProgress = (tool, progress) => {
+        emitMediaToolDLProgress(tool, {progress});
+    };
+
+    for (const tool of tools) {
+        if (getConfig('verboseLogging')) console.log(`Downloading ${tool}..`);
+        try {
+            await downloadFile(
+                toolsInfo[tool]?.download,
+                path.join(dlPath, toolsInfo[tool]?.filename),
+                (progress) => onProgress(tool, progress)
+            );
+        } catch (error) {
+            throw createUFCRError(error, `Failed to download media tool: ${tool}`);
+        }
+    }
 }
