@@ -38,7 +38,7 @@ function runBuild() {
         '--output', output
     ]).then(() => {
         try {
-            fs.copySync(path.join(__dirname, 'config.json'), path.join(outDir, 'config.json'));
+            fs.copySync(path.join(__dirname, 'config'), path.join(outDir, 'config'));
             fs.ensureDirSync(path.join(outDir, 'bin'));
             if (platform === 'win') windowsPostBuild();
             createArchive();

@@ -49,7 +49,7 @@ function readConfig(key) {
     try {
         config = {
             ...config,
-            ...fs.readJSONSync('config.json')
+            ...fs.readJSONSync(path.join('config', 'config.json'))
         };
     } catch (error) {
         if (error.code !== 'ENOENT') throw error;
@@ -71,7 +71,7 @@ function writeConfig(newConfig = {}, emitUpdate = true) {
         ...newConfig
     };
 
-    fs.writeJSONSync('config.json', config, {
+    fs.writeJSONSync(path.join('config', 'config.json'), config, {
         spaces: 2
     });
     if (emitUpdate) require('./io-util').emitConfigUpdate();
