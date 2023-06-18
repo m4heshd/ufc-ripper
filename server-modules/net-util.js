@@ -192,7 +192,7 @@ async function getMediaToolsInfo() {
 
 async function downloadMediaTools(tools) {
     const toolsInfo = await getMediaToolsInfo();
-    const dlPath = require('./bin-util').binPath;
+    const {binPath, setFileExecutable} = require('./bin-util');
     const {emitMediaToolDLProgress} = require('./io-util');
     const onProgress = (tool, progress) => {
         emitMediaToolDLProgress(tool, {progress});
@@ -200,12 +200,16 @@ async function downloadMediaTools(tools) {
 
     for (const tool of tools) {
         if (getConfig('verboseLogging')) console.log(`Downloading ${tool}..`);
+
+        const toolPath = path.join(binPath, toolsInfo[tool]?.filename);
+
         try {
             await downloadFile(
                 toolsInfo[tool]?.download,
-                path.join(dlPath, toolsInfo[tool]?.filename),
+                toolPath,
                 (progress) => onProgress(tool, progress)
             );
+            setFileExecutable(toolPath);
         } catch (error) {
             throw createUFCRError(error, `Failed to download media tool: ${tool}`);
         }

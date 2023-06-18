@@ -25,7 +25,8 @@ module.exports = {
     validateBins,
     openDLSession,
     cancelDLSession,
-    openDLDir
+    openDLDir,
+    setFileExecutable
 };
 
 function validateBins(cb) {
@@ -164,4 +165,8 @@ function openDLDir(cb) {
     } catch (error) {
         throw createUFCRError(error, 'Unable to open the download directory');
     }
+}
+
+function setFileExecutable(file) {
+    fs.chmodSync(file, 0o775);
 }
