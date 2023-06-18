@@ -10,29 +10,37 @@ export const useAppStore = defineStore('app', {
     state: () => ({
         downloads: {},
         config: {},
+        mediaTools: {
+            atomicParsley: {
+                name: 'AtomicParsley',
+                avail: false
+            },
+            ffmpeg: {
+                name: 'FFmpeg',
+                avail: false
+            },
+            ffprobe: {
+                name: 'FFprobe',
+                avail: false
+            },
+            ytDlp: {
+                name: 'yt-dlp',
+                avail: false
+            }
+        },
         ui: {
             overlay: true
         },
         modals: {
             modConfig: {
                 data: {}
-            },
-            modBinDL: {
-                data: {
-                    bins: {
-                        atomicParsley: true,
-                        ffmpeg: false,
-                        ffprobe: true,
-                        ytDlp: false
-                    }
-                }
             }
         }
     }),
     getters: {
         isLoggedIn: (state) => !!state.config.authToken,
         downloadQueue: (state) => Object.values(state.downloads).sort((a, b) => b.idx - a.idx),
-        missingBins: (state) => Object.keys(state.modals.modBinDL.data.bins).filter((bin) => state.modals.modBinDL.data.bins[bin] === false)
+        missingTools: (state) => Object.keys(state.mediaTools).filter((bin) => state.mediaTools[bin].avail === false)
     },
     actions: {
         popError: (error) => {

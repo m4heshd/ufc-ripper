@@ -37,7 +37,7 @@ function initIO(httpServer) {
         socket.on('cancel-download', cancelDownload);
         socket.on('save-config', saveConfig);
         socket.on('open-dl-dir', openDownloadsDir);
-        socket.on('validate-bins', validateMediaTools);
+        socket.on('validate-media-tools', validateMediaTools);
         socket.on('get-media-tools', getMediaTools);
     });
 }
@@ -106,9 +106,9 @@ function validateMediaTools(cb) {
     }
 }
 
-async function getMediaTools(missingBins, cb) {
+async function getMediaTools(missingTools, cb) {
     try {
-        await downloadMediaTools(missingBins);
+        await downloadMediaTools(missingTools);
         cb();
     } catch (error) {
         sendError(error, cb);

@@ -1,5 +1,6 @@
 // Store
 import {useAppStore} from '@/store';
+import {useModBinDLStore} from '@/store/modBinDL';
 // Modules
 import {io} from 'socket.io-client';
 
@@ -9,6 +10,7 @@ let socket;
 export function useWSUtil() {
     // Store
     const store = useAppStore();
+    const modBinDL = useModBinDLStore();
 
     function emitPromise(event, ...args) {
         return new Promise((resolve, reject) => {
@@ -28,17 +30,16 @@ export function useWSUtil() {
         socket.on('config-update', onConfigUpdate);
         socket.on('server-error', onServerError);
         socket.on('dl-progress', onDownloadProgress);
+        socket.on('media-tool-dl-progress', onMediaToolDLProgress);
     }
 
     // Socket event handles
     async function onSocketConnection() {
+        console.log('Connected to backend');
         await getConfig();
         store.hideOverlay();
-        console.log('Connected to backend');
-
-        store.modals.modBinDL.data.bins = await validateHelperTools();
-
-        if (store.missingBins.length) window.ui('#modBinDL');
+        await validateMediaTools();
+        if (store.missingTools.length) modBinDL.showModBinDL();
     }
 
     function onConfigUpdate(newConfig) {
@@ -54,6 +55,10 @@ export function useWSUtil() {
             ...store.downloads[qID],
             ...updates
         };
+    }
+
+    function onMediaToolDLProgress(tool, updates) {
+        modBinDL.downloads[tool] = updates;
     }
 
     // Socket emits
@@ -73,8 +78,14 @@ export function useWSUtil() {
         store.config = await emitPromise('login', email, pass);
     }
 
-    function validateHelperTools() {
-        return emitPromise('validate-bins');
+    async function validateMediaTools() {
+        const toolsAvail = await emitPromise('validate-media-tools');
+
+        for (const tool in toolsAvail) {
+            store.mediaTools[tool].avail = toolsAvail[tool];
+        }
+
+        return toolsAvail;
     }
 
     function verifyURL(url) {
@@ -93,6 +104,14 @@ export function useWSUtil() {
         return emitPromise('open-dl-dir');
     }
 
+    function getMediaTools(missingTools) {
+        if (!Object.keys(modBinDL.downloads).length) {
+            modBinDL.downloads = Object.fromEntries(missingTools.map(bin => [bin, {}]));
+            return emitPromise('get-media-tools', missingTools);
+        }
+        return Promise.resolve();
+    }
+
     return {
         initSocket,
         getConfig,
@@ -101,6 +120,8 @@ export function useWSUtil() {
         verifyURL,
         downloadVOD,
         cancelDownload,
-        openDownloadsDir
+        openDownloadsDir,
+        validateMediaTools,
+        getMediaTools
     };
 }
