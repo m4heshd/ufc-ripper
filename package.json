@@ -13,7 +13,8 @@
     "start": "node server.js",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "pack": "cross-env PKG_CACHE_PATH=./package/pkg-cache node pack.js win"
+    "pack-win": "npm run build && cross-env PKG_CACHE_PATH=./package/pkg-cache node pack.js win",
+    "pack-linux": "npm run build && cross-env PKG_CACHE_PATH=./package/pkg-cache node pack.js linux"
   },
   "dependencies": {
     "ansi-colors": "4.1.3",

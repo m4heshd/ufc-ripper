@@ -10,6 +10,7 @@ on:
         type: choice
         options:
           - windows-latest
+          - ubuntu-latest
 
 jobs:
   # Build and upload as artifacts
@@ -17,7 +18,8 @@ jobs:
     name: Building for tests on ${{ inputs.platform }}
     runs-on: ${{ inputs.platform }}
     env:
-      PACKAGE_NAME: ${{ fromJSON('{"windows-latest":"ufc-ripper-win-x64.zip"}')[ inputs.platform ] }}
+      PACKAGE_NAME: ${{ fromJSON('{"windows-latest":"ufc-ripper-win-x64.zip","ubuntu-latest":"ufc-ripper-linux-x64.zip"}')[ inputs.platform ] }}
+      TARGET_PLATFORM: ${{ fromJSON('{"windows-latest":"win","ubuntu-latest":"linux"}')[ inputs.platform ] }}
     steps:
       # Checkout repo
       - uses: actions/checkout@v2
@@ -27,12 +29,9 @@ jobs:
           node-version: 16
       # Install deps
       - run: npm install --no-audit
-      # Build Vue app
-      - name: Build front-end
-        run: npm run build
       # Package app
       - name: Package for distribution
-        run: npm run pack
+        run: npm run pack-${{ env.TARGET_PLATFORM }}
       # Upload build artifact
       - name: Upload artifacts
         uses: actions/upload-artifact@v2

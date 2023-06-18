@@ -11,11 +11,16 @@ let pkgDir = path.join(__dirname, 'package');
 let outDir = path.join(pkgDir, 'win32');
 let output = path.join(outDir, 'ufc-ripper.exe');
 let outArchive = path.join(pkgDir, 'artifacts', 'ufc-ripper-win-x64.zip');
-let target = 'node16-win-x64';
+let target = 'node18-win-x64';
 
 const platform = process.argv[2]?.trim() || 'win';
 
 switch (platform) {
+    case 'linux':
+        outDir = path.join(pkgDir, 'linux');
+        output = path.join(outDir, 'ufc-ripper');
+        outArchive = path.join(pkgDir, 'artifacts', 'ufc-ripper-linux-x64.zip');
+        target = 'node18-linux-x64';
     case 'win':
         runBuild();
         break;
