@@ -19,8 +19,6 @@
   "throttle": false,
   "dlRate": "100K",
   "dlArgs": [
-    "--ffmpeg-location",
-    ".\\bin",
     "--no-mtime",
     "--output-na-placeholder",
     "\"\"",

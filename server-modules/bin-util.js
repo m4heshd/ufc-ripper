@@ -61,18 +61,19 @@ function openDLSession(VOD, cb) {
     // Download configuration
     const fullTitle = `${numberFiles ? `${curNumber}. ` : ''}${title}`;
     const progressTemplate = JSON.stringify({
-        '"status"': '"%(progress.status)s"',
-        '"progress"': '"%(progress._percent_str)s"',
-        '"size"': '"%(progress._total_bytes_estimate_str)s"',
-        '"speed"': '"%(progress._speed_str)s"',
-        '"eta"': '"%(progress._eta_str)s"',
-        '"vcodec"': '"%(info.vcodec)s"'
+        status: '%(progress.status)s',
+        progress: '%(progress._percent_str)s',
+        size: '%(progress._total_bytes_estimate_str)s',
+        speed: '%(progress._speed_str)s',
+        eta: '%(progress._eta_str)s',
+        vcodec: '%(info.vcodec)s'
     });
     const downloadConfig = {
-        '--format': `"${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}"`,
+        '--format': `${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}`,
         '--merge-output-format': mergeExt,
-        '--output': `"${path.join(dlPath, `${fullTitle}.%(ext)s`)}"`,
-        '--progress-template': `"${progressTemplate}"`
+        '--output': `${path.join(dlPath, `${fullTitle}.%(ext)s`)}`,
+        '--progress-template': progressTemplate,
+        '--ffmpeg-location': binPath
     };
     if (throttle) downloadConfig['--limit-rate'] = dlRate;
 
@@ -110,9 +111,7 @@ function openDLSession(VOD, cb) {
         hls
     ];
 
-    const dl = spawn(path.join(bins.ytDlp), dlArgsAll, {
-        windowsVerbatimArguments: true
-    });
+    const dl = spawn(path.join(bins.ytDlp), dlArgsAll);
 
     downloads[qID] = dl;
 
