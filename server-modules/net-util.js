@@ -1,5 +1,5 @@
 // Modules
-const {createWriteStream} = require('fs-extra');
+const fs = require('fs-extra');
 const {platform} = require('os');
 const axios = require('axios');
 const {getConfig, writeConfig} = require('./config-util');
@@ -156,7 +156,7 @@ function downloadFile(url, savePath, onProgress) {
             .then((res) => {
                 const {data, headers} = res;
                 const size = headers['content-length'];
-                const dest = createWriteStream(savePath);
+                const dest = fs.createWriteStream(savePath);
                 let downloaded = 0;
                 let progress = 0;
 
@@ -197,6 +197,8 @@ async function downloadMediaTools(tools) {
     const onProgress = (tool, progress) => {
         emitMediaToolDLProgress(tool, {progress});
     };
+
+    fs.ensureDirSync(binPath);
 
     for (const tool of tools) {
         if (getConfig('verboseLogging')) console.log(`Downloading ${tool}..`);
