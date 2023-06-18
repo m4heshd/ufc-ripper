@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  ufc-ripper:
+    build: .
+    image: m4heshd/ufc-ripper
+    container_name: ufc-ripper
+    restart: "no"
+    volumes:
+      - ./config:/ufcr/config # Configuration files
+      - ~/Downloads/ufc-ripper:/downloads # Video downloads
+    ports:
+      - "8383:8383"

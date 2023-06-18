@@ -6,6 +6,9 @@ const clr = require('ansi-colors');
 const {readConfig, getConfig} = require('./server-modules/config-util');
 const {initIO} = require('./server-modules/io-util');
 
+// Global
+global.__isContainer = () => process.env.RUN_ENV === 'container';
+
 // Configs
 readConfig();
 const port = getConfig('port') || 8383;
@@ -25,5 +28,5 @@ initIO(xServer);
 /* Start server
 ===============*/
 xServer.listen(port, () => {
-    console.log(clr.greenBright(`UFC Ripper GUI is live at http://localhost:${port}\n`));
+    console.log(clr.greenBright(`UFC Ripper GUI is live at http://localhost:${port}${__isContainer() ? ' (container)' : ''}\n`));
 });

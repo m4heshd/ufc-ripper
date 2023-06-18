@@ -56,7 +56,11 @@ function readConfig(key) {
         writeConfig({}, false);
     }
 
-    if (config.dlPath === '') {
+    if (__isContainer()) {
+        config = writeConfig({
+            dlPath: '/downloads'
+        }, false);
+    } else if (config.dlPath === '') {
         config = writeConfig({
             dlPath: path.join(homedir(), 'Downloads')
         }, false);
