@@ -28,6 +28,10 @@ function getHeaders(auth) {
     return auth ? {...headers, 'Authorization': `Bearer ${auth}`} : headers;
 }
 
+function getProxyConfig() {
+    return getConfig('useProxy') ? getConfig('proxyConfig') : undefined;
+}
+
 async function fightPassLogin(email, pass) {
     const config = {
         method: 'post',
@@ -39,7 +43,8 @@ async function fightPassLogin(email, pass) {
         data: {
             id: email,
             secret: pass
-        }
+        },
+        proxy: getProxyConfig()
     };
 
     try {
@@ -68,7 +73,8 @@ async function refreshAuth() {
         },
         data: {
             refreshToken: getConfig('refreshToken')
-        }
+        },
+        proxy: getProxyConfig()
     };
 
     const {data} = await axios(config);
@@ -91,7 +97,8 @@ async function getVODMeta(url) {
         const {data} = await axios({
             method: 'get',
             url: `https://dce-frontoffice.imggaming.com/api/v2/vod/${id}`,
-            headers: getHeaders(getConfig('authToken'))
+            headers: getHeaders(getConfig('authToken')),
+            proxy: getProxyConfig()
         });
 
         if (data) {
@@ -126,13 +133,18 @@ async function getVODStream(id) {
     let config = {
         method: 'get',
         url: `https://dce-frontoffice.imggaming.com/api/v3/stream/vod/${id}`,
-        headers: getHeaders(getConfig('authToken'))
+        headers: getHeaders(getConfig('authToken')),
+        proxy: getProxyConfig()
     };
 
     let {data} = await axios(config);
 
     if (data?.playerUrlCallback) {
-        data = (await axios.get(data.playerUrlCallback)).data;
+        data = (await axios({
+            method: 'get',
+            url: data.playerUrlCallback,
+            proxy: getProxyConfig()
+        })).data;
 
         if (data?.hls?.length) {
             return data.hls[0].url;

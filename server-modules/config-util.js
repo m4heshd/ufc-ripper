@@ -23,9 +23,17 @@ let config = {
     curNumber: 1,
     throttle: false,
     dlRate: '100K',
+    useProxy: false,
+    proxyConfig: {
+        protocol: 'http',
+        host: '0.0.0.0',
+        port: 1111,
+        auth: {
+            username: '',
+            password: ''
+        }
+    },
     dlArgs: [
-        '--ffmpeg-location',
-        '.\\bin',
         '--no-mtime',
         '--output-na-placeholder',
         '""',
