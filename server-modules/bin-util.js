@@ -6,7 +6,7 @@ const {platform} = require('os');
 const kill = require('tree-kill');
 const clr = require('ansi-colors');
 const {getConfig, incFileNumber, decFileNumber} = require('./config-util');
-const {sendVODDownload, emitError, emitDownloadProgress} = require('./io-util');
+const {sendVODDownload, emitError, emitDownloadProgress, sendDLCancel} = require('./io-util');
 const {createUFCRError} = require('./error-util');
 const {processYTDLPOutput} = require('./txt-util');
 
@@ -111,7 +111,6 @@ function openDLSession(VOD, cb) {
         ...dlArgs,
         hls
     ];
-
     const dl = spawn(path.join(bins.ytDlp), dlArgsAll);
 
     downloads[qID] = dl;
@@ -154,7 +153,7 @@ function cancelDLSession(VOD, cb) {
     kill(downloads[qID].pid, 'SIGKILL', (error) => {
         if (error) throw createUFCRError(error, 'Unable to cancel the download');
         console.error(clr.redBright.bgBlack.bold(`Download cancelled by user - "${title}"`));
-        if (cb) cb();
+        sendDLCancel(VOD, cb);
     });
 }
 

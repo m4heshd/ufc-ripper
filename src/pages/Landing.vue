@@ -109,7 +109,7 @@ import ModBinDL from '@/components/ModBinDL';
 const store = useAppStore();
 
 // Websocket
-const {cancelDownload, downloadVOD, initSocket, openDownloadsDir, verifyURL} = useWSUtil();
+const {cancelDownload, clearDLQ, downloadVOD, initSocket, openDownloadsDir, verifyURL} = useWSUtil();
 
 initSocket();
 
@@ -143,7 +143,7 @@ function onBtnOpenDLDir() {
 }
 
 function onBtnClearDLQueueClick() {
-  store.clearDownloadQueue();
+  clearDLQ();
 }
 
 function onDownloadCancel(VOD) {

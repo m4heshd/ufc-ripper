@@ -66,21 +66,14 @@ export const useAppStore = defineStore('app', {
             this.modals.modConfig.data = JSON.parse(JSON.stringify(this.config));
             window.ui('#modConfig');
         },
-        addDownload(vod) {
-            this.downloads[vod.qID] = {
-                ...vod,
+        addDownload(VOD) {
+            this.downloads[VOD.qID] = {
+                ...VOD,
                 idx: this.downloadQueue.length + 1
             };
         },
         setDownloadCancelled(qID) {
             this.downloads[qID].status = 'cancelled';
-        },
-        clearDownloadQueue(clearAll = false) {
-            if (clearAll) return (this.downloads = {});
-
-            for (const dl in this.downloads) {
-                if (this.downloads[dl].status !== 'downloading') delete this.downloads[dl];
-            }
         }
     }
 });

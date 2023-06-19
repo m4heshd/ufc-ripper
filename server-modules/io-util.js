@@ -8,11 +8,15 @@ const {getEnumerableError, createUFCRError} = require('./error-util');
 // Websocket
 let io;
 
+// Downloads
+const DLQ = {};
+
 module.exports = {
     initIO,
     sendError,
     sendVODMeta,
     sendVODDownload,
+    sendDLCancel,
     emitConfigUpdate,
     emitError,
     emitDownloadProgress,
@@ -31,10 +35,12 @@ function initIO(httpServer) {
         console.log(`GUI connected (ID - ${socket.id})\n`);
 
         socket.on('get-config', cb => cb(getConfig()));
+        socket.on('get-dlq', cb => cb(DLQ));
         socket.on('login', login);
         socket.on('verify-url', verifyVOD);
         socket.on('download', downloadVOD);
         socket.on('cancel-download', cancelDownload);
+        socket.on('clear-dlq', clearDLQ);
         socket.on('save-config', saveConfig);
         socket.on('open-dl-dir', openDownloadsDir);
         socket.on('validate-media-tools', validateMediaTools);
@@ -77,6 +83,17 @@ async function downloadVOD(VOD, cb) {
 async function cancelDownload(VOD, cb) {
     try {
         require('./bin-util').cancelDLSession(VOD, cb);
+    } catch (error) {
+        sendError(error, cb);
+    }
+}
+
+async function clearDLQ(cb) {
+    try {
+        for (const dl in DLQ) {
+            if (DLQ[dl].status !== 'downloading') delete DLQ[dl];
+        }
+        cb(DLQ);
     } catch (error) {
         sendError(error, cb);
     }
@@ -129,7 +146,17 @@ function sendVODMeta(VOD, cb) {
 }
 
 function sendVODDownload(VOD, cb) {
+    DLQ[VOD.qID] = {
+        ...VOD,
+        idx: Object.values(DLQ).length + 1
+    };
+
     cb(VOD);
+}
+
+function sendDLCancel(VOD, cb) {
+    DLQ[VOD.qID].status = 'cancelled';
+    if (cb) cb();
 }
 
 // IO emits
@@ -145,6 +172,11 @@ function emitError(error) {
 }
 
 function emitDownloadProgress(qID, updates) {
+    DLQ[qID] = {
+        ...DLQ[qID],
+        ...updates
+    };
+
     checkIO();
     io.emit('dl-progress', qID, updates);
 }

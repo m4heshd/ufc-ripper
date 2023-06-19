@@ -37,6 +37,7 @@ export function useWSUtil() {
     async function onSocketConnection() {
         console.log('Connected to backend');
         await getConfig();
+        await getDLQ();
         store.hideOverlay();
         await validateMediaTools();
         if (store.missingTools.length) modBinDL.showModBinDL();
@@ -65,6 +66,16 @@ export function useWSUtil() {
     async function getConfig() {
         try {
             store.config = await emitPromise('get-config');
+        } catch (error) {
+            store.popError(error);
+        }
+    }
+
+    async function getDLQ() {
+        try {
+            store.downloads = {
+                ...(await emitPromise('get-dlq'))
+            };
         } catch (error) {
             store.popError(error);
         }
@@ -100,6 +111,16 @@ export function useWSUtil() {
         return emitPromise('cancel-download', VOD);
     }
 
+    async function clearDLQ() {
+        try {
+            store.downloads = {
+                ...(await emitPromise('clear-dlq'))
+            };
+        } catch (error) {
+            store.popError(error);
+        }
+    }
+
     function openDownloadsDir() {
         return emitPromise('open-dl-dir');
     }
@@ -120,6 +141,7 @@ export function useWSUtil() {
         verifyURL,
         downloadVOD,
         cancelDownload,
+        clearDLQ,
         openDownloadsDir,
         validateMediaTools,
         getMediaTools
