@@ -142,6 +142,80 @@
         </div>
       </article>
 
+      <article class="border round mod-config__content__section mod-config__content__proxy">
+        <h5>Proxy</h5>
+        <nav class="v-switch">
+          <div class="max">
+            <h6>Use proxy</h6>
+            <div>Use the following proxy for API requests</div>
+          </div>
+          <label class="switch">
+            <input
+                v-model="modConfig.data.useProxy"
+                type="checkbox"
+            >
+            <span></span>
+          </label>
+        </nav>
+        <div class="field label suffix border round small">
+          <select
+              v-model="modConfig.data.proxyConfig.protocol"
+              :disabled="!modConfig.data.useProxy"
+          >
+            <option value="http">http</option>
+            <option value="https">https</option>
+          </select>
+          <label class="active">Protocol</label>
+          <i>arrow_drop_down</i>
+        </div>
+        <div class="mod-config__content__proxy__split-section mod-config__content__proxy__endpoint">
+          <div class="field label small border round">
+            <input
+                v-model="modConfig.data.proxyConfig.host"
+                type="text"
+                autocomplete="off"
+                :disabled="!modConfig.data.useProxy"
+            >
+            <label>Host</label>
+          </div>
+          <div class="field label small border round">
+            <input
+                v-model="modConfig.data.proxyConfig.port"
+                type="text"
+                autocomplete="off"
+                :disabled="!modConfig.data.useProxy"
+            >
+            <label>Port</label>
+          </div>
+        </div>
+        <nav class="v-switch">
+          <div class="max">
+            <h6>Authentication</h6>
+            <div>Leave these fields blank if your proxy server doesn't require authentication</div>
+          </div>
+        </nav>
+        <div class="mod-config__content__proxy__split-section">
+          <div class="field label small border round">
+            <input
+                v-model="modConfig.data.proxyConfig.auth.username"
+                type="text"
+                autocomplete="off"
+                :disabled="!modConfig.data.useProxy"
+            >
+            <label>Username</label>
+          </div>
+          <div class="field label small border round">
+            <input
+                v-model="modConfig.data.proxyConfig.auth.password"
+                type="password"
+                autocomplete="off"
+                :disabled="!modConfig.data.useProxy"
+            >
+            <label>Password</label>
+          </div>
+        </div>
+      </article>
+
       <article class="border round mod-config__content__section">
         <h5>Video</h5>
         <div class="field label suffix border round small">
@@ -336,6 +410,24 @@ function save() {
       & > .field {
         margin-top: 25px;
         margin-bottom: 10px;
+      }
+    }
+
+    &__proxy {
+      &__split-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin-top: 16rem;
+        grid-gap: 5rem;
+
+        & > .field {
+          margin-top: 0;
+          margin-bottom: 0;
+        }
+      }
+
+      &__endpoint {
+        grid-template-columns: 3fr 1.5fr;
       }
     }
   }

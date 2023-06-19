@@ -33,7 +33,11 @@ export const useAppStore = defineStore('app', {
         },
         modals: {
             modConfig: {
-                data: {}
+                data: {
+                    proxyConfig: {
+                        auth: {}
+                    }
+                }
             }
         }
     }),
