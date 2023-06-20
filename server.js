@@ -1,4 +1,5 @@
 // Modules
+const project = require('./package.json');
 const path = require('path');
 const express = require('express');
 const http = require('http');
@@ -28,5 +29,5 @@ initIO(xServer);
 /* Start server
 ===============*/
 xServer.listen(port, () => {
-    console.log(clr.greenBright(`UFC Ripper GUI is live at http://localhost:${port}${__isContainer() ? ' (container)' : ''}\n`));
+    console.log(clr.greenBright(`UFC Ripper (v${project.version}) GUI is live at http://localhost:${port}${__isContainer() ? ' (container)' : ''}\n`));
 });
