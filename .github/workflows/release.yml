@@ -1,0 +1,40 @@
+name: release
+
+on:
+  release:
+    types:
+      - released
+
+jobs:
+  build-assets:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        include:
+          - os: ubuntu-latest
+            alias: linux
+          - os: windows-latest
+            alias: win
+    name: Build on ${{ matrix.os }} and upload release assets
+    runs-on: ${{ matrix.os }}
+    steps:
+      # Checkout repo
+      - uses: actions/checkout@v2
+      # Install node
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 18
+      # Install deps
+      - run: npm install --no-audit
+      # Package app
+      - name: Package for distribution
+        run: npm run pack-${{ matrix.alias }}
+      # Upload release assets
+      - name: Upload assets to release ${{ github.event.release.tag_name }}
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            ./package/artifacts/ufc-ripper-${{ matrix.alias }}-x64.zip
