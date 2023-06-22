@@ -1,6 +1,6 @@
 <h2 align="center">
     <br>
-    <img src="https://github.com/m4heshd/ufc-ripper/raw/master/project-res/images/ufcr-logo.svg" width="500px" alt="UFC Ripper">
+    <img src="https://github.com/m4heshd/ufc-ripper/raw/master/project-res/images/ufcr-banner.svg" width="500px" alt="UFC Ripper">
     <br>
     <img height="35">
     UFC Ripper: 📹 Video downloader tool for <a href="https://ufcfightpass.com">UFC Fight Pass</a> 🥊
