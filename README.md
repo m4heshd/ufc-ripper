@@ -25,6 +25,12 @@
     <!---------->
 </h2>
 
+<h2 align="center">
+    <br>
+    <img src="project-res/images/ufcr-repo-demo.gif" alt="UFC Ripper demo">
+    <br>
+</h2>
+
 ### What is UFC Ripper?
 
 An open-source video downloader tool for UFC Fight Pass that can run on both desktop and the cloud. The only thing it
