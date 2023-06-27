@@ -19,9 +19,9 @@ module.exports = {
 
 function getHeaders(auth) {
     const headers = {
-        'Realm': 'dce.ufc',
-        'x-app-var': '6.0.0',
+        'Realm': getConfig('region'),
         'x-api-key': getConfig('apiKey'),
+        'x-app-var': '6.0.1.f067525',
         'app': 'dice'
     };
 

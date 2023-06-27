@@ -22,6 +22,14 @@
             v-else
             class="mod-config__content__account__creds"
         >
+          <div class="field label suffix border round small">
+            <select v-model="modConfig.data.region">
+              <option value="dce.ufc">Global/US</option>
+              <option value="dce.ufcbrazil">Brazil</option>
+            </select>
+            <label class="active">Region</label>
+            <i>arrow_drop_down</i>
+          </div>
           <div class="field label small border round">
             <input
                 v-model="txtEmail"
@@ -400,8 +408,12 @@ function save() {
       }
 
       &__creds {
-        & > div:first-child {
-          margin-bottom: 5px;
+        & > .field {
+          margin-bottom: 16rem;
+
+          &:last-child {
+            margin-bottom: 25rem;
+          }
         }
       }
     }
