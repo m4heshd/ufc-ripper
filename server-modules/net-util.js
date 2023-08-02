@@ -106,7 +106,7 @@ async function getVODMeta(url) {
 
             return {
                 id,
-                title,
+                title: title.replace(':', ' -'),
                 desc: description,
                 thumb: thumbnailUrl,
                 access: accessLevel !== 'DENIED',
