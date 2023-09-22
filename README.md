@@ -25,11 +25,11 @@
     <!---------->
 </h2>
 
-<h2 align="center">
+<p align="center">
     <br>
     <img src="project-res/images/ufcr-repo-demo.gif" alt="UFC Ripper demo">
     <br>
-</h2>
+</p>
 
 ### What is UFC Ripper?
 
