@@ -21,7 +21,7 @@ function getHeaders(auth) {
     const headers = {
         'Realm': getConfig('region'),
         'x-api-key': getConfig('apiKey'),
-        'x-app-var': '6.0.1.f067525',
+        'x-app-var': '6.0.1.f8add0e',
         'app': 'dice'
     };
 
