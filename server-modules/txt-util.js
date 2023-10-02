@@ -7,7 +7,7 @@ module.exports = {
 };
 
 function getVODIDFromURL(url) {
-    const id = url.match(/(?<=video\/)(.*)(?=\/)/);
+    const id = new URL(url).pathname.match(/(?<=video\/).*$/);
     return id ? id[0] : null;
 }
 
