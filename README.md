@@ -34,7 +34,7 @@
 ### What is UFC Ripper?
 
 An open-source video downloader tool for UFC Fight Pass that can run on both desktop and the cloud. The only thing it
-can't do is STEAL videos free of charge for you. A paid Fight Pass account is required for this tool to work.
+can't do is STEAL videos free of charge for you. A paid Fight Pass subscription is required for this tool to work.
 
 ### Intellectual property (DISCLAIMER) ⚠️
 
@@ -45,10 +45,10 @@ illegal and this application or I (the developer) won't be liable for that.
 
 ### Dear Dana White,
 
-This isn't a tool created for pirating your copyrighted content. This tool requires a **PAID FIGHT PASS ACCOUNT** to
-function. This merely eliminates the need to stream a massive amount of data through metered connections every time you
-want to go back and watch your favorite fighters. I want your fighters to be paid more. Not less. This tool is not in
-any way meant to rob you or them of any income coming in.
+This isn't a tool created for pirating your copyrighted content. This tool requires a **PAID FIGHT PASS SUBSCRIPTION**
+to function. This merely eliminates the need to stream a massive amount of data through metered connections every time
+you want to go back and watch your favorite fighters. I want your fighters to be paid more. Not less. This tool is not
+in any way meant to rob you or them of any income coming in.
 
 The whole reason for me to create this tool is for my own need. I live in a third-world country that was destroyed by
 politicians. That made internet services more of a luxury than a right for the people of this country. Our internet
@@ -101,7 +101,7 @@ No installation is required on the desktop. The app is portable.
 
 ### Docker
 
-⚠️ Currently, the docker image is only built for `linux/amd64` systems which means it cannot be run on ARM based systems
+⚠️ Currently, the docker image is only built for `linux/amd64` systems which means it cannot be run on ARM-based systems
 like older Raspberry Pis.
 
 You can either build the docker image locally and run using [`docker-compose.yaml`](docker-compose.yaml) or use the
@@ -130,7 +130,8 @@ That's it.
 
 ## Usage
 
-⚠️ You need to have a paid UFC Fight Pass account and to be logged into that account to use UFC Ripper.
+⚠️ You need to have a UFC Fight Pass account with a paid subscription, and to be logged into that account to use UFC
+Ripper.
 
 1. Open up the GUI in the browser and go into Configuration (⚙️ button) and log in with your UFC Fight Pass account
    using
@@ -147,7 +148,7 @@ That's it.
 ### Proxy support
 
 This might come in handy when you run UFC Ripper as a docker container in the cloud because the service blocks any
-request initiated using a datacenter IP address.
+requests initiated using a datacenter IP address.
 
 If you set up a proxy, UFC Ripper will forward all API requests through that proxy server. Remember, only the API
 requests will go through the proxy. Not the downloads. This also means that your proxy server will hardly have to
@@ -170,11 +171,11 @@ That's it. Now you're ready to go.
 
 **To run for development,**
 
-1. Set `VUE_APP_WS_URI=http://localhost:8383/` in `.env` file
+1. Set `VITE_WS_URI=http://localhost:8383/` in `.env` file
 
 2. Run `npm run start` to start the backend
 
-3. Run `npm run serve` to start the front end with Vue HMR support
+3. Run `npm run dev` to start the front end with Vue HMR support
 
 4. Open the browser and visit `http://localhost:8384/`
 
