@@ -99,11 +99,11 @@ import {useAppStore} from '@/store';
 // Modules
 import {useWSUtil} from '@/modules/ws-util';
 // Components
-import VODCard from '@/components/VODCard';
-import ModVODConfirm from '@/components/ModVODConfirm';
-import ModConfig from '@/components/ModConfig';
-import Overlay from '@/components/Overlay';
-import ModBinDL from '@/components/ModBinDL';
+import VODCard from '@/components/VODCard.vue';
+import ModVODConfirm from '@/components/ModVODConfirm.vue';
+import ModConfig from '@/components/ModConfig.vue';
+import Overlay from '@/components/Overlay.vue';
+import ModBinDL from '@/components/ModBinDL.vue';
 
 // Store
 const store = useAppStore();
@@ -174,9 +174,9 @@ function download(VOD) {
 </script>
 
 <style lang="scss">
-@use "~@/assets/styles/app.scss";
-@use "~@/assets/styles/common.scss";
-@use "~@/assets/styles/overrides.scss";
+@use "@/assets/styles/app.scss";
+@use "@/assets/styles/common.scss";
+@use "@/assets/styles/overrides.scss";
 
 .ufcr {
   display: grid;

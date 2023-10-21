@@ -23,7 +23,7 @@ export function useWSUtil() {
     }
 
     function initSocket() {
-        socket = io(process.env.VUE_APP_WS_URI);
+        socket = io(import.meta.env.VITE_WS_URI);
 
         socket.on('connect', onSocketConnection);
         socket.on('disconnect', store.showOverlay);

@@ -69,7 +69,7 @@ import {useModBinDLStore} from '@/store/modBinDL';
 // Modules
 import {useWSUtil} from '@/modules/ws-util';
 // Components
-import VProgressBar from '@/components/VProgressBar';
+import VProgressBar from '@/components/VProgressBar.vue';
 
 // Store
 const store = useAppStore();
