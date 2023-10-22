@@ -22,9 +22,9 @@ jobs:
       TARGET_PLATFORM: ${{ fromJSON('{"windows-latest":"win","ubuntu-latest":"linux"}')[ inputs.platform ] }}
     steps:
       # Checkout repo
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       # Install node
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: 20
       # Install deps
