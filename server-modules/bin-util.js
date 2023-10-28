@@ -54,6 +54,8 @@ function openDLSession(VOD, cb) {
         dlPath,
         numberFiles,
         curNumber,
+        multiFrag,
+        concurFrags,
         throttle,
         dlRate,
         dlArgs
@@ -77,6 +79,7 @@ function openDLSession(VOD, cb) {
         '--ffmpeg-location': binPath
     };
     if (throttle) downloadConfig['--limit-rate'] = dlRate;
+    if (multiFrag) downloadConfig['--concurrent-fragments'] = concurFrags.toString();
 
     // Fail action
     const failDL = (error, consoleMsg, userMsg) => {

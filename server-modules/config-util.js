@@ -22,6 +22,8 @@ let config = {
     dlPath: '',
     numberFiles: true,
     curNumber: 1,
+    multiFrag: true,
+    concurFrags: 64,
     throttle: false,
     dlRate: '100K',
     useProxy: false,
