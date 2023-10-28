@@ -71,6 +71,7 @@
             :vShowThumb="store.config.showThumb"
             :vShowDesc="store.config.showDesc"
             @cancelDL="onDownloadCancel"
+            @retryDL="onDownloadRetry"
         ></VODCard>
       </div>
     </article>
@@ -154,6 +155,14 @@ function onDownloadCancel(VOD) {
       .catch(store.popError);
 }
 
+function onDownloadRetry(VOD) {
+  store.setDownloadRestart(VOD);
+  store.popInfo('Download restarted');
+
+  downloadVOD(VOD, true)
+      .catch(store.popError);
+}
+
 // Lifecycle hooks
 onMounted(() => nextTick(() => {
   window.ui();
@@ -163,7 +172,7 @@ onMounted(() => nextTick(() => {
 function download(VOD) {
   switchBusyState();
 
-  downloadVOD(VOD)
+  downloadVOD(VOD, false)
       .then((res) => {
         store.addDownload(res);
         store.popInfo('Download started');

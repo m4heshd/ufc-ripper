@@ -42,7 +42,7 @@ function validateBins(cb) {
     }
 }
 
-function openDLSession(VOD, cb) {
+function openDLSession(VOD, isRestart, cb) {
     const {qID, title, hls, vodURL} = VOD;
     const {
         vidQuality,
@@ -62,7 +62,7 @@ function openDLSession(VOD, cb) {
     } = getConfig();
 
     // Download configuration
-    const fullTitle = `${numberFiles ? `${curNumber}. ` : ''}${title}`;
+    const fullTitle = isRestart ? title : `${numberFiles ? `${curNumber}. ` : ''}${title}`;
     const progressTemplate = JSON.stringify({
         status: '%(progress.status)s',
         progress: '%(progress._percent_str)s',
@@ -93,20 +93,25 @@ function openDLSession(VOD, cb) {
     };
 
     // Begin download process
-    console.log(clr.yellowBright.bgBlack.bold.underline(`Downloading "${fullTitle}"`));
+    console.log(clr.yellowBright.bgBlack.bold.underline(`${isRestart ? 'Restarting' : 'Downloading'} "${fullTitle}"`));
     console.log(clr.dim(`${vodURL}\n`));
 
-    incFileNumber();
-    sendVODDownload({
-        ...VOD,
-        title: fullTitle,
-        task: 'prepare',
-        status: 'downloading',
-        progress: 0,
-        size: 'N/A',
-        speed: 'N/A',
-        eta: 'N/A'
-    }, cb);
+    if (!isRestart) incFileNumber();
+
+    sendVODDownload(
+        {
+            ...VOD,
+            title: fullTitle,
+            task: 'prepare',
+            status: 'downloading',
+            progress: 0,
+            size: 'N/A',
+            speed: 'N/A',
+            eta: 'N/A'
+        },
+        isRestart,
+        cb
+    );
 
     // Launch and handle yt-dlp process
     const dlArgsAll = [

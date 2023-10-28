@@ -69,12 +69,16 @@ async function verifyVOD(url, cb) {
     }
 }
 
-async function downloadVOD(VOD, cb) {
+async function downloadVOD(VOD, isRestart, cb) {
     try {
-        require('./bin-util').openDLSession({
-            ...VOD,
-            hls: await getVODStream(VOD.id)
-        }, cb);
+        require('./bin-util').openDLSession(
+            {
+                ...VOD,
+                hls: await getVODStream(VOD.id)
+            },
+            isRestart,
+            cb
+        );
     } catch (error) {
         sendError(error, cb);
     }
@@ -145,10 +149,10 @@ function sendVODMeta(VOD, cb) {
     });
 }
 
-function sendVODDownload(VOD, cb) {
+function sendVODDownload(VOD, isRestart, cb) {
     DLQ[VOD.qID] = {
         ...VOD,
-        idx: Object.values(DLQ).length + 1
+        idx: isRestart ? VOD.idx : Object.values(DLQ).length + 1
     };
 
     cb(VOD);

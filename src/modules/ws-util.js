@@ -103,8 +103,8 @@ export function useWSUtil() {
         return emitPromise('verify-url', url);
     }
 
-    function downloadVOD(VOD) {
-        return emitPromise('download', VOD);
+    function downloadVOD(VOD, isRestart) {
+        return emitPromise('download', VOD, isRestart);
     }
 
     function cancelDownload(VOD) {

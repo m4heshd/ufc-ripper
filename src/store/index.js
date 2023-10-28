@@ -75,6 +75,17 @@ export const useAppStore = defineStore('app', {
                 idx: this.downloadQueue.length + 1
             };
         },
+        setDownloadRestart(VOD) {
+            this.downloads[VOD.qID] = {
+                ...VOD,
+                task: 'prepare',
+                status: 'downloading',
+                progress: 0,
+                size: 'N/A',
+                speed: 'N/A',
+                eta: 'N/A'
+            };
+        },
         setDownloadCancelled(qID) {
             this.downloads[qID].status = 'cancelled';
         }

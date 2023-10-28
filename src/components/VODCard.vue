@@ -56,7 +56,20 @@
             </button>
             <span>{{ `${vVODData.progress}%` }}</span>
           </div>
-          <i v-else>{{ statusIcons[vVODData.status] }}</i>
+          <div
+              v-else
+              class="center-content vod-card__details__status__post-action"
+          >
+            <button
+                v-if="isFailed"
+                class="square round fill small"
+                title="Retry download"
+                @click="$emit('retryDL',vVODData)"
+            >
+              <i>refresh</i>
+            </button>
+            <i>{{ statusIcons[vVODData.status] }}</i>
+          </div>
         </div>
       </div>
     </div>
@@ -75,7 +88,8 @@ const props = defineProps({
 });
 
 defineEmits([
-  'cancelDL'
+  'cancelDL',
+  'retryDL'
 ]);
 
 // Status and progress
@@ -177,8 +191,13 @@ const taskDescs = {
         }
       }
 
-      & > i {
-        cursor: default;
+      &__post-action {
+        flex-direction: column;
+        gap: 12px;
+
+        & > i {
+          cursor: default;
+        }
       }
     }
   }
