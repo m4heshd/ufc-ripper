@@ -29,3 +29,7 @@ body {
     margin-left: 10px;
   }
 }
+
+.field > input:disabled + label:not(.active) {
+  opacity: .5;
+}

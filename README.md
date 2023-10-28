@@ -189,6 +189,9 @@ That's it. Now you're ready to go.
 
 # Future improvements planned
 
+- [x] Migrate to Vite (dev)
+- [x] Support for concurrent multi-fragment download
+- [ ] Ability to restart failed downloads
 - [ ] Support for more architectures, including ARM-based systems
 - [ ] Mobile-responsive Web UI
 - [ ] Make completed files downloadable right from the UFC Ripper Web UI (hosted)

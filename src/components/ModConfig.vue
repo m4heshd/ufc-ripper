@@ -123,6 +123,31 @@
                 v-model.number="modConfig.data.curNumber"
                 type="number"
                 min="1"
+                :disabled="!modConfig.data.numberFiles"
+            >
+          </div>
+        </div>
+        <nav class="v-switch">
+          <div class="max">
+            <h6>Multi-fragment download</h6>
+            <div>Concurrently download the given number of fragments (improves download speed)</div>
+          </div>
+          <label class="switch">
+            <input
+                v-model="modConfig.data.multiFrag"
+                type="checkbox"
+            >
+            <span></span>
+          </label>
+        </nav>
+        <div class="short-text">
+          <span>Number of fragments:</span>
+          <div class="field border round small no-margin">
+            <input
+                v-model.number="modConfig.data.concurFrags"
+                type="number"
+                min="1"
+                :disabled="!modConfig.data.multiFrag"
             >
           </div>
         </div>
@@ -145,6 +170,7 @@
             <input
                 v-model="modConfig.data.dlRate"
                 type="text"
+                :disabled="!modConfig.data.throttle"
             >
           </div>
         </div>
