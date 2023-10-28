@@ -45,7 +45,7 @@
 
     <article class="border round dls-section">
       <div class="dls-section__header">
-        <h5>Downloads</h5>
+        <h5>Downloads {{ store.activeDownloads ? `(${store.activeDownloads} active)` : '' }}</h5>
         <div class="dls-section__header__actions">
           <button
               class="border square round small"
