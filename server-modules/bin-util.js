@@ -5,7 +5,7 @@ const {spawn, execSync} = require('child_process');
 const {platform} = require('os');
 const kill = require('tree-kill');
 const clr = require('ansi-colors');
-const {getConfig, incFileNumber, decFileNumber} = require('./config-util');
+const {getConfig, incFileNumber} = require('./config-util');
 const {sendVODDownload, emitError, emitDownloadProgress, sendDLCancel} = require('./io-util');
 const {createUFCRError} = require('./error-util');
 const {processYTDLPOutput} = require('./txt-util');
@@ -86,7 +86,6 @@ function openDLSession(VOD, isRestart, cb) {
         if (!failedDownloads.includes(qID)) {
             console.error(clr.redBright.bgBlack.bold(consoleMsg));
             failedDownloads.push(qID);
-            decFileNumber();
             emitError(createUFCRError(error, `${userMsg}\nCheck the console for error information`));
             emitDownloadProgress(qID, {status: 'failed'});
         }
