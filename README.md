@@ -154,14 +154,21 @@ If you set up a proxy, UFC Ripper will forward all API requests through that pro
 requests will go through the proxy. Not the downloads. This also means that your proxy server will hardly have to
 transfer any data through it.
 
+### Concurrent multi-fragment downloads
+
+UFC Fight Pass streams are very heavily limited to slower bandwidths. But these streams are broken down to little
+fragments. This feature allows you to download the given number of fragments concurrently, which multiplies the speed of
+downloads by the number of allowed concurrent fragment downloads. You can set the amount in the configuration as you
+wish.
+
 ### File numbering
 
 UFC Ripper can automatically number each download incrementally. Let's say you discovered a fighter you haven't watched
-before and interested in watching all of their fights in order. This feature would be very useful in an event like that.
+before and interested in watching all of their fights in order. This feature would be beneficial in an event like that.
 
 ## Development
 
-You need to have Node.js (>=18) installed locally to develop, compile and package this project yourself.
+You need to have Node.js (>=18) installed locally to develop, compile, and package this project yourself.
 
 1. Run `git clone https://github.com/m4heshd/ufc-ripper.git`
 
@@ -185,7 +192,9 @@ That's it. Now you're ready to go.
 
 **To build and run the docker container,**
 
-1. Run `npm run docker:up`
+1. Run `npm run pack-linux`
+
+2. Run `npm run docker:up`
 
 # Future improvements planned
 
