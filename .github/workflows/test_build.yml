@@ -34,7 +34,7 @@ jobs:
         run: npm run pack-${{ env.TARGET_PLATFORM }}
       # Upload build artifact
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ufc-ripper-test-build-${{ github.run_number }}-artifacts
           path: package/artifacts/${{ env.PACKAGE_NAME }}

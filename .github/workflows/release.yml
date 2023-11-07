@@ -41,7 +41,7 @@ jobs:
       # Upload Linux build to artifacts
       - if: matrix.os == 'ubuntu-latest'
         name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: linux-assets
           path: package/linux/
