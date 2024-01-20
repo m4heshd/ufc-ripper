@@ -174,6 +174,39 @@
             >
           </div>
         </div>
+        <nav class="v-switch">
+          <div class="max">
+            <h6>Use custom download format</h6>
+            <div>Use a custom download format provided by
+              <a
+                  href="https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#format-selection"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style="color: var(--primary)"
+              >
+                <code>yt-dlp --list-formats (click here to learn more)</code>
+              </a>.<br>
+              This will override any video and audio settings you have specified below
+            </div>
+          </div>
+          <label class="switch">
+            <input
+                v-model="modConfig.data.cusFormat"
+                type="checkbox"
+            >
+            <span></span>
+          </label>
+        </nav>
+        <div class="long-text">
+          <span>Format template:</span>
+          <div class="field border round small no-margin">
+            <input
+                v-model="modConfig.data.formatID"
+                type="text"
+                :disabled="!modConfig.data.cusFormat"
+            >
+          </div>
+        </div>
       </article>
 
       <article class="border round mod-config__content__section mod-config__content__proxy">
@@ -252,8 +285,14 @@
 
       <article class="border round mod-config__content__section">
         <h5>Video</h5>
+        <span v-if="modConfig.data.cusFormat">
+          ⚠️ These settings are disabled because you're using a custom format ID
+        </span>
         <div class="field label suffix border round small">
-          <select v-model="modConfig.data.resolution">
+          <select
+              v-model="modConfig.data.resolution"
+              :disabled="modConfig.data.cusFormat"
+          >
             <option value="288">288p</option>
             <option value="360">360p</option>
             <option value="504">504p</option>
@@ -264,14 +303,20 @@
           <i>arrow_drop_down</i>
         </div>
         <div class="field label suffix border round small">
-          <select v-model="modConfig.data.framerate">
+          <select
+              v-model="modConfig.data.framerate"
+              :disabled="modConfig.data.cusFormat"
+          >
             <option value="30">30 FPS</option>
           </select>
           <label class="active">Framerate</label>
           <i>arrow_drop_down</i>
         </div>
         <div class="field label suffix border round small">
-          <select v-model="modConfig.data.vidQuality">
+          <select
+              v-model="modConfig.data.vidQuality"
+              :disabled="modConfig.data.cusFormat"
+          >
             <option value="bestvideo">Best (huge filesize)</option>
             <option value="worstvideo">Worst</option>
           </select>
@@ -279,7 +324,10 @@
           <i>arrow_drop_down</i>
         </div>
         <div class="field label suffix border round small">
-          <select v-model="modConfig.data.mergeExt">
+          <select
+              v-model="modConfig.data.mergeExt"
+              :disabled="modConfig.data.cusFormat"
+          >
             <option value="mp4">mp4</option>
             <option value="mkv">mkv</option>
             <option value="mov">mov</option>
@@ -293,8 +341,14 @@
 
       <article class="border round mod-config__content__section">
         <h5>Audio</h5>
+        <span v-if="modConfig.data.cusFormat">
+          ⚠️ These settings are disabled because you're using a custom format ID
+        </span>
         <div class="field label suffix border round small">
-          <select v-model="modConfig.data.audQuality">
+          <select
+              v-model="modConfig.data.audQuality"
+              :disabled="modConfig.data.cusFormat"
+          >
             <option value="bestaudio">Best</option>
             <option value="worstaudio">Worst</option>
           </select>
@@ -347,9 +401,9 @@ const txtEmail = ref('');
 const txtPass = ref('');
 
 function onBtnLogoutClick() {
-  modConfig.data.user = "";
-  modConfig.data.authToken = "";
-  modConfig.data.refreshToken = "";
+  modConfig.data.user = '';
+  modConfig.data.authToken = '';
+  modConfig.data.refreshToken = '';
   save();
 }
 
@@ -408,15 +462,24 @@ function save() {
         font-weight: bold;
       }
 
-      & .short-text {
+      & .short-text,
+      & .long-text {
         display: flex;
         align-items: center;
         gap: 5px;
         margin: 16rem 0 0 0;
 
-        & > div {
-          width: 100px;
+        & > span {
+          white-space: nowrap;
         }
+      }
+
+      & .short-text > div {
+        width: 100px;
+      }
+
+      & .long-text > div {
+        width: 100%;
       }
 
       & > .field {
