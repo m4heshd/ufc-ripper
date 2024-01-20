@@ -26,6 +26,8 @@ let config = {
     concurFrags: 64,
     throttle: false,
     dlRate: '100K',
+    cusFormat: false,
+    formatID: '',
     useProxy: false,
     proxyConfig: {
         protocol: 'http',

@@ -57,6 +57,8 @@ function openDLSession(VOD, isRestart, cb) {
         multiFrag,
         concurFrags,
         throttle,
+        cusFormat,
+        formatID,
         dlRate,
         dlArgs
     } = getConfig();
@@ -80,6 +82,7 @@ function openDLSession(VOD, isRestart, cb) {
     };
     if (throttle) downloadConfig['--limit-rate'] = dlRate;
     if (multiFrag) downloadConfig['--concurrent-fragments'] = concurFrags.toString();
+    if (cusFormat) downloadConfig['--format'] = formatID;
 
     // Fail action
     const failDL = (error, consoleMsg, userMsg) => {
