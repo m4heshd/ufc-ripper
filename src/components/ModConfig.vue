@@ -103,6 +103,20 @@
           <label>Location (directory)</label>
           <i>folder_open</i>
         </div>
+        <div class="field label suffix border round small">
+          <select
+              v-model="modConfig.data.mergeExt"
+              :disabled="modConfig.data.cusFormat"
+          >
+            <option value="mp4">mp4</option>
+            <option value="mkv">mkv</option>
+            <option value="mov">mov</option>
+            <option value="avi">avi</option>
+            <option value="webm">webm</option>
+          </select>
+          <label class="active">Extension (container)</label>
+          <i>arrow_drop_down</i>
+        </div>
         <nav class="v-switch">
           <div class="max">
             <h6>Number files</h6>
@@ -209,6 +223,64 @@
         </div>
       </article>
 
+      <article class="border round mod-config__content__section">
+        <h5>Video</h5>
+        <div
+            v-if="modConfig.data.cusFormat"
+            class="mod-config__content__section__warning"
+        >
+          <i>warning</i>
+          <span>These settings are disabled because you're using a custom format template</span>
+        </div>
+        <div class="field label suffix border round small">
+          <select
+              v-model="modConfig.data.resolution"
+              :disabled="modConfig.data.cusFormat"
+          >
+            <option value="288">288p</option>
+            <option value="360">360p</option>
+            <option value="504">504p</option>
+            <option value="720">720p</option>
+            <option value="1080">1080p</option>
+          </select>
+          <label class="active">Resolution</label>
+          <i>arrow_drop_down</i>
+        </div>
+        <div class="field label suffix border round small">
+          <select
+              v-model="modConfig.data.vidQuality"
+              :disabled="modConfig.data.cusFormat"
+          >
+            <option value="bestvideo">Best (huge filesize)</option>
+            <option value="worstvideo">Worst</option>
+          </select>
+          <label class="active">Quality</label>
+          <i>arrow_drop_down</i>
+        </div>
+      </article>
+
+      <article class="border round mod-config__content__section">
+        <h5>Audio</h5>
+        <div
+            v-if="modConfig.data.cusFormat"
+            class="mod-config__content__section__warning"
+        >
+          <i>warning</i>
+          <span>These settings are disabled because you're using a custom format template</span>
+        </div>
+        <div class="field label suffix border round small">
+          <select
+              v-model="modConfig.data.audQuality"
+              :disabled="modConfig.data.cusFormat"
+          >
+            <option value="bestaudio">Best</option>
+            <option value="worstaudio">Worst</option>
+          </select>
+          <label class="active">Quality</label>
+          <i>arrow_drop_down</i>
+        </div>
+      </article>
+
       <article class="border round mod-config__content__section mod-config__content__proxy">
         <h5>Proxy</h5>
         <nav class="v-switch">
@@ -280,70 +352,6 @@
             >
             <label>Password</label>
           </div>
-        </div>
-      </article>
-
-      <article class="border round mod-config__content__section">
-        <h5>Video</h5>
-        <span v-if="modConfig.data.cusFormat">
-          ⚠️ These settings are disabled because you're using a custom format ID
-        </span>
-        <div class="field label suffix border round small">
-          <select
-              v-model="modConfig.data.resolution"
-              :disabled="modConfig.data.cusFormat"
-          >
-            <option value="288">288p</option>
-            <option value="360">360p</option>
-            <option value="504">504p</option>
-            <option value="720">720p</option>
-            <option value="1080">1080p</option>
-          </select>
-          <label class="active">Resolution</label>
-          <i>arrow_drop_down</i>
-        </div>
-        <div class="field label suffix border round small">
-          <select
-              v-model="modConfig.data.vidQuality"
-              :disabled="modConfig.data.cusFormat"
-          >
-            <option value="bestvideo">Best (huge filesize)</option>
-            <option value="worstvideo">Worst</option>
-          </select>
-          <label class="active">Quality</label>
-          <i>arrow_drop_down</i>
-        </div>
-        <div class="field label suffix border round small">
-          <select
-              v-model="modConfig.data.mergeExt"
-              :disabled="modConfig.data.cusFormat"
-          >
-            <option value="mp4">mp4</option>
-            <option value="mkv">mkv</option>
-            <option value="mov">mov</option>
-            <option value="avi">avi</option>
-            <option value="webm">webm</option>
-          </select>
-          <label class="active">Extension (container)</label>
-          <i>arrow_drop_down</i>
-        </div>
-      </article>
-
-      <article class="border round mod-config__content__section">
-        <h5>Audio</h5>
-        <span v-if="modConfig.data.cusFormat">
-          ⚠️ These settings are disabled because you're using a custom format ID
-        </span>
-        <div class="field label suffix border round small">
-          <select
-              v-model="modConfig.data.audQuality"
-              :disabled="modConfig.data.cusFormat"
-          >
-            <option value="bestaudio">Best</option>
-            <option value="worstaudio">Worst</option>
-          </select>
-          <label class="active">Quality</label>
-          <i>arrow_drop_down</i>
         </div>
       </article>
     </div>
@@ -450,6 +458,17 @@ function save() {
         color: var(--primary);
         font-size: 18px;
         font-weight: bold;
+      }
+
+      &__warning {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 20px;
+
+        & > i {
+          font-size: 20px;
+          color: var(--warning);
+        }
       }
 
       & .short-text,
