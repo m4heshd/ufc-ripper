@@ -48,8 +48,6 @@ function openDLSession(VOD, isRestart, cb) {
         vidQuality,
         audQuality,
         resolution,
-        framerate,
-        extension,
         mergeExt,
         dlPath,
         numberFiles,
@@ -74,7 +72,7 @@ function openDLSession(VOD, isRestart, cb) {
         vcodec: '%(info.vcodec)s'
     });
     const downloadConfig = {
-        '--format': `${vidQuality}[height=${resolution}][fps=${framerate}][ext=${extension}]+${audQuality}`,
+        '--format': `${vidQuality}[height=${resolution}]+${audQuality}`,
         '--merge-output-format': mergeExt,
         '--output': `${path.join(dlPath, `${fullTitle}.%(ext)s`)}`,
         '--progress-template': progressTemplate,

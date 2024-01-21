@@ -14,8 +14,6 @@ let config = {
     showThumb: true,
     showDesc: true,
     resolution: '720',
-    framerate: '30',
-    extension: 'mp4',
     mergeExt: 'mp4',
     vidQuality: 'worstvideo',
     audQuality: 'bestaudio',

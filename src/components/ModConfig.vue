@@ -304,16 +304,6 @@
         </div>
         <div class="field label suffix border round small">
           <select
-              v-model="modConfig.data.framerate"
-              :disabled="modConfig.data.cusFormat"
-          >
-            <option value="30">30 FPS</option>
-          </select>
-          <label class="active">Framerate</label>
-          <i>arrow_drop_down</i>
-        </div>
-        <div class="field label suffix border round small">
-          <select
               v-model="modConfig.data.vidQuality"
               :disabled="modConfig.data.cusFormat"
           >
