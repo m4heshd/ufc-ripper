@@ -10,7 +10,7 @@
   },
   "private": true,
   "scripts": {
-    "start": "node server.js",
+    "start-server": "node server.js",
     "dev": "vite",
     "build": "vite build",
     "docker:up": "docker compose up --detach --build",

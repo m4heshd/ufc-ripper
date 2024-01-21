@@ -180,11 +180,9 @@ That's it. Now you're ready to go.
 
 1. Set `VITE_WS_URI=http://localhost:8383/` in `.env` file
 
-2. Run `npm run start` to start the backend
+2. Run `npm run dev` to start the front-end and back-end with Vue HMR support
 
-3. Run `npm run dev` to start the front end with Vue HMR support
-
-4. Open the browser and visit `http://localhost:8384/`
+3. Open the browser and visit `http://localhost:8384/`
 
 **To package the application for production,**
 
