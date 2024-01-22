@@ -286,7 +286,7 @@
         <nav class="v-switch">
           <div class="max">
             <h6>Use proxy</h6>
-            <div>Use the following proxy for API requests</div>
+            <div>Use the following proxy for API requests (downloads will not be proxied through this server)</div>
           </div>
           <label class="switch">
             <input
@@ -524,6 +524,10 @@ function save() {
     }
 
     &__proxy {
+      & > .v-switch {
+        margin-bottom: 20px;
+      }
+
       &__split-section {
         display: grid;
         grid-template-columns: 1fr 1fr;

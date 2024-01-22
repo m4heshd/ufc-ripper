@@ -77,14 +77,22 @@ async function refreshAuth() {
         proxy: getProxyConfig()
     };
 
-    const {data} = await axios(config);
+    try {
+        const {data} = await axios(config);
 
-    if (data?.authorisationToken) {
-        writeConfig({
-            authToken: data.authorisationToken
-        }, false);
-    } else {
-        throw createUFCRError('No auth returned');
+        if (data?.authorisationToken) {
+            writeConfig({
+                authToken: data.authorisationToken
+            }, false);
+        } else {
+            throw createUFCRError('No auth returned');
+        }
+    } catch (error) {
+        if (error.response?.status === 404) {
+            throw createUFCRError(error, 'Your Fight Pass login has expired. Please logout and login again');
+        } else {
+            throw createUFCRError(error, 'An unknown error has occurred while trying to refresh the authorization token');
+        }
     }
 }
 
