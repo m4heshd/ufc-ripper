@@ -95,7 +95,8 @@ async function downloadVOD(VOD, isRestart, cb) {
 
 async function cancelDownload(VOD, cb) {
     try {
-        require('./bin-util').cancelDLSession(VOD, cb);
+        await require('./bin-util').cancelDLSession(VOD);
+        sendDLCancel(VOD, cb);
     } catch (error) {
         sendError(error, cb);
     }

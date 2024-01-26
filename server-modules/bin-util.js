@@ -6,7 +6,7 @@ const {platform} = require('os');
 const kill = require('tree-kill');
 const clr = require('ansi-colors');
 const {getConfig, incFileNumber} = require('./config-util');
-const {sendVODDownload, emitError, emitDownloadProgress, sendDLCancel} = require('./io-util');
+const {sendVODDownload, emitError, emitDownloadProgress} = require('./io-util');
 const {createUFCRError} = require('./error-util');
 const {processYTDLPOutput} = require('./txt-util');
 
@@ -189,15 +189,20 @@ function openDLSession(VOD, isRestart, cb) {
     });
 }
 
-function cancelDLSession(VOD, cb) {
-    const {qID, title} = VOD;
+function cancelDLSession(VOD) {
+    return new Promise((resolve, reject) => {
+        const {qID, title} = VOD;
 
-    if (!downloads[qID]) throw createUFCRError('Download process is not present');
+        if (!downloads[qID]) return reject(createUFCRError('Download process is not present anymore'));
 
-    kill(downloads[qID].pid, 'SIGKILL', (error) => {
-        if (error) throw createUFCRError(error, 'Unable to cancel the download');
-        console.error(clr.redBright.bgBlack.bold(`Download cancelled by user - "${title}"`));
-        sendDLCancel(VOD, cb);
+        kill(downloads[qID].pid, 'SIGKILL', (error) => {
+            if (error) {
+                reject(createUFCRError(error, 'An error occurred while trying to cancel the download. Check the console for error information'));
+            } else {
+                console.error(clr.redBright.bgBlack.bold(`Download cancelled by user - "${title}"`));
+                resolve();
+            }
+        });
     });
 }
 
