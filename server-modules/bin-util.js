@@ -23,6 +23,7 @@ const bins = {
 module.exports = {
     binPath,
     validateBins,
+    getListFormatsOutput,
     openDLSession,
     cancelDLSession,
     openDLDir,
@@ -40,6 +41,41 @@ function validateBins(cb) {
     } catch (error) {
         throw createUFCRError(error, 'Unable to validate helper tools');
     }
+}
+
+function getListFormatsOutput(hls) {
+    return new Promise((resolve, reject) => {
+        const args = ['--print', '%(formats.:.{format_id,resolution,fps,tbr,vcodec,acodec})j', hls];
+        let output = {};
+
+        const yt_dlp = spawn(path.join(bins.ytDlp), args);
+
+        yt_dlp.on('error', (error) => {
+            console.error(`${getConfig('verboseLogging') ? error.stack : error}\n`);
+            reject(createUFCRError(error, 'Failed to start the yt-dlp process'));
+        });
+
+        yt_dlp.on('close', (code) => {
+            if (code === 0) {
+                if (Array.isArray(output) && output.length) {
+                    resolve(output);
+                } else {
+                    reject(createUFCRError('Response does not contain any streams. Please check the URL you entered'));
+                }
+            } else {
+                reject(createUFCRError(output, 'Format request process ended with error. Check the console for error information'));
+            }
+        });
+
+        yt_dlp.stdout.on('data', (data) => {
+            output = JSON.parse(data.toString());
+        });
+
+        yt_dlp.stderr.on('data', (data) => {
+            if (getConfig('verboseLogging')) console.error(data.toString());
+            output += data.toString();
+        });
+    });
 }
 
 function openDLSession(VOD, isRestart, cb) {

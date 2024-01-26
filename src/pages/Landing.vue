@@ -35,6 +35,15 @@
 
       <button
           class="square round large"
+          title="Get available formats"
+          :disabled="busy"
+          @click="onBtnGetFmtClick"
+      >
+        <i>stock_media</i>
+      </button>
+
+      <button
+          class="square round large"
           title="Configuration"
           :disabled="busy"
           @click="store.showModConfig"
@@ -86,6 +95,7 @@
     ></ModVODConfirm>
     <ModConfig></ModConfig>
     <ModBinDL></ModBinDL>
+    <ModViewFormats></ModViewFormats>
 
     <!-- Overlay -->
     <Overlay :vActive="store.ui.overlay"></Overlay>
@@ -97,20 +107,23 @@
 import {ref, nextTick, onMounted} from 'vue';
 // Store
 import {useAppStore} from '@/store';
+import {useModViewFormatsStore} from '@/store/modViewFormats';
 // Modules
 import {useWSUtil} from '@/modules/ws-util';
 // Components
 import VODCard from '@/components/VODCard.vue';
 import ModVODConfirm from '@/components/ModVODConfirm.vue';
 import ModConfig from '@/components/ModConfig.vue';
-import Overlay from '@/components/Overlay.vue';
 import ModBinDL from '@/components/ModBinDL.vue';
+import ModViewFormats from '@/components/ModViewFormats.vue';
+import Overlay from '@/components/Overlay.vue';
 
 // Store
 const store = useAppStore();
+const modViewFormats = useModViewFormatsStore();
 
 // Websocket
-const {cancelDownload, clearDLQ, downloadVOD, initSocket, openDownloadsDir, verifyURL} = useWSUtil();
+const {cancelDownload, clearDLQ, downloadVOD, initSocket, openDownloadsDir, verifyURL, getFormats} = useWSUtil();
 
 initSocket();
 
@@ -138,7 +151,21 @@ function onBtnDownloadClick() {
       .finally(switchBusyState);
 }
 
-// Downloads
+function onBtnGetFmtClick() {
+  if (!store.isLoggedIn) return store.popError('You need to be logged in to check download formats');
+
+  switchBusyState();
+
+  getFormats(txtLink.value)
+      .then((res) => {
+        modViewFormats.setVODData(res);
+        window.ui('#modViewFormats');
+      })
+      .catch(store.popError)
+      .finally(switchBusyState);
+}
+
+// Downloads section
 function onBtnOpenDLDir() {
   openDownloadsDir().catch(store.popError);
 }

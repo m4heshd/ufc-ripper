@@ -102,7 +102,7 @@ No installation is required on the desktop. The app is portable.
 ### Docker
 
 ⚠️ Currently, the docker image is only built for `linux/amd64` systems which means it cannot be run on ARM-based systems
-like older Raspberry Pis.
+like Raspberry Pis.
 
 You can either build the docker image locally and run using [`docker-compose.yaml`](docker-compose.yaml) or use the
 published [official image](https://hub.docker.com/r/m4heshd/ufc-ripper).

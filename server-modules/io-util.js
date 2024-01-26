@@ -38,6 +38,7 @@ function initIO(httpServer) {
         socket.on('get-dlq', cb => cb(DLQ));
         socket.on('login', login);
         socket.on('verify-url', verifyVOD);
+        socket.on('get-formats', getFormats);
         socket.on('download', downloadVOD);
         socket.on('cancel-download', cancelDownload);
         socket.on('clear-dlq', clearDLQ);
@@ -64,6 +65,14 @@ async function login(email, pass, cb) {
 async function verifyVOD(url, cb) {
     try {
         sendVODMeta(await getVODMeta(url), cb);
+    } catch (error) {
+        sendError(error, cb);
+    }
+}
+
+async function getFormats(url, cb) {
+    try {
+        await sendFormats(url, cb);
     } catch (error) {
         sendError(error, cb);
     }
@@ -146,6 +155,17 @@ function sendVODMeta(VOD, cb) {
     cb({
         ...VOD,
         qID: randomUUID()
+    });
+}
+
+async function sendFormats(url, cb) {
+    const VOD = await getVODMeta(url);
+    const hls = await getVODStream(VOD.id);
+    const formats = await require('./bin-util').getListFormatsOutput(hls);
+
+    cb({
+        title: VOD.title,
+        formats
     });
 }
 

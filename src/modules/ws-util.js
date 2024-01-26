@@ -103,6 +103,10 @@ export function useWSUtil() {
         return emitPromise('verify-url', url);
     }
 
+    function getFormats(url) {
+        return emitPromise('get-formats', url);
+    }
+
     function downloadVOD(VOD, isRestart) {
         return emitPromise('download', VOD, isRestart);
     }
@@ -139,6 +143,7 @@ export function useWSUtil() {
         saveConfig,
         login,
         verifyURL,
+        getFormats,
         downloadVOD,
         cancelDownload,
         clearDLQ,
