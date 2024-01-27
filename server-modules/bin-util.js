@@ -11,7 +11,7 @@ const {createUFCRError} = require('./error-util');
 const {processYTDLPOutput} = require('./txt-util');
 
 const downloads = {}; // yt-dlp child processes
-const failedDownloads = [];
+let failedDownloads = [];
 const binPath = path.resolve('.', 'bin');
 const bins = {
     atomicParsley: path.join(binPath, {win32: 'AtomicParsley.exe', linux: 'AtomicParsley'}[platform()]),
@@ -132,7 +132,11 @@ function openDLSession(VOD, isRestart, cb) {
     console.log(clr.yellowBright.bgBlack.bold.underline(`${isRestart ? 'Restarting' : 'Downloading'} "${fullTitle}"`));
     console.log(clr.dim(`${vodURL}\n`));
 
-    if (!isRestart) incFileNumber();
+    if (isRestart) {
+        failedDownloads = failedDownloads.filter(dl => dl !== qID);
+    } else {
+        incFileNumber();
+    }
 
     sendVODDownload(
         {
