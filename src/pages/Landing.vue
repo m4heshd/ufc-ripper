@@ -142,7 +142,6 @@ function onBtnDownloadClick() {
 
   verifyURL(txtLink.value)
       .then((res) => {
-        txtLink.value = '';
         verifiedVOD.value = res;
 
         window.ui('#modVODConfirm');
@@ -203,6 +202,8 @@ function download(VOD) {
       .then((res) => {
         store.addDownload(res);
         store.popInfo('Download started');
+
+        txtLink.value = '';
       })
       .catch(store.popError)
       .finally(switchBusyState);
