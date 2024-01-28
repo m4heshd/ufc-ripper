@@ -118,16 +118,6 @@ function openDLSession(VOD, isRestart, cb) {
     if (multiFrag) downloadConfig['--concurrent-fragments'] = concurFrags.toString();
     if (cusFormat) downloadConfig['--format'] = formatID;
 
-    // Fail action
-    const failDL = (error, consoleMsg, userMsg) => {
-        if (!failedDownloads.includes(qID)) {
-            console.error(clr.redBright.bgBlack.bold(consoleMsg));
-            failedDownloads.push(qID);
-            emitError(createUFCRError(error, `${userMsg}\nCheck the console for error information`));
-            emitDownloadProgress(qID, {status: 'failed'});
-        }
-    };
-
     // Begin download process
     console.log(clr.yellowBright.bgBlack.bold.underline(`${isRestart ? 'Restarting' : 'Downloading'} "${fullTitle}"`));
     console.log(clr.dim(`${vodURL}\n`));
@@ -153,6 +143,24 @@ function openDLSession(VOD, isRestart, cb) {
         cb
     );
 
+    // Progress tracking and update
+    let progress = {task: 'prepare'};
+    const progressUpdateTimer = setInterval(() => {
+        emitDownloadProgress(qID, progress);
+    }, 500);
+
+    // Fail action
+    const failDL = (error, consoleMsg, userMsg) => {
+        clearInterval(progressUpdateTimer);
+
+        if (!failedDownloads.includes(qID)) {
+            console.error(clr.redBright.bgBlack.bold(consoleMsg));
+            failedDownloads.push(qID);
+            emitError(createUFCRError(error, `${userMsg}\nCheck the console for error information`));
+            emitDownloadProgress(qID, {status: 'failed'});
+        }
+    };
+
     // Launch and handle yt-dlp process
     const dlArgsAll = [
         ...Object.entries(downloadConfig).flat(),
@@ -174,6 +182,8 @@ function openDLSession(VOD, isRestart, cb) {
     });
 
     dl.on('close', (code) => {
+        clearInterval(progressUpdateTimer);
+
         if (code === 0) {
             console.log(clr.greenBright.bgBlack.bold(`Completed download - "${fullTitle}"`));
             emitDownloadProgress(qID, {status: 'completed'});
@@ -181,7 +191,7 @@ function openDLSession(VOD, isRestart, cb) {
     });
 
     dl.stdout.on('data', (data) => {
-        emitDownloadProgress(qID, processYTDLPOutput(data));
+        progress = processYTDLPOutput(data);
     });
 
     dl.stderr.on('data', (data) => {
