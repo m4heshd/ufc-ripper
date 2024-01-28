@@ -1,10 +1,17 @@
 <template>
   <div class="ufcr">
     <div class="logo center-content">
-      <img
-          alt="UFC Ripper logo"
-          src="@/assets/images/ufcr-logo.svg"
+      <a
+          href="https://github.com/m4heshd/ufc-ripper"
+          target="_blank"
+          rel="noopener noreferrer"
       >
+        <img
+            alt="UFC Ripper logo"
+            title="UFC Ripper by m4heshd"
+            src="@/assets/images/ufcr-logo.svg"
+        >
+      </a>
     </div>
 
     <div class="url-section center-content">
@@ -217,17 +224,21 @@ function download(VOD) {
 
 .ufcr {
   display: grid;
-  grid-gap: 50px;
   grid-template-rows: max-content max-content minmax(0px, 1fr);
   justify-items: center;
   margin: 3vw;
 
-  .logo > img {
-    height: 70px;
+  .logo {
+    margin-bottom: 35px;
+
+    & > a > img {
+      height: 55px;
+    }
   }
 
   .url-section {
     gap: 10px;
+    margin-bottom: 50px;
 
     &__txt-link {
       width: 60vw;
