@@ -101,6 +101,19 @@
       </div>
     </article>
 
+    <div class="credits">
+      <p>
+        Made with ❤️ by
+        <a
+            href="https://github.com/m4heshd"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+          m4heshd
+        </a>
+      </p>
+    </div>
+
     <!-- Modals -->
     <ModVODConfirm
         vID="modVODConfirm"
@@ -239,9 +252,9 @@ function download(VOD) {
 
 .ufcr {
   display: grid;
-  grid-template-rows: max-content max-content minmax(0px, 1fr);
+  grid-template-rows: max-content max-content minmax(0px, 1fr) max-content;
   justify-items: center;
-  margin: 3vw;
+  margin: 3vw 3vw 1vw;
 
   .logo {
     margin-bottom: 35px;
@@ -285,6 +298,17 @@ function download(VOD) {
       margin: 10px;
       overflow: auto;
       border-radius: 0;
+    }
+  }
+
+  .credits {
+    margin-top: 5px;
+
+    & > p > a {
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 15px;
+      text-decoration: underline;
     }
   }
 }
