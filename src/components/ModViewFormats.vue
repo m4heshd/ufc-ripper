@@ -44,7 +44,14 @@
 
       <div class="instructions">
         You can use any of the above metadata as the custom download format in the configuration. Please read more about
-        format selection in the <a href="https://github.com/yt-dlp/yt-dlp#format-selection">yt-dlp documentation</a>
+        format selection in the
+        <a
+            href="https://github.com/yt-dlp/yt-dlp#format-selection"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+          yt-dlp documentation
+        </a>
         before using this feature.
       </div>
     </div>

@@ -57,6 +57,15 @@
       >
         <i>settings</i>
       </button>
+
+      <button
+          class="square round large"
+          title="Support this project"
+          :disabled="busy"
+          @click="onBtnSupportClick"
+      >
+        <i>favorite</i>
+      </button>
     </div>
 
     <article class="border round dls-section">
@@ -103,6 +112,7 @@
     <ModConfig></ModConfig>
     <ModBinDL></ModBinDL>
     <ModViewFormats></ModViewFormats>
+    <ModSupport></ModSupport>
 
     <!-- Overlay -->
     <Overlay :vActive="store.ui.overlay"></Overlay>
@@ -123,6 +133,7 @@ import ModVODConfirm from '@/components/ModVODConfirm.vue';
 import ModConfig from '@/components/ModConfig.vue';
 import ModBinDL from '@/components/ModBinDL.vue';
 import ModViewFormats from '@/components/ModViewFormats.vue';
+import ModSupport from '@/components/ModSupport.vue';
 import Overlay from '@/components/Overlay.vue';
 
 // Store
@@ -169,6 +180,10 @@ function onBtnGetFmtClick() {
       })
       .catch(store.popError)
       .finally(switchBusyState);
+}
+
+function onBtnSupportClick() {
+  window.ui('#modSupport');
 }
 
 // Downloads section
@@ -241,7 +256,7 @@ function download(VOD) {
     margin-bottom: 50px;
 
     &__txt-link {
-      width: 60vw;
+      width: 55vw;
       max-width: 900px;
       margin-bottom: 0;
     }
