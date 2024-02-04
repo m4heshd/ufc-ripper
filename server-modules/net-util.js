@@ -8,6 +8,7 @@ const {createUFCRError} = require('./error-util');
 const path = require('path');
 
 module.exports = {
+    getAppUpdateMeta,
     fightPassLogin,
     refreshAuth,
     getVODMeta,
@@ -30,6 +31,23 @@ function getHeaders(auth) {
 
 function getProxyConfig() {
     return getConfig('useProxy') ? getConfig('proxyConfig') : undefined;
+}
+
+async function getAppUpdateMeta() {
+    const config = {
+        method: 'get',
+        url: `${require('./app-util').getAppMetadata().homepage}/raw/master/package.json`,
+    };
+
+    try {
+        const {data} = await axios(config);
+
+        if (!data) throw createUFCRError('Update metadata missing');
+
+        return data;
+    } catch (error) {
+        throw createUFCRError(error, 'Failed to check for app updates. Check the console for error information');
+    }
 }
 
 async function fightPassLogin(email, pass) {
