@@ -16,10 +16,10 @@
     <a href="https://github.com/m4heshd/ufc-ripper/blob/master/LICENSE">
         <img src="https://img.shields.io/github/license/m4heshd/ufc-ripper?color=41b883&style=for-the-badge" alt="ufc-ripper license">
     </a> <!--License-->
-    <a href="https://www.paypal.me/m4heshdtt">
+    <a href="https://paypal.variatix.net">
         <img src="https://img.shields.io/static/v1?logo=paypal&label=%E2%80%8B&message=PayPal&color=blue&style=for-the-badge" alt="PayPal">
     </a> <!--PayPal-->
-    <a href="https://ko-fi.com/m4heshd">
+    <a href="https://ko-fi.variatix.net">
         <img src="https://img.shields.io/static/v1?logo=ko-fi&label=%E2%80%8B&message=Ko-fi&color=ff5e5b&style=for-the-badge" alt="Ko-fi">
     </a> <!--Ko-fi-->
     <!---------->

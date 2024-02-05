@@ -16,10 +16,10 @@
     <a href="https://github.com/m4heshd/ufc-ripper/blob/master/LICENSE">
         <img src="https://img.shields.io/github/license/m4heshd/ufc-ripper?color=41b883&style=for-the-badge" alt="ufc-ripper license">
     </a> <!--License-->
-    <a href="https://www.paypal.me/m4heshdtt">
+    <a href="https://paypal.variatix.net">
         <img src="https://img.shields.io/static/v1?logo=paypal&label=%E2%80%8B&message=PayPal&color=blue&style=for-the-badge" alt="PayPal">
     </a> <!--PayPal-->
-    <a href="https://ko-fi.com/m4heshd">
+    <a href="https://ko-fi.variatix.net">
         <img src="https://img.shields.io/static/v1?logo=ko-fi&label=%E2%80%8B&message=Ko-fi&color=ff5e5b&style=for-the-badge" alt="Ko-fi">
     </a> <!--Ko-fi-->
     <!---------->
@@ -63,17 +63,17 @@ around the world". So here we are. Hope you'd understand Dana. 🙂
 
 # Support this project 🙏🏽
 
-I get it, this isn't a well-done tool. The code looks messy, no tests, a lot of missing stuff, and a few bugs here and
-there. But this COULD improve a lot. Working on this project requires a lot of time and energy.
+I get it, this isn't a well-done tool. The code isn't super tidy, no tests, a lot of missing stuff, and a few bugs here
+and there. But this COULD improve a lot. Working on this project requires a lot of time and energy.
 
-You can help me by buying me a few coffees ☕ so I'm all buzzed up and got time to work on this further. Or you can send
-a few monies my way to simply say thanks for the work that's already been done.
+You can help me by buying me a few coffees ☕, so I'm all buzzed up and got time to work on this further.
+Or you can send a few monies my way to simply say thanks for the work that's already been done.
 
-[![Donate to m4heshd](https://i.ibb.co/8PgVcwK/Paypal.png)](https://www.paypal.me/m4heshdtt?locale.x=en_US)
+[![Donate to m4heshd](https://i.ibb.co/8PgVcwK/Paypal.png)](https://paypal.variatix.net)
 
 Or you can buy me a "ko-fi" by clicking this button
 
-[![ko-fi](https://i.ibb.co/QmQknmc/ko-fi.png)](https://ko-fi.com/m4heshd)
+[![ko-fi](https://i.ibb.co/QmQknmc/ko-fi.png)](https://ko-fi.variatix.net)
 
 # How to use?
 
