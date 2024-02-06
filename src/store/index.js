@@ -8,6 +8,11 @@ const toast = useToast();
 
 export const useAppStore = defineStore('app', {
     state: () => ({
+        update: {
+            updatable: false,
+            version: '',
+            url: ''
+        },
         downloads: {},
         config: {},
         mediaTools: {
@@ -65,9 +70,15 @@ export const useAppStore = defineStore('app', {
         hideOverlay() {
             this.ui.overlay = false;
         },
+        showModUpdatePrompt() {
+            window.ui('#modUpdatePrompt');
+        },
         showModConfig() {
             this.modals.modConfig.data = JSON.parse(JSON.stringify(this.config));
             window.ui('#modConfig');
+        },
+        openAppDownloadPage() {
+            window.open(this.update.url, '_blank');
         },
         addDownload(VOD) {
             this.downloads[VOD.qID] = {

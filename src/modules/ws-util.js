@@ -39,6 +39,10 @@ export function useWSUtil() {
         await getConfig();
         await getDLQ();
         store.hideOverlay();
+
+        await checkAppUpdate();
+        if (store.update.updatable) store.showModUpdatePrompt();
+
         await validateMediaTools();
         if (store.missingTools.length) modBinDL.showModBinDL();
     }
@@ -87,6 +91,14 @@ export function useWSUtil() {
 
     async function login(email, pass) {
         store.config = await emitPromise('login', email, pass);
+    }
+
+    async function checkAppUpdate() {
+        const update = await emitPromise('check-app-update');
+
+        Object.assign(store.update, update);
+
+        return update;
     }
 
     async function validateMediaTools() {

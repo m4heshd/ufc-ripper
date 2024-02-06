@@ -126,6 +126,16 @@
     <ModBinDL></ModBinDL>
     <ModViewFormats></ModViewFormats>
     <ModSupport></ModSupport>
+    <ModMsgBox
+        vID="modUpdatePrompt"
+        vIcon="upgrade"
+        vTitle="App update available"
+        vType="yes-no"
+        @on-yes="store.openAppDownloadPage"
+    >
+      A new update <b>(v{{ store.update.version }})</b> for UFC Ripper is available. Would you like to visit the
+      download page?
+    </ModMsgBox>
 
     <!-- Overlay -->
     <Overlay :vActive="store.ui.overlay"></Overlay>
@@ -147,6 +157,7 @@ import ModConfig from '@/components/ModConfig.vue';
 import ModBinDL from '@/components/ModBinDL.vue';
 import ModViewFormats from '@/components/ModViewFormats.vue';
 import ModSupport from '@/components/ModSupport.vue';
+import ModMsgBox from '@/components/ModMsgBox.vue';
 import Overlay from '@/components/Overlay.vue';
 
 // Store

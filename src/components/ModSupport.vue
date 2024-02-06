@@ -11,7 +11,7 @@
     <div class="mod-support__content">
       <div class="about">
         <p>
-          <b>"ufc-ripper"</b> is a free, open-source tool that allows users with a paid subscription to access UFC Fight
+          <b>"UFC Ripper"</b> is a free, open-source tool that allows users with a paid subscription to access UFC Fight
           Pass content offline, in the format of their choice. Ideally, such services should offer these features
           without the need for third-party tools. However, since the service provider does not have these features built
           into their platform, the tool was developed to fulfill this need in a completely legal way.

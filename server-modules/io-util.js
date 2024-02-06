@@ -44,6 +44,7 @@ function initIO(httpServer) {
         socket.on('clear-dlq', clearDLQ);
         socket.on('save-config', saveConfig);
         socket.on('open-dl-dir', openDownloadsDir);
+        socket.on('check-app-update', checkAppUpdates);
         socket.on('validate-media-tools', validateMediaTools);
         socket.on('get-media-tools', getMediaTools);
     });
@@ -124,6 +125,14 @@ function saveConfig(newConfig, cb) {
 function openDownloadsDir(cb) {
     try {
         require('./bin-util').openDLDir(cb);
+    } catch (error) {
+        sendError(error, cb);
+    }
+}
+
+async function checkAppUpdates(cb) {
+    try {
+        cb(await require('./app-util').checkAppUpdates());
     } catch (error) {
         sendError(error, cb);
     }
