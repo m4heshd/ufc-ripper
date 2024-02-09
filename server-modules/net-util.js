@@ -1,11 +1,11 @@
 // Modules
 const fs = require('fs-extra');
-const {platform} = require('os');
+const {platform} = require('node:os');
 const axios = require('axios');
 const {getConfig, writeConfig} = require('./config-util');
 const {getVODIDFromURL} = require('./txt-util');
 const {createUFCRError} = require('./error-util');
-const path = require('path');
+const path = require('node:path');
 
 module.exports = {
     getAppUpdateMeta,

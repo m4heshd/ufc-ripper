@@ -2,6 +2,15 @@
   <article class="block-vod-card">
     <div class="block-vod-card__details">
       <div class="block-vod-card__details__thumbnail">
+        <div
+            v-if="vShowDuration"
+            class="block-vod-card__details__thumbnail__duration"
+        >
+          <div class="block-vod-card__details__thumbnail__duration__clock">
+            {{ duration }}
+          </div>
+        </div>
+
         <div class="block-vod-card__details__thumbnail__actions">
           <div class="center-content block-vod-card__details__thumbnail__actions__buttons">
             <button
@@ -45,10 +54,14 @@
 </template>
 
 <script setup>
+// Core
+import {computed} from 'vue';
+
 // Props
-defineProps({
+const props = defineProps({
   vVODData: Object,
   vShowThumb: Boolean,
+  vShowDuration: Boolean,
   vShowDesc: Boolean
 });
 
@@ -57,6 +70,16 @@ defineEmits([
   'download',
   'openExternal'
 ]);
+
+// Duration
+const duration = computed(() => {
+  const fullDuration =
+      new Date(props.vVODData.duration * 1000)
+          .toISOString()
+          .substring(11, 19);
+
+  return fullDuration.startsWith('00') ? fullDuration.slice(3) : fullDuration;
+});
 </script>
 
 <style lang="scss">
@@ -73,6 +96,21 @@ defineEmits([
 
     &__thumbnail {
       overflow: hidden;
+
+      &__duration {
+        z-index: 1;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        border-radius: 5px;
+        background: rgba(0, 0, 0, 0.55);
+
+        &__clock {
+          padding: 3px;
+          font-size: 12rem;
+          font-weight: bold;
+        }
+      }
 
       &__actions {
         z-index: 1;

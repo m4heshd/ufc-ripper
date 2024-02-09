@@ -8,6 +8,7 @@
   "refreshToken": "",
   "authToken": "",
   "showThumb": true,
+  "showDuration": true,
   "showDesc": true,
   "resolution": "720",
   "mergeExt": "mp4",

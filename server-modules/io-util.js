@@ -1,6 +1,6 @@
 // Modules
 const {Server} = require('socket.io');
-const {randomUUID} = require('crypto');
+const {randomUUID} = require('node:crypto');
 const {fightPassLogin, getVODMeta, getVODStream, downloadMediaTools, getVODSearchResults} = require('./net-util');
 const {writeConfig, getConfig} = require('./config-util');
 const {getEnumerableError, createUFCRError} = require('./error-util');

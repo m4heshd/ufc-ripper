@@ -1,6 +1,6 @@
 // Modules
-const {homedir} = require('os');
-const path = require('path');
+const {homedir} = require('node:os');
+const path = require('node:path');
 const fs = require('fs-extra');
 
 let config = {
@@ -13,6 +13,7 @@ let config = {
     refreshToken: '',
     authToken: '',
     showThumb: true,
+    showDuration: true,
     showDesc: true,
     resolution: '720',
     mergeExt: 'mp4',

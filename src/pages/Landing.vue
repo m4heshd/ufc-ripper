@@ -143,6 +143,7 @@
             v-for="vod of store.search.results"
             :vVODData="vod"
             :vShowThumb="store.config.showThumb"
+            :vShowDuration="store.config.showDuration"
             :vShowDesc="store.config.showDesc"
             @download="onSearchCardBtnDownloadClick"
             @openExternal="onSearchCardBtnOpenExternalClick"

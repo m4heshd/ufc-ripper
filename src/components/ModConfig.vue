@@ -79,6 +79,19 @@
         </nav>
         <nav class="v-switch">
           <div class="max">
+            <h6>Show duration</h6>
+            <div>Time duration of the bout/event</div>
+          </div>
+          <label class="switch">
+            <input
+                v-model="modConfig.data.showDuration"
+                type="checkbox"
+            >
+            <span></span>
+          </label>
+        </nav>
+        <nav class="v-switch">
+          <div class="max">
             <h6>Show description</h6>
             <div>Bout/event description from Fight Pass</div>
           </div>
