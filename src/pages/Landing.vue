@@ -21,15 +21,25 @@
             type="text"
             autocomplete="off"
             :disabled="busy"
+            @keyup.enter="onBtnSearchVODClick"
         >
-        <label>Link</label>
-        <span class="helper">Paste the direct link to Fight Pass video here</span>
+        <label>Link / Search</label>
+        <span class="helper">Insert the link to Fight Pass video or search query here</span>
         <a
             v-if="busy"
             class="loader"
         ></a>
         <i v-else>link</i>
       </div>
+
+      <button
+          class="square round large"
+          title="Search fight pass library"
+          :disabled="busy"
+          @click="onBtnSearchVODClick"
+      >
+        <i>video_search</i>
+      </button>
 
       <button
           class="square round large"
@@ -68,19 +78,29 @@
       </button>
     </div>
 
-    <article class="border round dls-section">
-      <div class="dls-section__header">
+    <article
+        v-show="!store.search.showResults"
+        class="border round vod-section"
+    >
+      <div class="vod-section__header">
         <h5>Downloads {{ store.activeDownloads ? `(${store.activeDownloads} active)` : '' }}</h5>
-        <div class="dls-section__header__actions">
+        <div class="vod-section__header__actions">
           <button
-              class="border square round small"
+              class="border circle small"
               title="Open downloads directory"
               @click="onBtnOpenDLDir"
           >
             <i>folder_open</i>
           </button>
           <button
-              class="border square round small"
+              class="border circle small"
+              title="Show search results"
+              @click="store.showSearchResults"
+          >
+            <i>manage_search</i>
+          </button>
+          <button
+              class="border circle small"
               title="Clear downloads queue"
               @click="onBtnClearDLQueueClick"
           >
@@ -89,7 +109,7 @@
         </div>
       </div>
 
-      <div class="dls-section__downloads">
+      <div class="vod-section__downloads">
         <VODCard
             v-for="vod of store.downloadQueue"
             :vVODData="vod"
@@ -98,6 +118,35 @@
             @cancelDL="onDownloadCancel"
             @retryDL="onDownloadRetry"
         ></VODCard>
+      </div>
+    </article>
+
+    <article
+        v-show="store.search.showResults"
+        class="border round vod-section"
+    >
+      <div class="vod-section__header">
+        <h5>Search results</h5>
+        <div class="vod-section__header__actions">
+          <button
+              class="border circle small"
+              title="Close search results"
+              @click="store.search.showResults = false"
+          >
+            <i>close</i>
+          </button>
+        </div>
+      </div>
+
+      <div class="vod-section__search-results">
+        <BlockVODCard
+            v-for="vod of store.search.results"
+            :vVODData="vod"
+            :vShowThumb="store.config.showThumb"
+            :vShowDesc="store.config.showDesc"
+            @download="onSearchCardBtnDownloadClick"
+            @openExternal="onSearchCardBtnOpenExternalClick"
+        ></BlockVODCard>
       </div>
     </article>
 
@@ -152,6 +201,7 @@ import {useModViewFormatsStore} from '@/store/modViewFormats';
 import {useWSUtil} from '@/modules/ws-util';
 // Components
 import VODCard from '@/components/VODCard.vue';
+import BlockVODCard from '@/components/BlockVODCard.vue';
 import ModVODConfirm from '@/components/ModVODConfirm.vue';
 import ModConfig from '@/components/ModConfig.vue';
 import ModBinDL from '@/components/ModBinDL.vue';
@@ -165,7 +215,16 @@ const store = useAppStore();
 const modViewFormats = useModViewFormatsStore();
 
 // Websocket
-const {cancelDownload, clearDLQ, downloadVOD, initSocket, openDownloadsDir, verifyURL, getFormats} = useWSUtil();
+const {
+  cancelDownload,
+  clearDLQ,
+  downloadVOD,
+  initSocket,
+  openDownloadsDir,
+  searchVODs,
+  verifyURL,
+  getFormats
+} = useWSUtil();
 
 initSocket();
 
@@ -176,6 +235,20 @@ const verifiedVOD = ref({});
 
 // URL Section
 const txtLink = ref('');
+
+function onBtnSearchVODClick() {
+  if (!store.isLoggedIn) return store.popError('You need to be logged in to search videos');
+
+  switchBusyState();
+
+  searchVODs(txtLink.value)
+      .then((res) => {
+        store.search.results = res;
+        store.showSearchResults();
+      })
+      .catch(store.popError)
+      .finally(switchBusyState);
+}
 
 function onBtnDownloadClick() {
   if (!store.isLoggedIn) return store.popError('You need to be logged in to download videos');
@@ -235,6 +308,26 @@ function onDownloadRetry(VOD) {
       .catch(store.popError);
 }
 
+// Search results section
+function onSearchCardBtnDownloadClick(id) {
+  if (!store.isLoggedIn) return store.popError('You need to be logged in to download videos');
+
+  switchBusyState();
+
+  verifyURL(store.getFightPassURLByID(id))
+      .then((res) => {
+        verifiedVOD.value = res;
+
+        window.ui('#modVODConfirm');
+      })
+      .catch(store.popError)
+      .finally(switchBusyState);
+}
+
+function onSearchCardBtnOpenExternalClick(id) {
+  window.open(store.getFightPassURLByID(id), '_blank');
+}
+
 // Lifecycle hooks
 onMounted(() => nextTick(() => {
   window.ui();
@@ -243,6 +336,7 @@ onMounted(() => nextTick(() => {
 // Misc functions
 function download(VOD) {
   switchBusyState();
+  store.hideSearchResults();
 
   downloadVOD(VOD, false)
       .then((res) => {
@@ -286,7 +380,7 @@ function download(VOD) {
     }
   }
 
-  .dls-section {
+  .vod-section {
     display: grid;
     grid-template-rows: max-content minmax(0px, 1fr);
     height: 100%;
@@ -305,10 +399,21 @@ function download(VOD) {
       }
     }
 
-    &__downloads {
+    &__downloads, &__search-results {
       margin: 10px;
       overflow: auto;
       border-radius: 0;
+    }
+
+    &__search-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      align-items: center;
+      grid-gap: 30px;
+
+      * + article {
+        margin-top: 0;
+      }
     }
   }
 

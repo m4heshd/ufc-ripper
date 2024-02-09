@@ -115,6 +115,10 @@ export function useWSUtil() {
         return emitPromise('verify-url', url);
     }
 
+    function searchVODs(query) {
+        return emitPromise('search-vods', query);
+    }
+
     function getFormats(url) {
         return emitPromise('get-formats', url);
     }
@@ -158,6 +162,7 @@ export function useWSUtil() {
         getFormats,
         downloadVOD,
         cancelDownload,
+        searchVODs,
         clearDLQ,
         openDownloadsDir,
         validateMediaTools,

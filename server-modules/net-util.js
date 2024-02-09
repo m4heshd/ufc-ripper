@@ -196,7 +196,7 @@ async function getVODSearchResults(query) {
             requests: [
                 {
                     indexName: 'prod-dce.ufc-livestreaming-events',
-                    params: `query=${encodeURIComponent(query)}&facetFilters=%5B%22type%3AVOD_VIDEO%22%5D&hitsPerPage=10`
+                    params: `query=${encodeURIComponent(query)}&facetFilters=%5B%22type%3AVOD_VIDEO%22%5D&hitsPerPage=12`
                 }
             ]
         })

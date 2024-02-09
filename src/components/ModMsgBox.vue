@@ -34,6 +34,7 @@
 </template>
 
 <script setup>
+// Props
 defineProps({
   vID: String,
   vIcon: String,
@@ -41,6 +42,7 @@ defineProps({
   vType: String
 });
 
+// Emits
 defineEmits([
   'onYes',
   'onNo'

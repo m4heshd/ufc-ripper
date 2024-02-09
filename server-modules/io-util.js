@@ -1,7 +1,7 @@
 // Modules
 const {Server} = require('socket.io');
 const {randomUUID} = require('crypto');
-const {fightPassLogin, getVODMeta, getVODStream, downloadMediaTools} = require('./net-util');
+const {fightPassLogin, getVODMeta, getVODStream, downloadMediaTools, getVODSearchResults} = require('./net-util');
 const {writeConfig, getConfig} = require('./config-util');
 const {getEnumerableError, createUFCRError} = require('./error-util');
 
@@ -39,6 +39,7 @@ function initIO(httpServer) {
         socket.on('login', login);
         socket.on('verify-url', verifyVOD);
         socket.on('get-formats', getFormats);
+        socket.on('search-vods', searchVODs);
         socket.on('download', downloadVOD);
         socket.on('cancel-download', cancelDownload);
         socket.on('clear-dlq', clearDLQ);
@@ -66,6 +67,14 @@ async function login(email, pass, cb) {
 async function verifyVOD(url, cb) {
     try {
         sendVODMeta(await getVODMeta(url), cb);
+    } catch (error) {
+        sendError(error, cb);
+    }
+}
+
+async function searchVODs(query, cb) {
+    try {
+        await cb(await getVODSearchResults(query));
     } catch (error) {
         sendError(error, cb);
     }

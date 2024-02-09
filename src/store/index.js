@@ -14,6 +14,10 @@ export const useAppStore = defineStore('app', {
             url: ''
         },
         downloads: {},
+        search: {
+            showResults: false,
+            results: []
+        },
         config: {},
         mediaTools: {
             atomicParsley: {
@@ -70,6 +74,12 @@ export const useAppStore = defineStore('app', {
         hideOverlay() {
             this.ui.overlay = false;
         },
+        showSearchResults() {
+            this.search.showResults = true;
+        },
+        hideSearchResults() {
+            this.search.showResults = false;
+        },
         showModUpdatePrompt() {
             window.ui('#modUpdatePrompt');
         },
@@ -99,6 +109,9 @@ export const useAppStore = defineStore('app', {
         },
         setDownloadCancelled(qID) {
             this.downloads[qID].status = 'cancelled';
+        },
+        getFightPassURLByID(id) {
+            return `https://ufcfightpass.com/video/${id}`;
         }
     }
 });
