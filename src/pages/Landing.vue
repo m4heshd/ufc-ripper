@@ -133,7 +133,7 @@
               title="Close search results"
               @click="store.search.showResults = false"
           >
-            <i>close</i>
+            <i>search_off</i>
           </button>
         </div>
       </div>
@@ -375,7 +375,7 @@ function download(VOD) {
     margin-bottom: 50px;
 
     &__txt-link {
-      width: 55vw;
+      width: 40vw;
       max-width: 900px;
       margin-bottom: 0;
     }

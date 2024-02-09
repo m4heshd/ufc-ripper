@@ -38,17 +38,17 @@
         >
       </div>
 
-      <div class="block-vod-card__details__title">
-        {{ vVODData.name }}
-      </div>
+      <div
+          class="block-vod-card__details__title"
+          v-html="vVODData._highlightResult.name.value"
+      ></div>
 
       <div
           v-if="vShowDesc"
           class="block-vod-card__details__description"
           :title="vVODData.description"
-      >
-        {{ vVODData.description }}
-      </div>
+          v-html="vVODData._highlightResult.description.value"
+      ></div>
     </div>
   </article>
 </template>
@@ -158,6 +158,13 @@ const duration = computed(() => {
         &.blur {
           filter: blur(15px);
         }
+      }
+    }
+
+    &__title, &__description {
+      & > em {
+        all: unset;
+        color: var(--primary);
       }
     }
 
