@@ -13,6 +13,7 @@ module.exports = {
     refreshAuth,
     getVODMeta,
     getVODStream,
+    getVODSearchResults,
     downloadFile,
     getMediaToolsInfo,
     downloadMediaTools
@@ -179,6 +180,38 @@ async function getVODStream(id) {
         }
     } else {
         throw createUFCRError('No playback URL in the API response');
+    }
+}
+
+async function getVODSearchResults(query) {
+    const config = {
+        method: 'post',
+        url: 'https://h99xldr8mj-dsn.algolia.net/1/indexes/*/queries',
+        headers: {
+            'x-algolia-application-id': 'H99XLDR8MJ',
+            'x-algolia-api-key': getConfig('searchAPIKey')
+        },
+        proxy: getProxyConfig(),
+        data: JSON.stringify({
+            requests: [
+                {
+                    indexName: 'prod-dce.ufc-livestreaming-events',
+                    params: `query=${encodeURIComponent(query)}&facetFilters=%5B%22type%3AVOD_VIDEO%22%5D&hitsPerPage=10`
+                }
+            ]
+        })
+    };
+
+    try {
+        const {data} = await axios(config);
+
+        if (data?.results?.[0]) {
+            return data.results[0].hits;
+        } else {
+            throw createUFCRError('No results were returned');
+        }
+    } catch (error) {
+        throw createUFCRError(error, 'An error has occurred while trying to search. Check the console for error information');
     }
 }
 
