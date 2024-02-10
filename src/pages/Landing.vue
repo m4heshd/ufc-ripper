@@ -96,6 +96,7 @@
               class="border circle small"
               title="Show search results"
               @click="store.showSearchResults"
+              :disabled="!store.search.results.length"
           >
             <i>manage_search</i>
           </button>
@@ -138,7 +139,10 @@
         </div>
       </div>
 
-      <div class="vod-section__search-results">
+      <div
+          v-if="store.search.results.length"
+          class="vod-section__search-results"
+      >
         <BlockVODCard
             v-for="vod of store.search.results"
             :vVODData="vod"
@@ -148,6 +152,18 @@
             @download="onSearchCardBtnDownloadClick"
             @openExternal="onSearchCardBtnOpenExternalClick"
         ></BlockVODCard>
+      </div>
+
+      <div
+          v-else
+          class="center-content vod-section__empty-result"
+      >
+        <div class="vod-section__empty-result__icon">
+          <i>sentiment_dissatisfied</i>
+        </div>
+        <div class="vod-section__empty-result__text">
+          No matching videos were found for your search query..
+        </div>
       </div>
     </article>
 
@@ -414,6 +430,21 @@ function download(VOD) {
 
       * + article {
         margin-top: 0;
+      }
+    }
+
+    &__empty-result {
+      flex-direction: column;
+      gap: 30px;
+      color: var(--inactive-text);
+
+      &__icon > i {
+        width: 60rem;
+        font-size: 60rem;
+      }
+
+      &__text {
+        font-size: 20rem;
       }
     }
   }
