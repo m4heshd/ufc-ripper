@@ -1,11 +1,12 @@
 // Modules
-const fs = require('fs-extra');
+const path = require('node:path');
 const {platform} = require('node:os');
+const fs = require('fs-extra');
 const axios = require('axios');
+const algoliasearch = require('algoliasearch');
 const {getConfig, writeConfig} = require('./config-util');
 const {getVODIDFromURL} = require('./txt-util');
 const {createUFCRError} = require('./error-util');
-const path = require('node:path');
 
 module.exports = {
     getAppUpdateMeta,
@@ -184,29 +185,23 @@ async function getVODStream(id) {
 }
 
 async function getVODSearchResults(query) {
-    const config = {
-        method: 'post',
-        url: 'https://h99xldr8mj-dsn.algolia.net/1/indexes/*/queries',
-        headers: {
-            'x-algolia-application-id': 'H99XLDR8MJ',
-            'x-algolia-api-key': getConfig('searchAPIKey')
-        },
-        proxy: getProxyConfig(),
-        data: JSON.stringify({
-            requests: [
-                {
-                    indexName: 'prod-dce.ufc-livestreaming-events',
-                    params: `query=${encodeURIComponent(query)}&facetFilters=%5B%22type%3AVOD_VIDEO%22%5D&hitsPerPage=12`
-                }
-            ]
-        })
-    };
+    const client = algoliasearch('H99XLDR8MJ', getConfig('searchAPIKey'));
+    const index = client.initIndex('prod-dce.ufc-livestreaming-events');
 
     try {
-        const {data} = await axios(config);
+        const data = await index.search(query, {
+            facetFilters: 'type:VOD_VIDEO',
+            hitsPerPage: 12,
+            attributesToRetrieve: [
+                'id',
+                'description',
+                'thumbnailUrl',
+                'duration'
+            ]
+        });
 
-        if (data?.results?.[0]) {
-            return data.results[0].hits;
+        if (data?.hits) {
+            return data.hits;
         } else {
             throw createUFCRError('No results were returned');
         }
