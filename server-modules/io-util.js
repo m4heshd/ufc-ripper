@@ -1,6 +1,7 @@
 // Modules
-const {Server} = require('socket.io');
+const {inspect} = require('node:util');
 const {randomUUID} = require('node:crypto');
+const {Server} = require('socket.io');
 const {fightPassLogin, getVODMeta, getVODStream, downloadMediaTools, getVODSearchResults} = require('./net-util');
 const {writeConfig, getConfig} = require('./config-util');
 const {getEnumerableError, createUFCRError} = require('./error-util');
@@ -72,9 +73,9 @@ async function verifyVOD(url, cb) {
     }
 }
 
-async function searchVODs(query, cb) {
+async function searchVODs(query, page, cb) {
     try {
-        await cb(await getVODSearchResults(query));
+        await cb(await getVODSearchResults(query, page));
     } catch (error) {
         sendError(error, cb);
     }
@@ -166,7 +167,18 @@ async function getMediaTools(missingTools, cb) {
 
 // Socket callbacks
 function sendError(error, cb) {
-    console.error(`${getConfig('verboseLogging') ? error.stack : error}\n`);
+    console.error(
+        `${
+            getConfig('verboseLogging') ?
+                inspect(error.stack || error, {
+                    showHidden: false,
+                    depth: null,
+                    colors: true
+                }) :
+                error
+        }\n`
+    );
+
     cb({error: getEnumerableError(error)});
 }
 

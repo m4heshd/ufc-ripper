@@ -96,7 +96,7 @@
               class="border circle small"
               title="Show search results"
               @click="store.showSearchResults"
-              :disabled="!store.search.results.length"
+              :disabled="!store.searchIsResultsAvailable"
           >
             <i>manage_search</i>
           </button>
@@ -130,9 +130,33 @@
         <h5>Search results</h5>
         <div class="vod-section__header__actions">
           <button
+              v-if="store.searchIsResultsAvailable"
+              class="border circle small"
+              title="Previous page"
+              :disabled="!store.searchCanPrevious"
+              @click="searchPreviousPage"
+          >
+            <i>navigate_before</i>
+          </button>
+          <div
+              v-if="store.searchIsResultsAvailable"
+              class="center-content vod-section__header__actions__pagination"
+          >
+            {{ store.searchCurrentPage }} / {{ store.search.result.nbPages }}
+          </div>
+          <button
+              v-if="store.searchIsResultsAvailable"
+              class="border circle small"
+              title="Next page"
+              :disabled="!store.searchCanNext"
+              @click="searchNextPage"
+          >
+            <i>navigate_next</i>
+          </button>
+          <button
               class="border circle small"
               title="Close search results"
-              @click="store.search.showResults = false"
+              @click="store.hideSearchResults"
           >
             <i>search_off</i>
           </button>
@@ -140,11 +164,11 @@
       </div>
 
       <div
-          v-if="store.search.results.length"
+          v-if="store.searchIsResultsAvailable"
           class="vod-section__search-results"
       >
         <BlockVODCard
-            v-for="vod of store.search.results"
+            v-for="vod of store.search.result.hits"
             :vVODData="vod"
             :vShowThumb="store.config.showThumb"
             :vShowDuration="store.config.showDuration"
@@ -289,18 +313,26 @@ onMounted(() => nextTick(() => {
 }));
 
 // Misc functions
-function searchVOD(query) {
+function searchVOD(query, page = 0) {
   if (!store.isLoggedIn) return store.popError('You need to be logged in to search videos');
 
   switchBusyState();
 
-  searchVODs(query)
+  searchVODs(query, page)
       .then((res) => {
-        store.search.results = res;
+        store.search.result = res;
         store.showSearchResults();
       })
       .catch(store.popError)
       .finally(switchBusyState);
+}
+
+function searchNextPage() {
+  searchVOD(store.search.result.query, store.search.result.page + 1);
+}
+
+function searchPreviousPage() {
+  searchVOD(store.search.result.query, store.search.result.page - 1);
 }
 
 function verifyVODURL(url) {
@@ -395,6 +427,18 @@ function download(VOD) {
         color: var(--primary);
         font-weight: bold;
       }
+
+      &__actions {
+        display: flex;
+
+        &__pagination {
+          height: 32rem;
+          margin: 0 5px;
+          font-size: 15rem;
+          font-weight: bold;
+          color: var(--primary);
+        }
+      }
     }
 
     &__downloads, &__search-results {
@@ -406,6 +450,7 @@ function download(VOD) {
     &__search-results {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-auto-rows: max-content;
       justify-items: center;
       grid-gap: 30px;
 

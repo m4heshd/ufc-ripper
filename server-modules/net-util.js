@@ -184,7 +184,7 @@ async function getVODStream(id) {
     }
 }
 
-async function getVODSearchResults(query) {
+async function getVODSearchResults(query, page = 0) {
     const client = algoliasearch('H99XLDR8MJ', getConfig('searchAPIKey'));
     const index = client.initIndex('prod-dce.ufc-livestreaming-events');
 
@@ -192,6 +192,7 @@ async function getVODSearchResults(query) {
         const data = await index.search(query, {
             facetFilters: 'type:VOD_VIDEO',
             hitsPerPage: 12,
+            page,
             attributesToRetrieve: [
                 'id',
                 'description',
@@ -201,8 +202,8 @@ async function getVODSearchResults(query) {
             restrictSearchableAttributes: getConfig('searchTitleOnly') ? ['name'] : undefined
         });
 
-        if (data?.hits) {
-            return data.hits;
+        if (data) {
+            return data;
         } else {
             throw createUFCRError('No results were returned');
         }

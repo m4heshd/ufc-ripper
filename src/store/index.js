@@ -16,7 +16,11 @@ export const useAppStore = defineStore('app', {
         downloads: {},
         search: {
             showResults: false,
-            results: []
+            result: {
+                hits: [],
+                page: 0,
+                nbPages: 0
+            }
         },
         config: {},
         mediaTools: {
@@ -56,7 +60,11 @@ export const useAppStore = defineStore('app', {
         activeDownloads() {
             return this.downloadQueue.filter((dl) => dl.status === 'downloading').length;
         },
-        missingTools: (state) => Object.keys(state.mediaTools).filter((bin) => state.mediaTools[bin].avail === false)
+        missingTools: (state) => Object.keys(state.mediaTools).filter((bin) => state.mediaTools[bin].avail === false),
+        searchIsResultsAvailable: (state) => !!state.search.result.hits.length,
+        searchCurrentPage: (state) => state.search.result.page + 1,
+        searchCanPrevious: (state) => state.search.result.page > 0,
+        searchCanNext: (state) => state.search.result.page < state.search.result.nbPages - 1,
     },
     actions: {
         popError: (error) => {

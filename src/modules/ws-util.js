@@ -115,8 +115,8 @@ export function useWSUtil() {
         return emitPromise('verify-url', url);
     }
 
-    function searchVODs(query) {
-        return emitPromise('search-vods', query);
+    function searchVODs(query, page) {
+        return emitPromise('search-vods', query, page);
     }
 
     function getFormats(url) {
