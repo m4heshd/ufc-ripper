@@ -12,6 +12,7 @@ let config = {
     user: '',
     refreshToken: '',
     authToken: '',
+    searchTitleOnly: false,
     showThumb: true,
     showDuration: true,
     showDesc: true,

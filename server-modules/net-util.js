@@ -197,7 +197,8 @@ async function getVODSearchResults(query) {
                 'description',
                 'thumbnailUrl',
                 'duration'
-            ]
+            ],
+            restrictSearchableAttributes: getConfig('searchTitleOnly') ? ['name'] : undefined
         });
 
         if (data?.hits) {

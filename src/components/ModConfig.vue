@@ -63,6 +63,23 @@
       </article>
 
       <article class="border round mod-config__content__section">
+        <h5>Search</h5>
+        <nav class="v-switch">
+          <div class="max">
+            <h6>Search titles only</h6>
+            <div>Refines the search only to be based on bout/event titles, which can fetch more accurate results</div>
+          </div>
+          <label class="switch">
+            <input
+                v-model="modConfig.data.searchTitleOnly"
+                type="checkbox"
+            >
+            <span></span>
+          </label>
+        </nav>
+      </article>
+
+      <article class="border round mod-config__content__section">
         <h5>Previews (spoilers)</h5>
         <nav class="v-switch">
           <div class="max">
