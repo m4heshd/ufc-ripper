@@ -21,7 +21,7 @@
             type="text"
             autocomplete="off"
             :disabled="busy"
-            @keyup.enter="onBtnSearchVODClick"
+            @keyup.enter="searchVOD(txtLink)"
         >
         <label>Link / Search</label>
         <span class="helper">Insert the link to Fight Pass video or search query here</span>
@@ -36,7 +36,7 @@
           class="square round large"
           title="Search fight pass library"
           :disabled="busy"
-          @click="onBtnSearchVODClick"
+          @click="searchVOD(txtLink)"
       >
         <i>video_search</i>
       </button>
@@ -45,7 +45,7 @@
           class="square round large"
           title="Download"
           :disabled="busy"
-          @click="onBtnDownloadClick"
+          @click="verifyVODURL(txtLink)"
       >
         <i>download</i>
       </button>
@@ -54,7 +54,7 @@
           class="square round large"
           title="Get available formats"
           :disabled="busy"
-          @click="onBtnGetFmtClick"
+          @click="getAvailableFormats(txtLink)"
       >
         <i>stock_media</i>
       </button>
@@ -149,8 +149,9 @@
             :vShowThumb="store.config.showThumb"
             :vShowDuration="store.config.showDuration"
             :vShowDesc="store.config.showDesc"
-            @download="onSearchCardBtnDownloadClick"
-            @openExternal="onSearchCardBtnOpenExternalClick"
+            @download="(id) => verifyVODURL(store.getFightPassURLByID(id))"
+            @getFormats="(id) => getAvailableFormats(store.getFightPassURLByID(id))"
+            @openExternal="(id) => store.openVODInFightPass(id)"
         ></BlockVODCard>
       </div>
 
@@ -253,49 +254,6 @@ const verifiedVOD = ref({});
 // URL Section
 const txtLink = ref('');
 
-function onBtnSearchVODClick() {
-  if (!store.isLoggedIn) return store.popError('You need to be logged in to search videos');
-
-  switchBusyState();
-
-  searchVODs(txtLink.value)
-      .then((res) => {
-        store.search.results = res;
-        store.showSearchResults();
-      })
-      .catch(store.popError)
-      .finally(switchBusyState);
-}
-
-function onBtnDownloadClick() {
-  if (!store.isLoggedIn) return store.popError('You need to be logged in to download videos');
-
-  switchBusyState();
-
-  verifyURL(txtLink.value)
-      .then((res) => {
-        verifiedVOD.value = res;
-
-        window.ui('#modVODConfirm');
-      })
-      .catch(store.popError)
-      .finally(switchBusyState);
-}
-
-function onBtnGetFmtClick() {
-  if (!store.isLoggedIn) return store.popError('You need to be logged in to check download formats');
-
-  switchBusyState();
-
-  getFormats(txtLink.value)
-      .then((res) => {
-        modViewFormats.setVODData(res);
-        window.ui('#modViewFormats');
-      })
-      .catch(store.popError)
-      .finally(switchBusyState);
-}
-
 function onBtnSupportClick() {
   window.ui('#modSupport');
 }
@@ -325,13 +283,32 @@ function onDownloadRetry(VOD) {
       .catch(store.popError);
 }
 
-// Search results section
-function onSearchCardBtnDownloadClick(id) {
+// Lifecycle hooks
+onMounted(() => nextTick(() => {
+  window.ui();
+}));
+
+// Misc functions
+function searchVOD(query) {
+  if (!store.isLoggedIn) return store.popError('You need to be logged in to search videos');
+
+  switchBusyState();
+
+  searchVODs(query)
+      .then((res) => {
+        store.search.results = res;
+        store.showSearchResults();
+      })
+      .catch(store.popError)
+      .finally(switchBusyState);
+}
+
+function verifyVODURL(url) {
   if (!store.isLoggedIn) return store.popError('You need to be logged in to download videos');
 
   switchBusyState();
 
-  verifyURL(store.getFightPassURLByID(id))
+  verifyURL(url)
       .then((res) => {
         verifiedVOD.value = res;
 
@@ -341,16 +318,20 @@ function onSearchCardBtnDownloadClick(id) {
       .finally(switchBusyState);
 }
 
-function onSearchCardBtnOpenExternalClick(id) {
-  window.open(store.getFightPassURLByID(id), '_blank');
+function getAvailableFormats(url) {
+  if (!store.isLoggedIn) return store.popError('You need to be logged in to check download formats');
+
+  switchBusyState();
+
+  getFormats(url)
+      .then((res) => {
+        modViewFormats.setVODData(res);
+        window.ui('#modViewFormats');
+      })
+      .catch(store.popError)
+      .finally(switchBusyState);
 }
 
-// Lifecycle hooks
-onMounted(() => nextTick(() => {
-  window.ui();
-}));
-
-// Misc functions
 function download(VOD) {
   switchBusyState();
   store.hideSearchResults();
@@ -425,7 +406,7 @@ function download(VOD) {
     &__search-results {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      align-items: center;
+      justify-items: center;
       grid-gap: 30px;
 
       * + article {

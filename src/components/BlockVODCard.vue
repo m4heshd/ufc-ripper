@@ -22,6 +22,13 @@
             </button>
             <button
                 class="circle fill medium"
+                title="Get available formats"
+                @click="$emit('getFormats', vVODData.id)"
+            >
+              <i>stock_media</i>
+            </button>
+            <button
+                class="circle fill medium"
                 title="Open in Fight Pass"
                 @click="$emit('openExternal', vVODData.id)"
             >
@@ -68,6 +75,7 @@ const props = defineProps({
 // Emits
 defineEmits([
   'download',
+  'getFormats',
   'openExternal'
 ]);
 
@@ -87,7 +95,7 @@ const duration = computed(() => {
   display: grid;
   grid-gap: 10px;
   width: 250px;
-  max-height: 288px;
+  height: 100%;
 
   &__details {
     display: grid;
@@ -126,8 +134,13 @@ const duration = computed(() => {
         &:hover {
           opacity: 1;
 
-          #{$actions}__buttons {
+          & > #{$actions}__buttons {
             transform: none;
+          }
+
+          & + img {
+            transition: transform 3s ease-out;
+            transform: scale(1.15);
           }
         }
 
@@ -153,7 +166,9 @@ const duration = computed(() => {
       & > img {
         aspect-ratio: 16/9;
         object-fit: cover;
+        width: 100%;
         max-width: 100%;
+        transition: transform .2s ease-in-out;
 
         &.blur {
           filter: blur(15px);

@@ -112,6 +112,9 @@ export const useAppStore = defineStore('app', {
         },
         getFightPassURLByID(id) {
             return `https://ufcfightpass.com/video/${id}`;
+        },
+        openVODInFightPass(id) {
+            window.open(this.getFightPassURLByID(id), '_blank');
         }
     }
 });
