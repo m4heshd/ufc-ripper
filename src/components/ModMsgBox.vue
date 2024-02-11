@@ -13,6 +13,18 @@
     </div>
 
     <nav
+        v-if="!vType"
+        class="right-align"
+    >
+      <button
+          :data-ui="`#${vID}`"
+      >
+        <i>close</i>
+        <span>Close</span>
+      </button>
+    </nav>
+
+    <nav
         v-if="vType === 'yes-no'"
         class="right-align"
     >

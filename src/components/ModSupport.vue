@@ -1,20 +1,17 @@
 <template>
-  <div
-      id="modSupport"
-      class="modal mod-support"
+  <ModMsgBox
+      class="mod-support"
+      vID="modSupport"
+      vIcon="favorite"
+      vTitle="Support this project"
   >
-    <div class="modal-title">
-      <i>favorite</i>
-      <h5>Support this project</h5>
-    </div>
-
     <div class="mod-support__content">
       <div class="about">
         <p>
           <b>"UFC Ripper"</b> is a free, open-source tool that allows users with a paid subscription to access UFC Fight
           Pass content offline, in the format of their choice. Ideally, such services should offer these features
           without the need for third-party tools. However, since the service provider does not have these features built
-          into their platform, the tool was developed to fulfill this need in a completely legal way.
+          into their platform, the tool was developed to fulfill this need in a completely legal manner.
         </p>
         <p>
           It's worth mentioning that it was no easy task creating this tool. It required figuring out how UFC Fight Pass
@@ -56,15 +53,13 @@
         </div>
       </div>
     </div>
-
-    <nav class="right-align">
-      <button data-ui="#modSupport">
-        <i>close</i>
-        <span>Close</span>
-      </button>
-    </nav>
-  </div>
+  </ModMsgBox>
 </template>
+
+<script setup>
+// Components
+import ModMsgBox from '@/components/ModMsgBox.vue';
+</script>
 
 <style lang="scss">
 .mod-support {

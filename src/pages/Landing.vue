@@ -155,6 +155,13 @@
           </button>
           <button
               class="border circle small"
+              title="How to use the search feature"
+              @click="onBtnSearchHelpClick"
+          >
+            <i>question_mark</i>
+          </button>
+          <button
+              class="border circle small"
               title="Close search results"
               @click="store.hideSearchResults"
           >
@@ -216,6 +223,7 @@
     <ModConfig></ModConfig>
     <ModBinDL></ModBinDL>
     <ModViewFormats></ModViewFormats>
+    <ModSearchHelp></ModSearchHelp>
     <ModSupport></ModSupport>
     <ModMsgBox
         vID="modUpdatePrompt"
@@ -250,6 +258,7 @@ import ModBinDL from '@/components/ModBinDL.vue';
 import ModViewFormats from '@/components/ModViewFormats.vue';
 import ModSupport from '@/components/ModSupport.vue';
 import ModMsgBox from '@/components/ModMsgBox.vue';
+import ModSearchHelp from '@/components/ModSearchHelp.vue';
 import Overlay from '@/components/Overlay.vue';
 
 // Store
@@ -305,6 +314,11 @@ function onDownloadRetry(VOD) {
 
   downloadVOD(VOD, true)
       .catch(store.popError);
+}
+
+// Search results section
+function onBtnSearchHelpClick() {
+  window.ui('#modSearchHelp');
 }
 
 // Lifecycle hooks
