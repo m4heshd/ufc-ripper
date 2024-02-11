@@ -193,6 +193,7 @@ async function getVODSearchResults(query, page = 0) {
             facetFilters: 'type:VOD_VIDEO',
             hitsPerPage: 12,
             page,
+            advancedSyntax: true,
             attributesToRetrieve: [
                 'id',
                 'description',
