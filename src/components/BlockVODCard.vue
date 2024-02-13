@@ -40,9 +40,12 @@
         </div>
 
         <img
+            ref="imgThumb"
+            v-show="!isThumbLoading"
             :class="{'blur': !vShowThumb}"
-            :src="vVODData.thumbnailUrl"
+            @load="isThumbLoading = false"
         >
+        <VImgSkeleton v-show="isThumbLoading"></VImgSkeleton>
       </div>
 
       <div
@@ -62,7 +65,9 @@
 
 <script setup>
 // Core
-import {computed} from 'vue';
+import {computed, nextTick, onMounted, ref, watch} from 'vue';
+// Components
+import VImgSkeleton from '@/components/VImgSkeleton.vue';
 
 // Props
 const props = defineProps({
@@ -79,6 +84,15 @@ defineEmits([
   'openExternal'
 ]);
 
+// Thumbnail
+const imgThumb = ref(null);
+const isThumbLoading = ref(true);
+
+async function loadThumbnailImg() {
+  isThumbLoading.value = true;
+  imgThumb.value.src = props.vVODData.thumbnailUrl;
+}
+
 // Duration
 const duration = computed(() => {
   const fullDuration =
@@ -88,6 +102,12 @@ const duration = computed(() => {
 
   return fullDuration.startsWith('00') ? fullDuration.slice(3) : fullDuration;
 });
+
+// Watchers
+watch(() => props.vVODData.thumbnailUrl, loadThumbnailImg);
+
+// Lifecycle hooks
+onMounted(() => nextTick(loadThumbnailImg));
 </script>
 
 <style lang="scss">

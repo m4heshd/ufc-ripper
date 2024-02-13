@@ -25,10 +25,12 @@
           </div>
         </div>
         <img
-            v-if="vShowThumb"
+            ref="imgThumb"
+            v-show="!isThumbLoading"
             class="responsive small top-round"
-            :src="vVODData.thumb"
+            @load="isThumbLoading = false"
         >
+        <VImgSkeleton v-show="isThumbLoading"></VImgSkeleton>
       </div>
 
       <div class="padding">
@@ -57,16 +59,35 @@
 </template>
 
 <script setup>
-defineProps({
+// Core
+import {nextTick, ref, watch} from 'vue';
+// Components
+import VImgSkeleton from '@/components/VImgSkeleton.vue';
+
+// Props
+const props = defineProps({
   vID: String,
   vVODData: Object,
   vShowThumb: Boolean,
   vShowDesc: Boolean
 });
 
+// Emits
 defineEmits([
   'onConfirm'
 ]);
+
+// Thumbnail
+const imgThumb = ref(null);
+const isThumbLoading = ref(true);
+
+async function loadThumbnailImg() {
+  isThumbLoading.value = true;
+  imgThumb.value.src = props.vVODData.thumb;
+}
+
+// Watchers
+watch(() => props.vVODData.thumb, () => nextTick(loadThumbnailImg));
 </script>
 
 <style lang="scss">
@@ -109,6 +130,11 @@ defineEmits([
     & > img {
       aspect-ratio: 16/9;
       height: 100% !important;
+    }
+
+    & > .v-img-skeleton {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
     }
   }
 }
