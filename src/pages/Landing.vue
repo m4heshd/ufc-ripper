@@ -43,7 +43,7 @@
 
       <button
           class="square round large"
-          title="Download"
+          title="Download from link"
           :disabled="busy"
           @click="verifyVODURL(txtLink)"
       >
