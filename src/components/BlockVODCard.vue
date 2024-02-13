@@ -16,6 +16,7 @@
             <button
                 class="circle fill medium"
                 title="Download"
+                :disabled="vBusyState"
                 @click="$emit('download', vVODData.id)"
             >
               <i>download</i>
@@ -23,6 +24,7 @@
             <button
                 class="circle fill medium"
                 title="Get available formats"
+                :disabled="vBusyState"
                 @click="$emit('getFormats', vVODData.id)"
             >
               <i>stock_media</i>
@@ -30,6 +32,7 @@
             <button
                 class="circle fill medium"
                 title="Open in Fight Pass"
+                :disabled="vBusyState"
                 @click="$emit('openExternal', vVODData.id)"
             >
               <i>open_in_new</i>
@@ -74,7 +77,8 @@ const props = defineProps({
   vVODData: Object,
   vShowThumb: Boolean,
   vShowDuration: Boolean,
-  vShowDesc: Boolean
+  vShowDesc: Boolean,
+  vBusyState: Boolean
 });
 
 // Emits

@@ -180,6 +180,7 @@
             :vShowThumb="store.config.showThumb"
             :vShowDuration="store.config.showDuration"
             :vShowDesc="store.config.showDesc"
+            :vBusyState="busy"
             @download="(id) => verifyVODURL(store.getFightPassURLByID(id))"
             @getFormats="(id) => getAvailableFormats(store.getFightPassURLByID(id))"
             @openExternal="(id) => store.openVODInFightPass(id)"
