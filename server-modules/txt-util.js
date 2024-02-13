@@ -17,7 +17,9 @@ function processYTDLPOutput(output) {
     let dlStats = {};
 
     if (outString.includes('Deleting')) type = 'cleanup';
-    if (outString.includes('"status":"downloading"')) type = 'progress';
+    else if (outString.includes('"status":"downloading"')) type = 'progress';
+    else if (outString.includes('HTTP Error 404')) type = 'fragErr';
+    else if (outString.includes('Skipping fragment')) type = 'fragSkip';
 
     switch (type) {
         case 'progress':
@@ -38,11 +40,20 @@ function processYTDLPOutput(output) {
                     );
             }
             break;
+        case 'fragErr':
+            dlStats.task = 'fragErr';
+            break;
+        case 'fragSkip':
+            dlStats.task = 'fragSkip';
+            break;
         case 'Merger':
             dlStats.task = 'merge';
             break;
         case 'Metadata':
             dlStats.task = 'meta';
+            break;
+        case 'FixupM3u8':
+            dlStats.task = 'fix';
             break;
         case 'cleanup':
             dlStats.task = 'cleanup';

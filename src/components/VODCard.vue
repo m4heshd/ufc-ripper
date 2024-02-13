@@ -113,7 +113,10 @@ const taskDescs = {
   prepare: 'Preparing download...',
   video: '[video]',
   audio: '[audio]',
+  fragErr: 'Fragment error. Retrying...',
+  fragSkip: 'Skipping unavailable fragment...',
   merge: 'Merging files...',
+  fix: 'Converting container...',
   cleanup: 'Removing temporary files...',
   meta: 'Adding video metadata...'
 };
