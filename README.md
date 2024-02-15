@@ -36,12 +36,13 @@
 An open-source video downloader tool for UFC Fight Pass that can run on both desktop and the cloud. The only thing it
 can't do is STEAL videos free of charge for you. A paid Fight Pass subscription is required for this tool to work.
 
-### Intellectual property (DISCLAIMER) ⚠️
-
-The UFC logo and the UFC Fight Pass logo used in this project are intellectual properties of Zuffa LLC.
-
-The user will be responsible for any content downloaded through this tool. Any kind of redistribution of that content is
-illegal and this application or I (the developer) won't be liable for that.
+> [!IMPORTANT]
+>### Intellectual property (DISCLAIMER) ⚠️
+>
+>The UFC logo and the UFC Fight Pass logo used in this project are intellectual properties of Zuffa LLC.
+>
+>The user will be responsible for any content downloaded through this tool. Any kind of redistribution of that content
+> is illegal, and this application or I (the developer) will not be liable for that.
 
 ### Dear Dana White,
 
@@ -137,13 +138,29 @@ Ripper.
    using
    the "Fight Pass account" section.
 
-2. Once successfully logged in, copy and paste a link to a UFC Fight Pass video in the "Link" input and hit the download
-   button.
+2. Once successfully logged in, you can search for videos and download them, or copy and paste a link to a UFC Fight
+   Pass video in the "Link" input and hit the download button.
 
 3. Optionally, look through the configuration to change any download settings (video quality, audio quality, etc..) to
    your needs
 
 ## Mention-worthy features
+
+### Advanced search
+
+If you have ever used UFC Fight Pass search, you know how difficult it is to find the video you're actually looking for
+on there. But not to worry because UFC Ripper supports much more advanced and precise searching of the Fight Pass
+library than UFC Fight Pass itself.
+
+You can restrict the search algorithm to only look inside the event titles which would result in way more accurate
+results, or you can use advanced query syntax like double quotes and negative symbol like you would on Google search.
+
+### Concurrent multi-fragment downloads
+
+UFC Fight Pass streams are very heavily limited to slower bandwidths. But these streams are broken down to little
+fragments. This feature allows you to download the given number of fragments concurrently, which multiplies the speed of
+downloads by the number of allowed concurrent fragment downloads. You can set the amount in the configuration as you
+wish.
 
 ### Proxy support
 
@@ -153,13 +170,6 @@ requests initiated using a datacenter IP address.
 If you set up a proxy, UFC Ripper will forward all API requests through that proxy server. Remember, only the API
 requests will go through the proxy. Not the downloads. This also means that your proxy server will hardly have to
 transfer any data through it.
-
-### Concurrent multi-fragment downloads
-
-UFC Fight Pass streams are very heavily limited to slower bandwidths. But these streams are broken down to little
-fragments. This feature allows you to download the given number of fragments concurrently, which multiplies the speed of
-downloads by the number of allowed concurrent fragment downloads. You can set the amount in the configuration as you
-wish.
 
 ### File numbering
 
