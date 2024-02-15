@@ -52,6 +52,13 @@
           </a>
         </div>
       </div>
+
+      <div class="donation-sources__github">
+        <iframe
+            src="https://github.com/sponsors/m4heshd/card"
+            title="Sponsor m4heshd"
+        ></iframe>
+      </div>
     </div>
   </ModMsgBox>
 </template>
@@ -64,7 +71,7 @@ import ModMsgBox from '@/components/ModMsgBox.vue';
 <style lang="scss">
 .mod-support {
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   max-height: 80%;
   display: grid;
   grid-template-rows: max-content minmax(0px, 1fr) max-content;
@@ -83,6 +90,8 @@ import ModMsgBox from '@/components/ModMsgBox.vue';
     .donation-sources {
       &__title {
         margin-bottom: 20px;
+        font-size: 16rem;
+        color: var(--primary);
       }
 
       &__links {
@@ -91,6 +100,16 @@ import ModMsgBox from '@/components/ModMsgBox.vue';
 
         & > a > img {
           border-radius: 0;
+        }
+      }
+
+      &__github {
+        border-radius: 30rem;
+
+        & > iframe {
+          width: 100%;
+          height: 180px;
+          border: 0;
         }
       }
     }
