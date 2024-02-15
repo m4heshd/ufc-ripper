@@ -30,4 +30,11 @@ initIO(xServer);
 ===============*/
 xServer.listen(port, () => {
     console.log(clr.greenBright(`UFC Ripper (v${getAppMetadata().version}) GUI is live at http://localhost:${port}${__isContainer() ? ' (container)' : ''}\n`));
+
+    if (!__isContainer() && getConfig('openInBrowser')) {
+        require('out-url').open(`http://localhost:${port}`)
+            .catch((error) => {
+                console.error(`Failed to open UFC Ripper in the browser\n:${error}`);
+            });
+    }
 });

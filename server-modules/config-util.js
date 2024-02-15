@@ -4,6 +4,7 @@ const path = require('node:path');
 const fs = require('fs-extra');
 
 let config = {
+    openInBrowser: true,
     port: 8383,
     verboseLogging: false,
     apiKey: '857a1e5d-e35e-4fdf-805b-a87b6f8364bf',
