@@ -170,7 +170,8 @@ function sendError(error, cb) {
     console.error(
         `${
             getConfig('verboseLogging') ?
-                inspect(error.stack || error, {
+                error.stack ||
+                inspect(error, {
                     showHidden: false,
                     depth: null,
                     colors: true
