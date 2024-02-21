@@ -3,6 +3,7 @@ const path = require('node:path');
 const {platform} = require('node:os');
 const fs = require('fs-extra');
 const axios = require('axios');
+const {HttpsProxyAgent} = require('https-proxy-agent');
 const algoliasearch = require('algoliasearch');
 const {getConfig, writeConfig} = require('./config-util');
 const {getVODIDFromURL} = require('./txt-util');
@@ -31,8 +32,12 @@ function getHeaders(auth) {
     return auth ? {...headers, 'Authorization': `Bearer ${auth}`} : headers;
 }
 
-function getProxyConfig() {
-    return getConfig('useProxy') ? getConfig('proxyConfig') : undefined;
+function getProxyAgent() {
+    const {protocol, host, port, auth} = getConfig('proxyConfig');
+
+    return getConfig('useProxy') ?
+        new HttpsProxyAgent(`${protocol}://${auth.username}:${auth.password}@${host}:${port}`) :
+        undefined;
 }
 
 async function getAppUpdateMeta() {
@@ -64,7 +69,7 @@ async function fightPassLogin(email, pass) {
             id: email,
             secret: pass
         },
-        proxy: getProxyConfig()
+        httpsAgent: getProxyAgent()
     };
 
     try {
@@ -94,7 +99,7 @@ async function refreshAuth() {
         data: {
             refreshToken: getConfig('refreshToken')
         },
-        proxy: getProxyConfig()
+        httpsAgent: getProxyAgent()
     };
 
     try {
@@ -126,7 +131,7 @@ async function getVODMeta(url) {
             method: 'get',
             url: `https://dce-frontoffice.imggaming.com/api/v2/vod/${id}`,
             headers: getHeaders(getConfig('authToken')),
-            proxy: getProxyConfig()
+            httpsAgent: getProxyAgent()
         });
 
         if (data) {
@@ -162,7 +167,7 @@ async function getVODStream(id) {
         method: 'get',
         url: `https://dce-frontoffice.imggaming.com/api/v3/stream/vod/${id}`,
         headers: getHeaders(getConfig('authToken')),
-        proxy: getProxyConfig()
+        httpsAgent: getProxyAgent()
     };
 
     let {data} = await axios(config);
@@ -171,7 +176,7 @@ async function getVODStream(id) {
         data = (await axios({
             method: 'get',
             url: data.playerUrlCallback,
-            proxy: getProxyConfig()
+            httpsAgent: getProxyAgent()
         })).data;
 
         if (data?.hls?.length) {
