@@ -196,7 +196,10 @@ async function sendFormats(url, cb) {
     const formats = await require('./bin-util').getListFormatsOutput(hls);
 
     cb({
-        title: VOD.title,
+        VOD: {
+            ...VOD,
+            qID: randomUUID()
+        },
         formats
     });
 }

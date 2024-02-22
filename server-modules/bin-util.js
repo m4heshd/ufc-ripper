@@ -108,7 +108,7 @@ function openDLSession(VOD, isRestart, cb) {
         vcodec: '%(info.vcodec)s'
     });
     const downloadConfig = {
-        '--format': `${vidQuality}[height=${resolution}]+${audQuality}/${vidQuality}*[height=${resolution}]`,
+        '--format': VOD.customFormat || `${vidQuality}[height=${resolution}]+${audQuality}/${vidQuality}*[height=${resolution}]`,
         '--merge-output-format': mergeExt,
         '--output': `${path.join(dlPath, `${fullTitle}.%(ext)s`)}`,
         '--progress-template': progressTemplate,

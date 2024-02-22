@@ -3,7 +3,9 @@ import {defineStore} from 'pinia';
 
 export const useModViewFormatsStore = defineStore('modViewFormats', {
     state: () => ({
-        vodData: {}
+        vodData: {
+            VOD: {}
+        }
     }),
     actions: {
         setVODData(newData) {

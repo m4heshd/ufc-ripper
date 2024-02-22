@@ -223,7 +223,9 @@
     ></ModVODConfirm>
     <ModConfig></ModConfig>
     <ModBinDL></ModBinDL>
-    <ModViewFormats></ModViewFormats>
+    <ModViewFormats
+        @download="onModViewFormatsDownload"
+    ></ModViewFormats>
     <ModSearchHelp></ModSearchHelp>
     <ModSupport></ModSupport>
     <ModMsgBox
@@ -320,6 +322,15 @@ function onDownloadRetry(VOD) {
 // Search results section
 function onBtnSearchHelpClick() {
   window.ui('#modSearchHelp');
+}
+
+// ModViewFormats
+function onModViewFormatsDownload(VOD, format) {
+  download({
+    ...VOD,
+    customFormat: format.acodec === 'none' ? `${format.format_id}+bestaudio` : format.format_id
+  });
+  window.ui('#modViewFormats');
 }
 
 // Lifecycle hooks

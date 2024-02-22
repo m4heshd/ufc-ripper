@@ -10,7 +10,7 @@
 
     <div class="mod-view-formats__content">
       <div class="vod-info">
-        <span class="vod-info__title">{{ modViewFormats.vodData.title }}:</span>
+        <span class="vod-info__title">{{ modViewFormats.vodData.VOD.title }}:</span>
       </div>
 
       <article class="border round">
@@ -22,8 +22,9 @@
               <th>Resolution</th>
               <th>Framerate</th>
               <th>Bitrate</th>
-              <th>VCodec</th>
-              <th>ACodec</th>
+              <th title="Video Codec">VCodec</th>
+              <th title="Audio Codec">ACodec</th>
+              <th></th>
             </tr>
             </thead>
             <tbody>
@@ -36,6 +37,16 @@
               </td>
               <td :class="{ 'grayed-out': isInvalid(format.vcodec)}">{{ format.vcodec || 'N/A' }}</td>
               <td :class="{ 'grayed-out': isInvalid(format.acodec)}">{{ format.acodec || 'N/A' }}</td>
+              <td>
+                <button
+                    v-if="format.vcodec !== 'none'"
+                    class="circle fill medium"
+                    :title="`Download (${format.format_id})`"
+                    @click="$emit('download', modViewFormats.vodData.VOD, format)"
+                >
+                  <i>download</i>
+                </button>
+              </td>
             </tr>
             </tbody>
           </table>
@@ -69,6 +80,11 @@
 // Store
 import {useModViewFormatsStore} from '@/store/modViewFormats';
 
+// Emits
+defineEmits([
+  'download'
+]);
+
 // Store
 const modViewFormats = useModViewFormatsStore();
 
@@ -81,7 +97,7 @@ function isInvalid(data) {
 <style lang="scss">
 .mod-view-formats {
   width: 100%;
-  max-width: 700px;
+  max-width: 750px;
   max-height: 80%;
   display: grid;
   grid-template-rows: max-content minmax(0px, 1fr) max-content;
@@ -112,8 +128,16 @@ function isInvalid(data) {
           color: var(--secondary-text);
         }
 
+        &:last-child {
+          max-width: 40px;
+        }
+
         &.grayed-out {
           color: var(--inactive-text);
+        }
+
+        & > button {
+          margin: 0;
         }
       }
     }
