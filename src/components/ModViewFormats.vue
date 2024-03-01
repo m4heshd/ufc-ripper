@@ -116,6 +116,9 @@ function isInvalid(data) {
     }
 
     .formats-table {
+      overflow-x: auto;
+      border-radius: 0;
+
       th {
         font-size: 15rem;
         font-weight: bold;
@@ -126,6 +129,8 @@ function isInvalid(data) {
       td {
         &:first-child {
           color: var(--secondary-text);
+          max-width: 150px;
+          overflow: hidden;
         }
 
         &:last-child {
