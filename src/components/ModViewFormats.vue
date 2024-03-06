@@ -32,16 +32,14 @@
               <td :class="{ 'grayed-out': isInvalid(format.format_id)}">{{ format.format_id || 'N/A' }}</td>
               <td :class="{ 'grayed-out': isInvalid(format.resolution)}">{{ format.resolution || 'N/A' }}</td>
               <td :class="{ 'grayed-out': isInvalid(format.fps)}">{{ format.fps || 'N/A' }}</td>
-              <td :class="{ 'grayed-out': isInvalid(format.tbr)}">
-                {{ format.tbr ? Math.trunc(format.tbr) + 'k' : 'N/A' }}
-              </td>
+              <td :class="{ 'grayed-out': isInvalid(format.tbr)}">{{ getBitrate(format.tbr) }}</td>
               <td :class="{ 'grayed-out': isInvalid(format.vcodec)}">{{ format.vcodec || 'N/A' }}</td>
               <td :class="{ 'grayed-out': isInvalid(format.acodec)}">{{ format.acodec || 'N/A' }}</td>
               <td>
                 <button
                     v-if="format.vcodec !== 'none'"
                     class="circle fill medium"
-                    :title="`Download (${format.format_id})`"
+                    :title="`Download (${format.resolution} at ${getBitrate(format.tbr)} bitrate)`"
                     @click="$emit('download', modViewFormats.vodData.VOD, format)"
                 >
                   <i>download</i>
@@ -91,6 +89,10 @@ const modViewFormats = useModViewFormatsStore();
 // Table
 function isInvalid(data) {
   return (data == null || data === 'none');
+}
+
+function getBitrate(tbr) {
+  return tbr ? Math.trunc(tbr) + 'k' : 'N/A';
 }
 </script>
 
