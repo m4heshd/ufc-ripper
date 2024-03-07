@@ -220,6 +220,7 @@
         :vShowThumb="store.config.showThumb"
         :vShowDesc="store.config.showDesc"
         @onConfirm="download"
+        @onCheckFormats="url => getAvailableFormats(url)"
     ></ModVODConfirm>
     <ModConfig></ModConfig>
     <ModBinDL></ModBinDL>
@@ -233,7 +234,7 @@
         vIcon="upgrade"
         vTitle="App update available"
         vType="yes-no"
-        @on-yes="store.openAppDownloadPage"
+        @onYes="store.openAppDownloadPage"
     >
       A new update <b>(v{{ store.update.version }})</b> for UFC Ripper is available. Would you like to visit the
       download page?
@@ -415,7 +416,7 @@ function download(VOD) {
   display: grid;
   grid-template-rows: max-content max-content minmax(0px, 1fr) max-content;
   justify-items: center;
-  margin: 3vw 3vw 1vw;
+  margin: 2vw 3vw 1vw;
 
   .logo {
     margin-bottom: 35px;

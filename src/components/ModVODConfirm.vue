@@ -47,6 +47,14 @@
         Cancel
       </button>
       <button
+          class="border"
+          title="Check available formats before downloading"
+          :data-ui="`#${vID}`"
+          @click="$emit('onCheckFormats', vVODData.vodURL)"
+      >
+        <i>stock_media</i>
+      </button>
+      <button
           :data-ui="`#${vID}`"
           :disabled="!vVODData.access"
           @click="$emit('onConfirm', vVODData)"
@@ -74,7 +82,8 @@ const props = defineProps({
 
 // Emits
 defineEmits([
-  'onConfirm'
+  'onConfirm',
+  'onCheckFormats'
 ]);
 
 // Thumbnail
