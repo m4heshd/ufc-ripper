@@ -30,6 +30,7 @@ let config = {
     dlRate: '100K',
     cusFormat: false,
     formatID: '',
+    metadata: false,
     useProxy: false,
     proxyConfig: {
         protocol: 'http',
@@ -41,10 +42,10 @@ let config = {
         }
     },
     dlArgs: [
+        '--no-warnings',
         '--no-mtime',
         '--output-na-placeholder',
         '""',
-        '--add-metadata',
         '--no-cache-dir',
         '--ignore-config',
         '--no-check-certificate'

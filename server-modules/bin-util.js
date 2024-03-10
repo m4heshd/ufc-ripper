@@ -93,6 +93,7 @@ function openDLSession(VOD, isRestart, cb) {
         throttle,
         cusFormat,
         formatID,
+        metadata,
         dlRate,
         dlArgs
     } = getConfig();
@@ -117,6 +118,9 @@ function openDLSession(VOD, isRestart, cb) {
     if (throttle) downloadConfig['--limit-rate'] = dlRate;
     if (multiFrag) downloadConfig['--concurrent-fragments'] = concurFrags.toString();
     if (cusFormat) downloadConfig['--format'] = formatID;
+
+    const extraConfig = [...dlArgs];
+    if (metadata) extraConfig.push('--add-metadata');
 
     // Begin download process
     console.log(clr.yellowBright.bgBlack.bold.underline(`${isRestart ? 'Restarting' : 'Downloading'} "${fullTitle}"`));
@@ -164,7 +168,7 @@ function openDLSession(VOD, isRestart, cb) {
     // Launch and handle yt-dlp process
     const dlArgsAll = [
         ...Object.entries(downloadConfig).flat(),
-        ...dlArgs,
+        ...extraConfig,
         hls
     ];
     const dl = spawn(path.join(bins.ytDlp), dlArgsAll);
