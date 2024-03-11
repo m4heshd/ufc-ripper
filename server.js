@@ -1,3 +1,6 @@
+// Global
+global.__isContainer = () => process.env.RUN_ENV === 'container';
+
 // Modules
 const path = require('path');
 const express = require('express');
@@ -6,9 +9,6 @@ const clr = require('ansi-colors');
 const {readConfig, getConfig} = require('./server-modules/config-util');
 const {initIO} = require('./server-modules/io-util');
 const {getAppMetadata} = require('./server-modules/app-util');
-
-// Global
-global.__isContainer = () => process.env.RUN_ENV === 'container';
 
 // Configs
 readConfig();

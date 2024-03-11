@@ -8,6 +8,10 @@ const toast = useToast();
 
 export const useAppStore = defineStore('app', {
     state: () => ({
+        appMeta: {
+            isContainer: false,
+            version: ''
+        },
         update: {
             updatable: false,
             version: '',

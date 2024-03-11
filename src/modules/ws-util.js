@@ -36,6 +36,7 @@ export function useWSUtil() {
     // Socket event handles
     async function onSocketConnection() {
         console.log('Connected to backend');
+        await getAppMeta();
         await getConfig();
         await getDLQ();
         store.hideOverlay();
@@ -67,6 +68,14 @@ export function useWSUtil() {
     }
 
     // Socket emits
+    async function getAppMeta() {
+        try {
+            store.appMeta = await emitPromise('get-app-meta');
+        } catch (error) {
+            store.popError(error);
+        }
+    }
+
     async function getConfig() {
         try {
             store.config = await emitPromise('get-config');

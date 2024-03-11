@@ -3,6 +3,7 @@ const {inspect} = require('node:util');
 const {randomUUID} = require('node:crypto');
 const {Server} = require('socket.io');
 const {fightPassLogin, getVODMeta, getVODStream, downloadMediaTools, getVODSearchResults} = require('./net-util');
+const {getAppMetaForFrontend} = require('./app-util');
 const {writeConfig, getConfig} = require('./config-util');
 const {getEnumerableError, createUFCRError} = require('./error-util');
 
@@ -35,6 +36,7 @@ function initIO(httpServer) {
     io.on('connection', (socket) => {
         console.log(`GUI connected (ID - ${socket.id})\n`);
 
+        socket.on('get-app-meta', cb => cb(getAppMetaForFrontend()));
         socket.on('get-config', cb => cb(getConfig()));
         socket.on('get-dlq', cb => cb(DLQ));
         socket.on('login', login);

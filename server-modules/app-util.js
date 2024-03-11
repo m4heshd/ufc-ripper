@@ -5,12 +5,21 @@ const {getAppUpdateMeta} = require('./net-util');
 
 module.exports = {
     getAppMetadata,
+    getAppMetaForFrontend,
     checkAppUpdates
 };
 
 // Returns all the application metadata including version information
 function getAppMetadata() {
     return project;
+}
+
+// Returns application metadata and environment information required for the frontend
+function getAppMetaForFrontend() {
+    return {
+        isContainer: __isContainer(),
+        version: getAppMetadata().version
+    };
 }
 
 // Checks if updates are available for the app and returns new version's data
