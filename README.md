@@ -22,6 +22,14 @@
     <a href="https://ko-fi.variatix.net">
         <img src="https://img.shields.io/static/v1?logo=ko-fi&label=%E2%80%8B&message=Ko-fi&color=ff5e5b&style=for-the-badge" alt="Ko-fi">
     </a> <!--Ko-fi-->
+    <br>
+    <br>
+    <a href="https://t.me/+1aacMrVWdr1jOWY1">
+        <img src="https://img.shields.io/static/v1?logo=telegram&label=%E2%80%8B&message=Telegram group&color=2592c8&style=for-the-badge" alt="UFC Ripper Telegram support group">
+    </a> <!--Telegram-->
+    <a href="https://discord.gg/s92D76sBW4">
+        <img src="https://img.shields.io/static/v1?logo=discord&label=%E2%80%8B&message=Discord&color=5865f2&style=for-the-badge" alt="UFC Ripper Discord server">
+    </a> <!--Discord-->
     <!---------->
 </h2>
 
@@ -36,7 +44,7 @@
 An open-source video downloader tool for UFC Fight Pass that can run on both desktop and the cloud. The only thing it
 can't do is STEAL videos free of charge for you. A paid Fight Pass subscription is required for this tool to work.
 
-> [!IMPORTANT]
+> [!WARNING]
 >### Intellectual property (DISCLAIMER) ⚠️
 >
 >The UFC logo and the UFC Fight Pass logo used in this project are intellectual properties of Zuffa LLC.
@@ -49,7 +57,7 @@ can't do is STEAL videos free of charge for you. A paid Fight Pass subscription 
 This isn't a tool created for pirating your copyrighted content. This tool requires a **PAID FIGHT PASS SUBSCRIPTION**
 to function. This merely eliminates the need to stream a massive amount of data through metered connections every time
 you want to go back and watch your favorite fighters. I want your fighters to be paid more. Not less. This tool is not
-in any way meant to rob you or them of any income coming in.
+in any way meant to rob you or them of any revenue coming in.
 
 The whole reason for me to create this tool is for my own need. I live in a third-world country that was destroyed by
 politicians. That made internet services more of a luxury than a right for the people of this country. Our internet
@@ -76,12 +84,23 @@ Or you can buy me a "ko-fi" by clicking this button
 
 [![ko-fi](https://i.ibb.co/QmQknmc/ko-fi.png)](https://ko-fi.variatix.net)
 
+# Join the conversation 💬
+
+We have two social groups dedicated to any discussion regarding UFC Ripper.
+
+- ### Discord:
+  [![UFC Ripper Discord server](https://img.shields.io/static/v1?logo=discord&label=%E2%80%8B&message=Discord&color=5865f2&style=for-the-badge)](https://discord.gg/s92D76sBW4)
+
+- ### Telegram:
+  [![UFC Ripper Telegram support group](https://img.shields.io/static/v1?logo=telegram&label=%E2%80%8B&message=Telegram%20group&color=2592c8&style=for-the-badge)](https://t.me/+1aacMrVWdr1jOWY1)
+
 # How to use?
 
 ## Installation
 
-⚠️ UFC Ripper is currently only available for Windows and Linux systems, only in `x64`. It can also be run on the cloud
-as a docker container.
+> [!NOTE]
+> UFC Ripper is currently only available for Windows and Linux systems, only in `x64`. It can also be run on the cloud
+> as a docker container.
 
 ### Desktop
 
@@ -102,8 +121,9 @@ No installation is required on the desktop. The app is portable.
 
 ### Docker
 
-⚠️ Currently, the docker image is only built for `linux/amd64` systems which means it cannot be run on ARM-based systems
-like Raspberry Pis.
+> [!NOTE]
+> Currently, the docker image is only built for `linux/amd64` systems which means it cannot be run on ARM-based systems
+> like Raspberry Pis.
 
 You can either build the docker image locally and run using [`docker-compose.yaml`](docker-compose.yaml) or use the
 published [official image](https://hub.docker.com/r/m4heshd/ufc-ripper).
@@ -131,8 +151,9 @@ That's it.
 
 ## Usage
 
-⚠️ You need to have a UFC Fight Pass account with a paid subscription, and to be logged into that account to use UFC
-Ripper.
+> [!IMPORTANT]
+> You need to have a UFC Fight Pass account with a **paid subscription**, and to be logged into that account to use UFC
+> Ripper.
 
 1. Open up the GUI in the browser and go into Configuration (⚙️ button) and log in with your UFC Fight Pass account
    using
@@ -206,6 +227,7 @@ That's it. Now you're ready to go.
 
 # Future improvements planned
 
+- [x] Ability to search the Fight Pass library right from UFC Ripper
 - [x] Migrate to Vite (dev)
 - [x] Support for concurrent multi-fragment download
 - [x] Ability to restart failed/canceled downloads
