@@ -54,13 +54,7 @@
       <div class="instructions">
         You can use any of the above metadata as the custom download format in the configuration. Please read more about
         format selection in the
-        <a
-            href="https://github.com/yt-dlp/yt-dlp#format-selection"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-          yt-dlp documentation
-        </a>
+        <VAnchor href="https://github.com/yt-dlp/yt-dlp#format-selection">yt-dlp documentation</VAnchor>
         before using this feature.
       </div>
     </div>
@@ -77,6 +71,8 @@
 <script setup>
 // Store
 import {useModViewFormatsStore} from '@/store/modViewFormats';
+// Components
+import VAnchor from '@/components/VAnchor.vue';
 
 // Emits
 defineEmits([
@@ -152,11 +148,6 @@ function getBitrate(tbr) {
     .instructions {
       margin: 25px 0;
       font-size: 15rem;
-
-      & > a {
-        color: var(--primary);
-        text-decoration: underline;
-      }
     }
   }
 }

@@ -222,14 +222,14 @@
           <div class="max">
             <h6>Use custom download format</h6>
             <div>Use a custom download format provided by
-              <a
+              <VAnchor
+                  style="text-decoration: none"
                   href="https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#format-selection"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style="color: var(--primary)"
               >
                 <code>yt-dlp --list-formats (click here to learn more)</code>
-              </a>.<br>
+              </VAnchor>
+              .
+              <br>
               This will override any video and audio settings you have specified below
             </div>
           </div>
@@ -421,6 +421,8 @@ import {ref} from 'vue';
 import {useAppStore} from '@/store';
 // Modules
 import {useWSUtil} from '@/modules/ws-util';
+// Components
+import VAnchor from '@/components/VAnchor.vue';
 
 // Store
 const store = useAppStore();

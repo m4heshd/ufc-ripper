@@ -1,17 +1,13 @@
 <template>
   <div class="ufcr">
     <div class="logo center-content">
-      <a
-          href="https://github.com/m4heshd/ufc-ripper"
-          target="_blank"
-          rel="noopener noreferrer"
-      >
+      <VAnchor href="https://github.com/m4heshd/ufc-ripper">
         <img
             alt="UFC Ripper logo"
             title="UFC Ripper by m4heshd"
             src="@/assets/images/ufcr-logo.svg"
         >
-      </a>
+      </VAnchor>
     </div>
 
     <div class="url-section center-content">
@@ -203,13 +199,7 @@
     <div class="credits">
       <p>
         Made with ❤️ by
-        <a
-            href="https://github.com/m4heshd"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-          m4heshd
-        </a>
+        <VAnchor href="https://github.com/m4heshd">m4heshd</VAnchor>
       </p>
     </div>
 
@@ -254,6 +244,7 @@ import {useModViewFormatsStore} from '@/store/modViewFormats';
 // Modules
 import {useWSUtil} from '@/modules/ws-util';
 // Components
+import VAnchor from '@/components/VAnchor.vue';
 import VODCard from '@/components/VODCard.vue';
 import BlockVODCard from '@/components/BlockVODCard.vue';
 import ModVODConfirm from '@/components/ModVODConfirm.vue';
@@ -505,11 +496,9 @@ function download(VOD) {
   .credits {
     margin-top: 5px;
 
-    & > p > a {
-      color: var(--primary);
+    & > p > .v-anchor {
       font-weight: bold;
       font-size: 15px;
-      text-decoration: underline;
     }
   }
 }

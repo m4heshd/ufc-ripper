@@ -28,28 +28,20 @@
         </div>
 
         <div class="donation-sources__links center-content">
-          <a
-              href="https://ko-fi.variatix.net/"
-              target="_blank"
-              rel="noopener noreferrer"
-          >
+          <VAnchor href="https://ko-fi.variatix.net/">
             <img
                 alt="Ko-fi support button"
                 title="Support me on Ko-fi"
                 src="@/assets/images/ko-fi.png"
             >
-          </a>
-          <a
-              href="https://paypal.variatix.net/"
-              target="_blank"
-              rel="noopener noreferrer"
-          >
+          </VAnchor>
+          <VAnchor href="https://paypal.variatix.net/">
             <img
                 alt="Paypal support button"
                 title="Support me on Paypal"
                 src="@/assets/images/paypal.png"
             >
-          </a>
+          </VAnchor>
         </div>
       </div>
 
@@ -65,6 +57,7 @@
 
 <script setup>
 // Components
+import VAnchor from '@/components/VAnchor.vue';
 import ModMsgBox from '@/components/ModMsgBox.vue';
 </script>
 
