@@ -9,6 +9,38 @@
     </div>
 
     <div class="mod-config__content">
+      <article class="border round mod-config__content__section mod-config__content__about">
+        <h5>About</h5>
+        <p>
+          UFC Ripper is a free and open-source tool. Make sure that you downloaded this tool only from the official
+          source, located at
+          <VAnchor href="https://github.com/m4heshd/ufc-ripper">https://github.com/m4heshd/ufc-ripper</VAnchor>
+          .
+        </p>
+        <div class="mod-config__content__about__version-info">
+          <span>Version:</span> <span>v{{ store.appMeta.version }}</span>
+        </div>
+        <div class="mod-config__content__about__socials">
+          <div class="mod-config__content__about__socials__title">Join the conversation on these platforms:</div>
+          <div class="center-content mod-config__content__about__socials__links">
+            <VAnchor href="https://discord.gg/cQeXkvxCMn">
+              <img
+                  src="@/assets/images/discord-button.svg"
+                  alt="UFC Ripper Discord server"
+                  title="UFC Ripper Discord server"
+              >
+            </VAnchor>
+            <VAnchor href="https://t.me/+1aacMrVWdr1jOWY1">
+              <img
+                  src="@/assets/images/telegram-button.svg"
+                  alt="UFC Ripper Telegram support group"
+                  title="UFC Ripper Telegram support group"
+              >
+            </VAnchor>
+          </div>
+        </div>
+      </article>
+
       <article class="border round mod-config__content__section mod-config__content__account">
         <h5>Fight Pass account</h5>
         <div
@@ -475,20 +507,20 @@ function save() {
 <style lang="scss">
 .mod-config {
   width: 100%;
-  max-width: 480px;
+  max-width: 480rem;
   max-height: 80%;
   display: grid;
-  grid-template-rows: max-content minmax(0px, 1fr) max-content;
+  grid-template-rows: max-content minmax(0rem, 1fr) max-content;
   overflow: hidden;
 
   & .v-switch > div {
     & > h6 {
-      font-size: 15px;
+      font-size: 15rem;
       font-weight: bold;
     }
 
     & > div {
-      font-size: 11px;
+      font-size: 11rem;
     }
   }
 
@@ -496,22 +528,22 @@ function save() {
     overflow-y: auto;
 
     &__section {
-      margin: 15px 0;
+      margin: 15rem 0;
 
       & > h5 {
-        margin-bottom: 15px;
+        margin-bottom: 15rem;
         color: var(--primary);
-        font-size: 18px;
+        font-size: 18rem;
         font-weight: bold;
       }
 
       &__warning {
         display: flex;
-        gap: 5px;
-        margin-bottom: 20px;
+        gap: 5rem;
+        margin-bottom: 20rem;
 
         & > i {
-          font-size: 20px;
+          font-size: 20rem;
           color: var(--warning);
         }
       }
@@ -520,7 +552,7 @@ function save() {
       & .long-text {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 5rem;
         margin: 16rem 0 0 0;
 
         & > span {
@@ -529,7 +561,7 @@ function save() {
       }
 
       & .short-text > div {
-        width: 100px;
+        width: 100rem;
       }
 
       & .long-text > div {
@@ -545,9 +577,59 @@ function save() {
       }
     }
 
+    &__about {
+      &__version-info {
+        margin: 16rem 0;
+        font-size: 15rem;
+
+        & > span:first-child {
+          font-weight: bold;
+        }
+      }
+
+      &__socials {
+        &__title {
+          margin-bottom: 15rem;
+          font-size: 15rem;
+          font-weight: bold;
+        }
+
+        &__links {
+          gap: 30rem;
+
+          & > a {
+            &:after {
+              content: "";
+              position: absolute;
+              top: 0;
+              left: 0;
+              z-index: 1;
+              border-radius: 8rem;
+              width: 100%;
+              height: 100%;
+              background-position: center;
+              background-image: radial-gradient(circle, rgba(255, 255, 255, .4) 1%, transparent 1%);
+              opacity: 0;
+              transition: none;
+            }
+
+            &:hover:after {
+              background-size: 15000%;
+              opacity: 1;
+              transition: var(--speed2) background-size linear;
+            }
+
+            & > img {
+              border-radius: 0;
+            }
+          }
+        }
+      }
+    }
+
     &__account {
       &__user {
-        margin-bottom: 20px;
+        margin-bottom: 20rem;
       }
 
       &__creds {
@@ -563,14 +645,14 @@ function save() {
 
     &__downloads {
       & > .field {
-        margin-top: 25px;
-        margin-bottom: 10px;
+        margin-top: 25rem;
+        margin-bottom: 10rem;
       }
     }
 
     &__proxy {
       & > .v-switch {
-        margin-bottom: 20px;
+        margin-bottom: 20rem;
       }
 
       &__split-section {
