@@ -161,6 +161,7 @@
               v-model="modConfig.data.dlPath"
               type="text"
               autocomplete="off"
+              :disabled="store.appMeta.isContainer"
           >
           <label>Location (directory)</label>
           <i>folder_open</i>

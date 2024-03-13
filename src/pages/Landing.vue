@@ -30,7 +30,7 @@
 
       <button
           class="square round large"
-          title="Search fight pass library"
+          title="Search Fight Pass library"
           :disabled="busy"
           @click="searchVOD(txtLink)"
       >
@@ -82,6 +82,7 @@
         <h5>Downloads {{ store.activeDownloads ? `(${store.activeDownloads} active)` : '' }}</h5>
         <div class="vod-section__header__actions">
           <button
+              v-if="!store.appMeta.isContainer"
               class="border circle small"
               title="Open downloads directory"
               @click="onBtnOpenDLDir"
