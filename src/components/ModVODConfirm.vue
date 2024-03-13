@@ -101,16 +101,16 @@ watch(() => props.vVODData.thumb, () => nextTick(loadThumbnailImg));
 
 <style lang="scss">
 .mod-vod-confirm {
-  max-width: 420px;
+  max-width: 420rem;
 
   & > article {
-    margin: 25px 10px;
+    margin: 25rem 10rem;
   }
 
   &__thumbnail {
     &__access-warning {
       flex-direction: column;
-      gap: 25px;
+      gap: 25rem;
       position: absolute;
       z-index: 1;
       top: 0;
@@ -118,19 +118,19 @@ watch(() => props.vVODData.thumb, () => nextTick(loadThumbnailImg));
       right: 0;
       left: 0;
       background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: saturate(200%) blur(2px);
+      backdrop-filter: saturate(200%) blur(2rem);
 
       &__icon {
         border-radius: 50%;
         background: rgba(121, 121, 121, 0.5);
-        width: 60px;
-        height: 60px;
+        width: 60rem;
+        height: 60rem;
       }
 
       &__text {
-        margin: 0px 15px;
+        margin: 0rem 15rem;
         text-align: center;
-        font-size: 16px;
+        font-size: 16rem;
         font-weight: bold;
         color: var(--primary);
       }

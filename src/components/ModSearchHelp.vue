@@ -45,12 +45,12 @@ import ModMsgBox from '@/components/ModMsgBox.vue';
 
 <style lang="scss">
 #modSearchHelp {
-  max-width: 600px;
+  max-width: 600rem;
 
   .search-help {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 20rem;
 
     &__methods {
       &-title {
@@ -61,14 +61,14 @@ import ModMsgBox from '@/components/ModMsgBox.vue';
 
       & > ul > li {
         display: list-item;
-        margin-left: 35px;
+        margin-left: 35rem;
 
         &::marker {
           font-size: 19rem;
         }
 
         & + li {
-          margin-top: 15px;
+          margin-top: 15rem;
         }
 
         & > b {

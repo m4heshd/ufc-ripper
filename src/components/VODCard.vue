@@ -141,7 +141,7 @@ const taskDescs = {
 
   & img {
     aspect-ratio: 16/9;
-    max-width: 300px;
+    max-width: 300rem;
 
     &.downloading {
       opacity: 0.6;
@@ -155,15 +155,15 @@ const taskDescs = {
     &__meta {
       &__stats, &__stats > div {
         display: flex;
-        gap: 20px;
+        gap: 20rem;
         font-weight: bold;
-        font-size: 15px;
+        font-size: 15rem;
         color: var(--warning);
       }
     }
 
     &__status {
-      min-width: 65px;
+      min-width: 65rem;
 
       &:hover > &__actions {
         & > span {
@@ -190,14 +190,14 @@ const taskDescs = {
 
         & > span {
           font-weight: bold;
-          font-size: 15px;
+          font-size: 15rem;
           color: var(--warning);
         }
       }
 
       &__post-action {
         flex-direction: column;
-        gap: 12px;
+        gap: 12rem;
 
         & > i {
           cursor: default;

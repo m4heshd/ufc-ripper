@@ -64,10 +64,10 @@ import ModMsgBox from '@/components/ModMsgBox.vue';
 <style lang="scss">
 .mod-support {
   width: 100%;
-  max-width: 600px;
+  max-width: 600rem;
   max-height: 80%;
   display: grid;
-  grid-template-rows: max-content minmax(0px, 1fr) max-content;
+  grid-template-rows: max-content minmax(0rem, 1fr) max-content;
   overflow: hidden;
 
   &__content {
@@ -75,21 +75,21 @@ import ModMsgBox from '@/components/ModMsgBox.vue';
 
     .about {
       & > p {
-        text-indent: 50px;
-        margin-bottom: 20px;
+        text-indent: 50rem;
+        margin-bottom: 20rem;
       }
     }
 
     .donation-sources {
       &__title {
-        margin-bottom: 20px;
+        margin-bottom: 20rem;
         font-size: 16rem;
         color: var(--primary);
       }
 
       &__links {
-        margin-bottom: 20px;
-        gap: 20px;
+        margin-bottom: 20rem;
+        gap: 20rem;
 
         & > a > img {
           border-radius: 0;
@@ -101,7 +101,7 @@ import ModMsgBox from '@/components/ModMsgBox.vue';
 
         & > iframe {
           width: 100%;
-          height: 180px;
+          height: 180rem;
           border: 0;
         }
       }

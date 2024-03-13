@@ -95,17 +95,17 @@ function getBitrate(tbr) {
 <style lang="scss">
 .mod-view-formats {
   width: 100%;
-  max-width: 750px;
+  max-width: 750rem;
   max-height: 80%;
   display: grid;
-  grid-template-rows: max-content minmax(0px, 1fr) max-content;
+  grid-template-rows: max-content minmax(0rem, 1fr) max-content;
   overflow: hidden;
 
   &__content {
     overflow-y: auto;
 
     .vod-info {
-      margin: 25px 0;
+      margin: 25rem 0;
 
       &__title {
         font-size: 24rem;
@@ -121,18 +121,18 @@ function getBitrate(tbr) {
         font-size: 15rem;
         font-weight: bold;
         color: var(--primary);
-        border-bottom: 1px solid var(--primary);
+        border-bottom: 1rem solid var(--primary);
       }
 
       td {
         &:first-child {
           color: var(--secondary-text);
-          max-width: 150px;
+          max-width: 150rem;
           overflow: hidden;
         }
 
         &:last-child {
-          max-width: 40px;
+          max-width: 40rem;
         }
 
         &.grayed-out {
@@ -146,7 +146,7 @@ function getBitrate(tbr) {
     }
 
     .instructions {
-      margin: 25px 0;
+      margin: 25rem 0;
       font-size: 15rem;
     }
   }

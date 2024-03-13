@@ -405,34 +405,35 @@ function download(VOD) {
 
 .ufcr {
   display: grid;
-  grid-template-rows: max-content max-content minmax(0px, 1fr) max-content;
+  grid-template-rows: max-content max-content minmax(0rem, 1fr) max-content;
   justify-items: center;
   margin: 2vw 3vw 1vw;
 
   .logo {
-    margin-bottom: 35px;
+    margin-bottom: 35rem;
 
     & > a > img {
-      height: 55px;
+      height: 55rem;
     }
   }
 
   .url-section {
-    gap: 10px;
-    margin-bottom: 50px;
+    gap: 3rem;
+    margin-bottom: 50rem;
 
     &__txt-link {
       width: 40vw;
-      max-width: 900px;
+      max-width: 900rem;
       margin-bottom: 0;
+      margin-right: 10rem;
     }
   }
 
   .vod-section {
     display: grid;
-    grid-template-rows: max-content minmax(0px, 1fr);
+    grid-template-rows: max-content minmax(0rem, 1fr);
     height: 100%;
-    max-width: 1300px;
+    max-width: 1300rem;
     width: 100%;
     margin: 0;
 
@@ -441,7 +442,7 @@ function download(VOD) {
       grid-template-columns: auto max-content;
 
       & > h5 {
-        margin-bottom: 30px;
+        margin-bottom: 30rem;
         color: var(--primary);
         font-weight: bold;
       }
@@ -451,7 +452,7 @@ function download(VOD) {
 
         &__pagination {
           height: 32rem;
-          margin: 0 5px;
+          margin: 0 5rem;
           font-size: 15rem;
           font-weight: bold;
           color: var(--primary);
@@ -460,17 +461,17 @@ function download(VOD) {
     }
 
     &__downloads, &__search-results {
-      margin: 10px;
+      margin: 10rem;
       overflow: auto;
       border-radius: 0;
     }
 
     &__search-results {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240rem, 1fr));
       grid-auto-rows: max-content;
       justify-items: center;
-      grid-gap: 30px;
+      grid-gap: 30rem;
 
       * + article {
         margin-top: 0;
@@ -479,7 +480,7 @@ function download(VOD) {
 
     &__empty-result {
       flex-direction: column;
-      gap: 30px;
+      gap: 30rem;
       color: var(--inactive-text);
 
       &__icon > i {
@@ -494,11 +495,11 @@ function download(VOD) {
   }
 
   .credits {
-    margin-top: 5px;
+    margin-top: 5rem;
 
     & > p > .v-anchor {
       font-weight: bold;
-      font-size: 15px;
+      font-size: 15rem;
     }
   }
 }

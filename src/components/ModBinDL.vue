@@ -95,15 +95,15 @@ async function onBtnYesClick() {
 
 <style lang="scss">
 .mod-bin-dl {
-  max-width: 450px;
+  max-width: 450rem;
 
   & > .modal-desc {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 10rem;
 
     & li {
-      margin-left: 30px;
+      margin-left: 30rem;
       font-weight: bold;
     }
   }
@@ -111,16 +111,16 @@ async function onBtnYesClick() {
   &__downloads {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 15rem;
 
     &__progress {
       & > span {
-        margin-left: 5px;
+        margin-left: 5rem;
         font-weight: bold;
       }
 
       & > div {
-        margin-top: 5px;
+        margin-top: 5rem;
       }
     }
   }

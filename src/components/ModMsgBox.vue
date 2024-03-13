@@ -64,15 +64,15 @@ defineEmits([
 <style lang="scss">
 .mod-msg-box {
   width: 100%;
-  max-width: 500px;
+  max-width: 500rem;
   max-height: 80%;
   display: grid;
-  grid-template-rows: max-content minmax(0px, 1fr) max-content;
+  grid-template-rows: max-content minmax(0rem, 1fr) max-content;
   overflow: hidden;
 
   &__content {
     overflow-y: auto;
-    margin: 10px 0;
+    margin: 10rem 0;
     border-radius: 0;
   }
 }

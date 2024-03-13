@@ -117,14 +117,14 @@ onMounted(() => nextTick(loadThumbnailImg));
 <style lang="scss">
 .block-vod-card {
   display: grid;
-  grid-gap: 10px;
-  width: 250px;
+  grid-gap: 10rem;
+  width: 250rem;
   height: 100%;
 
   &__details {
     display: grid;
-    grid-template-rows: max-content max-content minmax(0px, 1fr);
-    grid-gap: 10px;
+    grid-template-rows: max-content max-content minmax(0rem, 1fr);
+    grid-gap: 10rem;
 
     &__thumbnail {
       overflow: hidden;
@@ -132,13 +132,13 @@ onMounted(() => nextTick(loadThumbnailImg));
       &__duration {
         z-index: 1;
         position: absolute;
-        top: 10px;
-        right: 10px;
-        border-radius: 5px;
+        top: 10rem;
+        right: 10rem;
+        border-radius: 5rem;
         background: rgba(0, 0, 0, 0.55);
 
         &__clock {
-          padding: 3px;
+          padding: 3rem;
           font-size: 12rem;
           font-weight: bold;
         }
@@ -174,7 +174,7 @@ onMounted(() => nextTick(loadThumbnailImg));
           z-index: 1;
           width: 100%;
           height: 55%;
-          transform: translateY(20px);
+          transform: translateY(20rem);
           transition: transform .2s ease-in-out;
         }
 
@@ -195,7 +195,7 @@ onMounted(() => nextTick(loadThumbnailImg));
         transition: transform .2s ease-in-out;
 
         &.blur {
-          filter: blur(15px);
+          filter: blur(15rem);
         }
       }
     }
@@ -213,7 +213,7 @@ onMounted(() => nextTick(loadThumbnailImg));
     }
 
     &__description {
-      height: 80px;
+      height: 80rem;
       border-radius: 0;
       overflow: hidden;
       mask-image: linear-gradient(180deg, #000 60%, transparent);

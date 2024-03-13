@@ -5,13 +5,13 @@ body {
 }
 
 .overlay.active {
-  backdrop-filter: saturate(200%) blur(2px);
+  backdrop-filter: saturate(200%) blur(2rem);
 }
 
 .Vue-Toastification {
   &__toast {
-    padding: 10px 24px;
-    margin-bottom: 10px;
+    padding: 10rem 24rem;
+    margin-bottom: 10rem;
 
     & > svg {
       border-radius: initial;
@@ -26,7 +26,7 @@ body {
   &__close-button {
     box-shadow: none;
     padding-left: 0;
-    margin-left: 10px;
+    margin-left: 10rem;
   }
 }
 
