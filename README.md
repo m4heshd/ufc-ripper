@@ -107,8 +107,8 @@ We have two social groups dedicated to any discussion regarding UFC Ripper.
 No installation is required on the desktop. The app is portable.
 
 1. Download the latest release corresponding to your system,
-   - ### [Windows (x64)](https://github.com/m4heshd/ufc-ripper/releases/latest/download/ufc-ripper-win-x64.zip)
-   - ### [Linux (x64)](https://github.com/m4heshd/ufc-ripper/releases/latest/download/ufc-ripper-linux-x64.zip)
+    - ### [Windows (x64)](https://github.com/m4heshd/ufc-ripper/releases/latest/download/ufc-ripper-win-x64.zip)
+    - ### [Linux (x64)](https://github.com/m4heshd/ufc-ripper/releases/latest/download/ufc-ripper-linux-x64.zip)
 
 2. Extract the content of the zip file to anywhere you like
 
@@ -136,15 +136,15 @@ Here's a docker-compose template for you lazies out there.
 version: "3"
 
 services:
-   ufc-ripper:
-      image: m4heshd/ufc-ripper:latest # Using the latest version of the official image
-      container_name: ufc-ripper
-      restart: unless-stopped
-      volumes:
-         - ./config:/ufcr/config # Any configuration files will be stored here
-         - ~/Downloads/ufc-ripper:/downloads # Downloaded videos will be stored here
-      ports:
-         - "8383:8383" # Web UI port
+  ufc-ripper:
+    image: m4heshd/ufc-ripper:latest # Using the latest version of the official image
+    container_name: ufc-ripper
+    restart: unless-stopped
+    volumes:
+      - ./config:/ufcr/config # Any configuration files will be stored here
+      - ~/Downloads/ufc-ripper:/downloads # Downloaded videos will be stored here
+    ports:
+      - "8383:8383" # Web UI port
 ```
 
 That's it.
