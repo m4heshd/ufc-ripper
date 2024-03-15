@@ -1,5 +1,7 @@
+# Project
 .DS_Store
 node_modules
+/backend/target
 /dist
 /bin
 /project-res/temp

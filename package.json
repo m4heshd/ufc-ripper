@@ -10,7 +10,7 @@
   },
   "private": true,
   "scripts": {
-    "start-server": "node server.js",
+    "start-server": "cargo run --manifest-path backend/Cargo.toml",
     "dev": "vite",
     "build": "vite build",
     "docker:up": "docker compose up --detach --build",
