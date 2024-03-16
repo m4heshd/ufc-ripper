@@ -9,7 +9,11 @@ edition = "2021"
 
 [[bin]]
 name = "ufc-ripper"
-path = "backend/src/bin/ripper/main.rs"
+path = "backend/src/bin/ufcr/main.rs"
+
+[lib]
+name = "ufcr_libs"
+path = "backend/src/lib.rs"
 
 [dependencies]
 axum = "0.7.4"

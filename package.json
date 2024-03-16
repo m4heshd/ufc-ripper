@@ -10,7 +10,7 @@
   },
   "private": true,
   "scripts": {
-    "start-server": "cargo run --color=always",
+    "start-server": "cargo run --color=always --bin ufc-ripper",
     "dev": "vite",
     "build": "vite build",
     "docker:up": "docker compose up --detach --build",

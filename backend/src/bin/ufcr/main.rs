@@ -1,10 +1,6 @@
-// Modules
-mod log_util;
-mod net_util;
-
 // Libs
-use crate::log_util::enable_win32_conhost_support;
-use crate::net_util::init_server;
+use ufcr_libs::log_util::enable_win32_conhost_support;
+use ufcr_libs::net_util::init_server;
 
 #[tokio::main]
 async fn main() {
