@@ -1,4 +1,5 @@
 // Libs
+use crate::log_success;
 use axum::{http::StatusCode, routing::get_service, Router};
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
@@ -17,9 +18,9 @@ pub async fn init_server() {
         .await
         .unwrap_or_else(|_| panic!("Failed to start a listener on the port \"{port}\"\n"));
 
+    log_success!("UFC Ripper GUI is live at http://localhost:{port}\n");
+
     axum::serve(listener, app)
         .await
         .expect("Failed to initiate the backend server\n");
-
-    println!("UFC Ripper GUI is live at http://localhost:${port}\n");
 }
