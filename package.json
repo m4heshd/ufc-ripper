@@ -10,7 +10,7 @@
   },
   "private": true,
   "scripts": {
-    "start-server": "cargo run --manifest-path backend/Cargo.toml",
+    "start-server": "cargo run --color=always",
     "dev": "vite",
     "build": "vite build",
     "docker:up": "docker compose up --detach --build",
