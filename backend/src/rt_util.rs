@@ -1,13 +1,14 @@
 // Libs
 use std::{
     io::{stdin, Read},
-    panic::set_hook as set_panic_hook,
+    panic::{panic_any, set_hook as set_panic_hook},
 };
 
 // Enums
 /// Defines an exit type to determine if the exit event is an unknown panic or intentional.
 pub enum ExitType {
     Custom(String),
+    Quit(),
 }
 
 // Structs
@@ -32,6 +33,8 @@ pub fn set_custom_panic(debug: &'static bool) {
                 ExitType::Custom(msg) => {
                     log_err!("{msg}. Exiting UFC Ripper.\n");
                 }
+                // TODO: Exit code needs to be `0` here
+                ExitType::Quit() => {}
             }
         } else if *debug {
             log_err!(
@@ -42,4 +45,13 @@ pub fn set_custom_panic(debug: &'static bool) {
             log_err!("An unknown error occurred. Exiting UFC Ripper.\n");
         }
     }));
+}
+
+/// Gracefully quits the application by properly unwinding, with a specific `ExitType`
+pub fn quit(message: Option<&str>) -> ! {
+    if let Some(msg) = message {
+        panic_any(ExitType::Custom(msg.to_string()))
+    } else {
+        panic_any(ExitType::Quit())
+    }
 }

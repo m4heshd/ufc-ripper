@@ -1,8 +1,8 @@
 // Libs
 use crate::log_success;
-use crate::rt_util::ExitType;
+use crate::rt_util::quit;
 use axum::{http::StatusCode, routing::get_service, Router};
-use std::{net::SocketAddr, panic::panic_any};
+use std::net::SocketAddr;
 use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
 
@@ -25,16 +25,14 @@ pub async fn init_server() {
     let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], port)))
         .await
         .unwrap_or_else(|_| {
-            panic_any(ExitType::Custom(format!(
-                "Failed to start a listener on the port \"{port}\""
-            )))
+            quit(Some(
+                format!("Failed to start a listener on port \"{port}\"").as_str(),
+            ))
         });
 
     log_success!("UFC Ripper GUI is live at http://localhost:{port}\n");
 
-    axum::serve(listener, app).await.unwrap_or_else(|_| {
-        panic_any(ExitType::Custom(
-            "Failed to initiate the backend server".to_string(),
-        ))
-    });
+    axum::serve(listener, app)
+        .await
+        .unwrap_or_else(|_| quit(Some("Failed to initiate the backend server")));
 }
