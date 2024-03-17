@@ -1,16 +1,16 @@
 // Libs
 use crate::log_success;
-use crate::rt_util::quit;
+use crate::rt_util::QuitUnwrap;
 use axum::{http::StatusCode, routing::get_service, Router};
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
 
-/// Creates a new server that serves the UFC Ripper GUI
+/// Creates a new server that serves the UFC Ripper GUI.
 ///
 /// # Panics
 ///
-/// Will panic if the port is already in use or fails to serve the Vue "dist" directory
+/// Will panic if the port is already in use or fails to serve the Vue "dist" directory.
 pub async fn init_server() {
     let port = 8383;
     let app = Router::new().nest_service(
@@ -24,15 +24,11 @@ pub async fn init_server() {
     );
     let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], port)))
         .await
-        .unwrap_or_else(|_| {
-            quit(Some(
-                format!("Failed to start a listener on port \"{port}\"").as_str(),
-            ))
-        });
+        .unwrap_or_quit(format!("Failed to start a listener on port \"{port}\"").as_str());
 
     log_success!("UFC Ripper GUI is live at http://localhost:{port}\n");
 
     axum::serve(listener, app)
         .await
-        .unwrap_or_else(|_| quit(Some("Failed to initiate the backend server")));
+        .unwrap_or_quit("Failed to initiate the backend server");
 }
