@@ -720,6 +720,9 @@ version = "2.2.0"
 dependencies = [
  "axum",
  "colored",
+ "once_cell",
+ "serde",
+ "serde_json",
  "tokio",
  "tower-http",
 ]

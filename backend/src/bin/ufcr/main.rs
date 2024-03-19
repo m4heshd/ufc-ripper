@@ -1,4 +1,5 @@
 // Libs
+use ufcr_libs::config_util::load_config;
 use ufcr_libs::log_util::enable_win32_conhost_support;
 use ufcr_libs::net_util::init_server;
 use ufcr_libs::rt_util::{set_custom_panic, ExitHandler};
@@ -11,5 +12,11 @@ async fn main() {
 
     #[cfg(target_os = "windows")]
     enable_win32_conhost_support();
+    start_ufcr().await;
+}
+
+/// Initializes and starts the application process.
+async fn start_ufcr() {
+    load_config();
     init_server().await;
 }
