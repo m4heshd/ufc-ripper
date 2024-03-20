@@ -54,8 +54,8 @@ impl<T> QuitUnwrap<T> for Option<T> {
 }
 
 /// Prints a custom message on panics, depending on the payload and debug status.
-pub fn set_custom_panic(debug: &'static bool) {
-    set_panic_hook(Box::new(|e| {
+pub fn set_custom_panic(debug: bool) {
+    set_panic_hook(Box::new(move |e| {
         if let Some(s) = e.payload().downcast_ref::<ExitType>() {
             match s {
                 ExitType::Custom(msg) => {
@@ -63,7 +63,7 @@ pub fn set_custom_panic(debug: &'static bool) {
                 }
                 ExitType::Quit() => {} // TODO: Exit code needs to be `0` here
             }
-        } else if *debug {
+        } else if debug {
             log_err!(
                 "An unknown error occurred:\n{:#?}\n\nExiting UFC Ripper.\n",
                 e

@@ -2,7 +2,7 @@
 
 // Libs
 use crate::rt_util::QuitUnwrap;
-use once_cell::sync::Lazy;
+use once_cell::sync::{Lazy, OnceCell};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::{
@@ -82,6 +82,7 @@ static CONFIG_PATH: Lazy<PathBuf> = Lazy::new(|| {
 });
 static CONFIG: Lazy<Arc<Mutex<UFCRConfig>>> =
     Lazy::new(|| Arc::new(Mutex::new(UFCRConfig::default())));
+static DEBUG_OVERRIDE: OnceCell<bool> = OnceCell::new();
 
 /// Loads the configuration into global CONFIG.
 pub fn load_config() {
@@ -128,6 +129,20 @@ pub fn get_mut_config() -> MutexGuard<'static, UFCRConfig> {
     CONFIG
         .lock()
         .unwrap_or_quit("Failed to exclusively access the configuration")
+}
+
+/// Returns the debug status.
+pub fn is_debug() -> bool {
+    match DEBUG_OVERRIDE.get() {
+        Some(debug) => {
+            if *debug {
+                *debug
+            } else {
+                get_config().verbose_logging
+            }
+        }
+        None => get_config().verbose_logging,
+    }
 }
 
 /// Updates the configuration with new data and writes to config.json.
