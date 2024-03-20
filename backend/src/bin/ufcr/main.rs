@@ -17,7 +17,8 @@ async fn main() {
 
 /// Initializes the configuration and starts the application process.
 async fn start_ufcr() {
-    load_config();
+    let config = load_config();
+
     set_custom_panic(is_debug());
-    init_server().await;
+    init_server(&config).await;
 }

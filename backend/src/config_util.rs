@@ -70,7 +70,7 @@ pub struct ProxyAuth {
 // Statics
 static CONFIG_PATH: Lazy<PathBuf> = Lazy::new(|| {
     if cfg!(debug_assertions) {
-        ["..", "config", "config.json"].iter().collect::<PathBuf>()
+        [".", "config", "config.json"].iter().collect::<PathBuf>()
     } else {
         current_exe()
             .unwrap_or_quit("Failed to determine the application's executable path")
@@ -84,15 +84,19 @@ static CONFIG: Lazy<Arc<Mutex<UFCRConfig>>> =
     Lazy::new(|| Arc::new(Mutex::new(UFCRConfig::default())));
 static DEBUG_OVERRIDE: OnceCell<bool> = OnceCell::new();
 
-/// Loads the configuration into global CONFIG.
-pub fn load_config() {
-    update_config(read_config());
+/// Loads the configuration into global CONFIG and returns a copy.
+#[must_use]
+pub fn load_config() -> UFCRConfig {
+    let config = read_config();
+
+    update_config(config.clone());
+
+    config
 }
 
 /// Reads the config.json file from the disk.
+#[must_use]
 pub fn read_config() -> UFCRConfig {
-    println!("{:?}", &*CONFIG_PATH);
-
     let conf_file = fs::read_to_string(&*CONFIG_PATH).unwrap_or_quit(
         r#"Unable to read config.json file. Check if the file exists in "config" directory"#,
     );
