@@ -138,24 +138,13 @@ pub fn get_mut_config() -> MutexGuard<'static, UFCRConfig> {
 /// Returns the debug status.
 pub fn is_debug() -> bool {
     match DEBUG_OVERRIDE.get() {
-        Some(debug) => {
-            if *debug {
-                *debug
-            } else {
-                get_config().verbose_logging
-            }
-        }
+        Some(debug) => *debug || get_config().verbose_logging,
         None => get_config().verbose_logging,
     }
 }
 
 /// Updates the configuration with new data and writes to config.json.
 pub fn update_config(update: UFCRConfig) {
-    {
-        let mut config = get_mut_config();
-
-        *config = update;
-    }
-
+    *get_mut_config() = update;
     write_config();
 }

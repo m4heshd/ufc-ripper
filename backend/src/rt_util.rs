@@ -76,9 +76,8 @@ pub fn set_custom_panic(debug: bool) {
 
 /// Gracefully quits the application by properly unwinding, with a specific `ExitType`.
 pub fn quit(message: Option<&str>) -> ! {
-    if let Some(msg) = message {
-        panic_any(ExitType::Custom(msg.to_string()))
-    } else {
-        panic_any(ExitType::Quit())
+    match message {
+        Some(msg) => panic_any(ExitType::Custom(msg.to_string())),
+        None => panic_any(ExitType::Quit()),
     }
 }

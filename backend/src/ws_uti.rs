@@ -1,8 +1,10 @@
 // Libs
 use crate::config_util::UFCRConfig;
-use socketioxide::extract::{AckSender, SocketRef};
-use socketioxide::layer::SocketIoLayer;
-use socketioxide::SocketIoBuilder;
+use socketioxide::{
+    extract::{AckSender, SocketRef},
+    layer::SocketIoLayer,
+    SocketIoBuilder,
+};
 use std::time::Duration;
 
 /// Handles each UFC Ripper GUI `WebSocket` client

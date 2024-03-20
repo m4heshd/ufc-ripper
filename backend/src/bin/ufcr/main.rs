@@ -1,8 +1,10 @@
 // Libs
-use ufcr_libs::config_util::{is_debug, load_config};
-use ufcr_libs::log_util::enable_win32_conhost_support;
-use ufcr_libs::net_util::init_server;
-use ufcr_libs::rt_util::{set_custom_panic, ExitHandler};
+use ufcr_libs::{
+    config_util::{is_debug, load_config},
+    log_util::enable_win32_conhost_support,
+    net_util::init_server,
+    rt_util::{set_custom_panic, ExitHandler},
+};
 
 #[tokio::main]
 async fn main() {
