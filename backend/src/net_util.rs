@@ -1,12 +1,23 @@
 // Libs
-use crate::config_util::UFCRConfig;
-use crate::log_success;
-use crate::rt_util::QuitUnwrap;
-use crate::ws_uti::create_ws_layer;
-use axum::{http::StatusCode, routing::get_service, Router};
+use crate::{config_util::UFCRConfig, log_success, rt_util::QuitUnwrap, ws_uti::create_ws_layer};
+use axum::{
+    http::{Method, StatusCode},
+    routing::get_service,
+    Router,
+};
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
-use tower_http::services::ServeDir;
+use tower_http::{
+    cors::{Any, CorsLayer},
+    services::ServeDir,
+};
+
+/// Creates a new Tower layer with CORS rules.
+fn create_cors_layer() -> CorsLayer {
+    CorsLayer::new()
+        .allow_methods([Method::GET])
+        .allow_origin(Any)
+}
 
 /// Creates a new server that serves the UFC Ripper GUI and the `WebSocket` server.
 ///
@@ -27,7 +38,8 @@ pub async fn init_server(config: &UFCRConfig) {
                 )
             }),
         )
-        .layer(create_ws_layer(config.clone()));
+        .layer(create_ws_layer(config.clone()))
+        .layer(create_cors_layer());
 
     // TCP listener
     let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], port)))
