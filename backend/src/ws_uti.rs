@@ -1,5 +1,5 @@
 // Libs
-use crate::{app_util::get_app_metadata, config_util::get_config};
+use crate::{app_util::get_app_metadata, config_util::get_config, state_util::get_dlq};
 use socketioxide::{
     extract::{AckSender, SocketRef},
     layer::SocketIoLayer,
@@ -16,6 +16,9 @@ fn handle_ws_client(socket: &SocketRef) {
     });
     socket.on("get-config", |ack: AckSender| {
         ack.send(get_config()).ok();
+    });
+    socket.on("get-dlq", |ack: AckSender| {
+        ack.send(get_dlq()).ok();
     });
 }
 
