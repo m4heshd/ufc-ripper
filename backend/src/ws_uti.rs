@@ -1,5 +1,10 @@
 // Libs
-use crate::{app_util::get_app_metadata, config_util::get_config, state_util::get_dlq};
+use crate::{
+    app_util::{check_app_update, get_app_metadata},
+    config_util::get_config,
+    state_util::get_dlq,
+};
+use serde_json::json;
 use socketioxide::{
     extract::{AckSender, SocketRef},
     layer::SocketIoLayer,
@@ -19,6 +24,16 @@ fn handle_ws_client(socket: &SocketRef) {
     });
     socket.on("get-dlq", |ack: AckSender| {
         ack.send(get_dlq()).ok();
+    });
+    socket.on("check-app-update", |ack: AckSender| async move {
+        match check_app_update().await {
+            Ok(data) => {
+                ack.send(data).ok();
+            }
+            Err(error) => {
+                ack.send(json!({"error": error.to_string()})).ok();
+            }
+        }
     });
 }
 

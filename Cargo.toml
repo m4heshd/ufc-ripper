@@ -16,11 +16,14 @@ name = "ufcr_libs"
 path = "backend/src/lib.rs"
 
 [dependencies]
+anyhow = "1.0.81"
 axum = "0.7.4"
 colored = "2.1.0"
 once_cell = "1.19.0"
+reqwest = { version = "0.12.0", features = ["json"] }
+semver = "1.0.22"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.114"
-socketioxide = "0.11.0"
+socketioxide = "0.12.0"
 tokio = { version = "1.36.0", features = ["rt", "rt-multi-thread", "macros"] }
 tower-http = { version = "0.5.2", features = ["fs", "cors"] }

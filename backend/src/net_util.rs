@@ -1,19 +1,31 @@
+#![allow(clippy::missing_errors_doc)]
+
 // Libs
 use crate::{
-    app_util::is_container, config_util::UFCRConfig, log_success, rt_util::QuitUnwrap,
-    ws_uti::create_ws_layer,
+    app_util::get_app_metadata, app_util::is_container, config_util::UFCRConfig, log_success,
+    rt_util::QuitUnwrap, ws_uti::create_ws_layer,
 };
+use anyhow::{Context, Result};
 use axum::{
     http::{Method, StatusCode},
     routing::get_service,
     Router,
 };
+use once_cell::sync::Lazy;
+use reqwest::Client;
+use serde_json::Value;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 use tower_http::{
     cors::{Any, CorsLayer},
     services::ServeDir,
 };
+
+// Types
+pub type JSON = Value;
+
+// Statics
+static HTTP_CLIENT: Lazy<Client> = Lazy::new(Client::new);
 
 /// Creates a new Tower layer with CORS rules.
 fn create_cors_layer() -> CorsLayer {
@@ -58,4 +70,19 @@ pub async fn init_server(config: &UFCRConfig) {
     axum::serve(listener, app)
         .await
         .unwrap_or_quit("Failed to initiate the backend server");
+}
+
+/// Fetches UFC Rippers update information from the GitHub repo.
+pub async fn get_latest_app_meta() -> Result<JSON> {
+    let req_url = format!("{}/raw/master/package.json", get_app_metadata().repo);
+    let resp: JSON = HTTP_CLIENT
+        .get(req_url)
+        .send()
+        .await
+        .context("An error occurred while trying to retrieve app update information")?
+        .json()
+        .await
+        .context("App update information contains an invalid response")?;
+
+    Ok(resp)
 }

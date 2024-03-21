@@ -37,7 +37,7 @@ pub struct VOD {
 static DOWNLOADS_QUEUE: Lazy<Arc<Mutex<HashMap<String, VOD>>>> =
     Lazy::new(|| Arc::new(Mutex::new(HashMap::new())));
 
-/// Returns a copy of the downloads-queue
+/// Returns a copy of the downloads-queue.
 pub fn get_dlq() -> HashMap<String, VOD> {
     DOWNLOADS_QUEUE
         .lock()
