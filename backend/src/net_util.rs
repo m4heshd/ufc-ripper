@@ -41,13 +41,13 @@ pub async fn init_server(config: &UFCRConfig) {
                 )
             }),
         )
-        .layer(create_ws_layer(config.clone()))
+        .layer(create_ws_layer())
         .layer(create_cors_layer());
 
     // TCP listener
     let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], port)))
         .await
-        .unwrap_or_quit(format!("Failed to start a listener on port \"{port}\"").as_str());
+        .unwrap_or_quit(format!("Failed to start the server on port \"{port}\"").as_str());
 
     log_success!(
         "UFC Ripper GUI is live at http://localhost:{port} {}\n",
