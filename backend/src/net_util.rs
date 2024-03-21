@@ -1,5 +1,8 @@
 // Libs
-use crate::{config_util::UFCRConfig, log_success, rt_util::QuitUnwrap, ws_uti::create_ws_layer};
+use crate::{
+    app_util::is_container, config_util::UFCRConfig, log_success, rt_util::QuitUnwrap,
+    ws_uti::create_ws_layer,
+};
 use axum::{
     http::{Method, StatusCode},
     routing::get_service,
@@ -46,7 +49,10 @@ pub async fn init_server(config: &UFCRConfig) {
         .await
         .unwrap_or_quit(format!("Failed to start a listener on port \"{port}\"").as_str());
 
-    log_success!("UFC Ripper GUI is live at http://localhost:{port}\n");
+    log_success!(
+        "UFC Ripper GUI is live at http://localhost:{port} {}\n",
+        if is_container() { "(container)" } else { "" }
+    );
 
     // Axum server
     axum::serve(listener, app)
