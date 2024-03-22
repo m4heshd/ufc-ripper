@@ -27,13 +27,6 @@ pub type JSON = Value;
 // Statics
 static HTTP_CLIENT: Lazy<Client> = Lazy::new(Client::new);
 
-/// Creates a new Tower layer with CORS rules.
-fn create_cors_layer() -> CorsLayer {
-    CorsLayer::new()
-        .allow_methods([Method::GET])
-        .allow_origin(Any)
-}
-
 /// Creates a new server that serves the UFC Ripper GUI and the `WebSocket` server.
 ///
 /// # Panics
@@ -70,6 +63,13 @@ pub async fn init_server(config: &UFCRConfig) {
     axum::serve(listener, app)
         .await
         .unwrap_or_quit("Failed to initiate the backend server");
+}
+
+/// Creates a new Tower layer with CORS rules.
+fn create_cors_layer() -> CorsLayer {
+    CorsLayer::new()
+        .allow_methods([Method::GET])
+        .allow_origin(Any)
 }
 
 /// Fetches UFC Ripper's update information from the GitHub repo.
