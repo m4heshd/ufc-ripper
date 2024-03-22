@@ -4,13 +4,12 @@
 use crate::rt_util::QuitUnwrap;
 use once_cell::sync::{Lazy, OnceCell};
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use std::{
     env::current_exe,
     fs,
     io::{BufWriter, Write},
     path::PathBuf,
-    sync::{Mutex, MutexGuard},
+    sync::{Arc, Mutex, MutexGuard},
 };
 
 // Structs

@@ -72,7 +72,7 @@ pub async fn init_server(config: &UFCRConfig) {
         .unwrap_or_quit("Failed to initiate the backend server");
 }
 
-/// Fetches UFC Rippers update information from the GitHub repo.
+/// Fetches UFC Ripper's update information from the GitHub repo.
 pub async fn get_latest_app_meta() -> Result<JSON> {
     let req_url = format!("{}/raw/master/package.json", get_app_metadata().repo);
     let resp: JSON = HTTP_CLIENT

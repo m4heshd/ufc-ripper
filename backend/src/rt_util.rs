@@ -34,7 +34,10 @@ pub trait QuitUnwrap<T> {
 }
 
 // Implements `QuitUnwrap` for `Result`
-impl<T, E: Display> QuitUnwrap<T> for Result<T, E> {
+impl<T, E> QuitUnwrap<T> for Result<T, E>
+where
+    E: Display,
+{
     fn unwrap_or_quit(self, msg: &str) -> T {
         match self {
             Ok(val) => val,
