@@ -20,7 +20,7 @@ pub struct UFCRConfig {
     pub verbose_logging: bool,
     pub api_key: String,
     #[serde(rename = "searchAPIKey")]
-    pub search_apikey: String,
+    pub search_api_key: String,
     pub region: String,
     pub user: String,
     pub refresh_token: String,

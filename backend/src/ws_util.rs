@@ -3,12 +3,13 @@ use crate::{
     app_util::{check_app_update, get_app_metadata},
     bin_util::validate_bins,
     config_util::get_config,
+    net_util::{search_vods, JSON},
     state_util::get_dlq,
 };
 use serde::Serialize;
 use serde_json::json;
 use socketioxide::{
-    extract::{AckSender, SocketRef},
+    extract::{AckSender, Data, SocketRef},
     layer::SocketIoLayer,
     SocketIoBuilder,
 };
@@ -44,6 +45,19 @@ fn handle_ws_client(socket: &SocketRef) {
     socket.on("validate-media-tools", |ack: AckSender| {
         ack.send(validate_bins()).ok();
     });
+    socket.on(
+        "search-vods",
+        |ack: AckSender, Data(data): Data<JSON>| async move {
+            let query = data[0].as_str();
+            let page = data[1].as_u64();
+
+            if query.is_none() || page.is_none() {
+                send_error(ack, "Invalid search request");
+            } else {
+                send_async_result(ack, search_vods(query.unwrap(), page.unwrap())).await;
+            }
+        },
+    );
 }
 
 /// Sends a response to the client-event with data or an error, according to the awaited `Result`.
@@ -66,10 +80,15 @@ where
             ack.send(data).ok();
         }
         Err(error) => {
-            ack.send(json!({
-                "error": error.to_string()
-            }))
-            .ok();
+            send_error(ack, &error.to_string());
         }
     }
+}
+
+/// Sends an error response to the client with the provided message
+fn send_error(ack: AckSender, error_msg: &str) {
+    ack.send(json!({
+        "error": error_msg
+    }))
+    .ok();
 }

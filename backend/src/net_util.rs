@@ -2,10 +2,13 @@
 
 // Libs
 use crate::{
-    app_util::get_app_metadata, app_util::is_container, config_util::UFCRConfig, log_success,
-    rt_util::QuitUnwrap, ws_util::create_ws_layer,
+    app_util::{get_app_metadata, is_container},
+    config_util::{get_config, UFCRConfig},
+    log_success,
+    rt_util::QuitUnwrap,
+    ws_util::create_ws_layer,
 };
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use axum::{
     http::{Method, StatusCode},
     routing::get_service,
@@ -13,7 +16,7 @@ use axum::{
 };
 use once_cell::sync::Lazy;
 use reqwest::Client;
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 use tower_http::{
@@ -26,6 +29,17 @@ pub type JSON = Value;
 
 // Statics
 static HTTP_CLIENT: Lazy<Client> = Lazy::new(Client::new);
+static VOD_SEARCH_PARAMS: Lazy<String> = Lazy::new(|| {
+    form_urlencoded::Serializer::new(String::new())
+        .append_pair("facetFilters", r#"["type:VOD_VIDEO"]"#)
+        .append_pair("hitsPerPage", "12")
+        .append_pair("advancedSyntax", "true")
+        .append_pair(
+            "attributesToRetrieve",
+            r#"["id","description","thumbnailUrl","duration"]"#,
+        )
+        .finish()
+});
 
 /// Creates a new server that serves the UFC Ripper GUI and the `WebSocket` server.
 ///
@@ -86,4 +100,41 @@ pub async fn get_latest_app_meta() -> Result<JSON> {
         .context("App update information contains an invalid response")?;
 
     Ok(resp)
+}
+
+pub async fn search_vods(query: &str, page: u64) -> Result<JSON> {
+    let search_params = format!(
+        "{}&{}",
+        VOD_SEARCH_PARAMS.as_str(),
+        form_urlencoded::Serializer::new(String::new())
+            .append_pair("query", query)
+            .append_pair("page", &page.to_string())
+            .finish()
+    );
+    let resp: JSON = HTTP_CLIENT
+        .post("https://h99xldr8mj-dsn.algolia.net/1/indexes/*/queries")
+        .header("x-algolia-application-id", "H99XLDR8MJ")
+        .header("x-algolia-api-key", get_config().search_api_key)
+        .json(&json!({
+            "requests": [
+                {
+                    "indexName": "prod-dce.ufc-livestreaming-events",
+                    "params": search_params
+                }
+            ]
+        }))
+        .send()
+        .await
+        .context("An error occurred while trying to search the Fight Pass library")?
+        .json()
+        .await
+        .context("Search result contains an invalid response")?;
+
+    let result = &resp["results"][0];
+
+    if result == &JSON::Null {
+        Err(anyhow!("Response does not contain any search results"))
+    } else {
+        Ok(result.clone())
+    }
 }
