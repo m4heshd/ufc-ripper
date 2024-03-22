@@ -1,6 +1,7 @@
 // Libs
 use crate::{
     app_util::{check_app_update, get_app_metadata},
+    bin_util::validate_bins,
     config_util::get_config,
     state_util::get_dlq,
 };
@@ -39,6 +40,9 @@ fn handle_ws_client(socket: &SocketRef) {
     });
     socket.on("check-app-update", |ack: AckSender| async move {
         send_async_result(ack, check_app_update()).await;
+    });
+    socket.on("validate-media-tools", |ack: AckSender| {
+        ack.send(validate_bins()).ok();
     });
 }
 

@@ -16,16 +16,16 @@ use std::{env, path::PathBuf};
 #[serde(rename_all = "camelCase")]
 pub struct AppMeta {
     pub is_container: bool,
-    pub version: String,
-    pub repo: String,
+    pub version: &'static str,
+    pub repo: &'static str,
 }
 
 /// Populates and returns application's metadata as a new instance of `AppMeta`.
 pub fn get_app_metadata() -> AppMeta {
     AppMeta {
         is_container: is_container(),
-        version: env!("CARGO_PKG_VERSION").to_string(),
-        repo: env!("CARGO_PKG_REPOSITORY").to_string(),
+        version: env!("CARGO_PKG_VERSION"),
+        repo: env!("CARGO_PKG_REPOSITORY"),
     }
 }
 
@@ -63,7 +63,7 @@ pub async fn check_app_update() -> Result<JSON> {
     let version =
         Version::parse(remote_meta["version"].as_str().context(err_msg)?).context(err_msg)?;
 
-    if version > Version::parse(get_app_metadata().version.as_str())? {
+    if version > Version::parse(get_app_metadata().version)? {
         Ok(json!({
             "updatable": true,
             "version": version.to_string(),
