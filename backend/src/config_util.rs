@@ -1,11 +1,10 @@
 #![allow(clippy::struct_excessive_bools)]
 
 // Libs
-use crate::rt_util::QuitUnwrap;
+use crate::{app_util::get_app_root_dir, rt_util::QuitUnwrap};
 use once_cell::sync::{Lazy, OnceCell};
 use serde::{Deserialize, Serialize};
 use std::{
-    env::current_exe,
     fs,
     io::{BufWriter, Write},
     path::PathBuf,
@@ -67,18 +66,8 @@ pub struct ProxyAuth {
 }
 
 // Statics
-static CONFIG_PATH: Lazy<PathBuf> = Lazy::new(|| {
-    if cfg!(debug_assertions) {
-        [".", "config", "config.json"].iter().collect::<PathBuf>()
-    } else {
-        current_exe()
-            .unwrap_or_quit("Failed to determine the application's executable path")
-            .parent()
-            .unwrap_or_quit("Invalid executable path")
-            .join("config")
-            .join("config.json")
-    }
-});
+static CONFIG_PATH: Lazy<PathBuf> =
+    Lazy::new(|| get_app_root_dir().join("config").join("config.json"));
 static CONFIG: Lazy<Arc<Mutex<UFCRConfig>>> =
     Lazy::new(|| Arc::new(Mutex::new(UFCRConfig::default())));
 static DEBUG_OVERRIDE: OnceCell<bool> = OnceCell::new();

@@ -55,7 +55,8 @@ pub async fn init_server(config: &UFCRConfig) {
         .unwrap_or_quit(format!("Failed to start the server on port \"{port}\"").as_str());
 
     log_success!(
-        "UFC Ripper GUI is live at http://localhost:{port} {}\n",
+        "UFC Ripper (v{}) GUI is live at http://localhost:{port} {}\n",
+        get_app_metadata().version,
         if is_container() { "(container)" } else { "" }
     );
 

@@ -1,10 +1,14 @@
 // Libs
-use crate::net_util::{get_latest_app_meta, JSON};
+use crate::{
+    net_util::{get_latest_app_meta, JSON},
+    rt_util::QuitUnwrap,
+};
 use anyhow::{Context, Result};
+use path_absolutize::Absolutize;
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::env;
+use std::{env, path::PathBuf};
 
 // Structs
 /// Holds all metadata related to the UFC Ripper application.
@@ -25,11 +29,30 @@ pub fn get_app_metadata() -> AppMeta {
     }
 }
 
-/// Determines if the application is running inside a container using the `RUN_ENV` environment variable.
+/// Determines if the application is running inside a container using the `RUN_ENV`
+/// environment variable.
 pub fn is_container() -> bool {
     match env::var("RUN_ENV") {
         Ok(run_env) => run_env == "container",
         Err(_) => false,
+    }
+}
+
+/// Returns the application's root directory, depending on the compiled mode.
+pub fn get_app_root_dir() -> PathBuf {
+    let err_msg = "Failed to determine the application's root directory";
+
+    if cfg!(debug_assertions) {
+        PathBuf::from(".")
+            .absolutize()
+            .unwrap_or_quit(err_msg)
+            .to_path_buf()
+    } else {
+        env::current_exe()
+            .unwrap_or_quit(err_msg)
+            .parent()
+            .unwrap_or_quit(format!("{err_msg}. Invalid executable path").as_str())
+            .to_path_buf()
     }
 }
 
