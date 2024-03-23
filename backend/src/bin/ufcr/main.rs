@@ -1,7 +1,6 @@
 // Libs
 use ufcr_libs::{
     config_util::{is_debug, load_config},
-    log_util::enable_win32_conhost_support,
     net_util::init_server,
     rt_util::{ExitHandler, set_custom_panic},
 };
@@ -13,7 +12,7 @@ async fn main() {
     let _exit_handler = ExitHandler; // This needs to be here, so it would be the last thing that will be dropped
 
     #[cfg(target_os = "windows")]
-    enable_win32_conhost_support();
+    ufcr_libs::log_util::enable_win32_conhost_support();
     start_ufcr().await;
 }
 

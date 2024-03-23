@@ -1,5 +1,5 @@
 // Libs
-use colored::{Colorize, control::set_virtual_terminal};
+use colored::Colorize;
 
 // Macros
 /// Logs information message, in Blue color
@@ -34,10 +34,15 @@ macro_rules! log_err {
     }
 }
 
-/// Enables color support for Windows classic CLI interface, conhost.exe
-/// (Windows will not use the Terminal if the application is launched as administrator)
+/// Enables color support for Windows classic CLI interface, conhost.exe.
+/// (Windows will not use the Terminal if the application is launched as administrator).
+///
+/// # Panics
+///
+/// The result always returns `Ok(())`, so this never actually panics.
+#[cfg(target_os = "windows")]
 pub fn enable_win32_conhost_support() {
-    set_virtual_terminal(true).expect("Failed to configure Windows classic CLI interface");
+    colored::control::set_virtual_terminal(true).unwrap();
 }
 
 pub fn print_info(msg: &str) {
