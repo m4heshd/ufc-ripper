@@ -90,18 +90,27 @@ fn create_cors_layer() -> CorsLayer {
 /// Fetches UFC Ripper's update information from the GitHub repo.
 pub async fn get_latest_app_meta() -> Result<JSON> {
     let req_url = format!("{}/raw/master/package.json", get_app_metadata().repo);
-    let resp: JSON = HTTP_CLIENT
+    let resp = HTTP_CLIENT
         .get(req_url)
         .send()
         .await
-        .context("An error occurred while trying to retrieve app update information")?
+        .context("An error occurred while trying to retrieve app update information")?;
+
+    if !resp.status().is_success() {
+        return Err(anyhow!(
+            "Server responded with an error for the app update check"
+        ));
+    };
+
+    let json_body: JSON = resp
         .json()
         .await
         .context("App update information contains an invalid response")?;
 
-    Ok(resp)
+    Ok(json_body)
 }
 
+/// Searches the UFC Fight Pass library for VODs.
 pub async fn search_vods(query: &str, page: u64) -> Result<JSON> {
     let search_params = format!(
         "{}&{}",
@@ -111,7 +120,7 @@ pub async fn search_vods(query: &str, page: u64) -> Result<JSON> {
             .append_pair("page", &page.to_string())
             .finish()
     );
-    let resp: JSON = HTTP_CLIENT
+    let resp = HTTP_CLIENT
         .post("https://h99xldr8mj-dsn.algolia.net/1/indexes/*/queries")
         .header("x-algolia-application-id", "H99XLDR8MJ")
         .header("x-algolia-api-key", get_config().search_api_key)
@@ -125,12 +134,19 @@ pub async fn search_vods(query: &str, page: u64) -> Result<JSON> {
         }))
         .send()
         .await
-        .context("An error occurred while trying to search the Fight Pass library")?
+        .context("An error occurred while trying to search the Fight Pass library")?;
+
+    if !resp.status().is_success() {
+        return Err(anyhow!(
+            "Server responded with an error for the search request"
+        ));
+    };
+
+    let json_body: JSON = resp
         .json()
         .await
         .context("Search result contains an invalid response")?;
-
-    let result = &resp["results"][0];
+    let result = &json_body["results"][0];
 
     if result == &JSON::Null {
         Err(anyhow!("Response does not contain any search results"))
