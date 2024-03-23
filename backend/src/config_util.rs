@@ -67,6 +67,12 @@ pub struct ProxyAuth {
     pub password: String,
 }
 
+// Enums
+/// Specifies which fields in the configuration are being updated.
+pub enum ConfigUpdate {
+    Config(Box<UFCRConfig>),
+}
+
 // Statics
 static CONFIG_PATH: Lazy<PathBuf> =
     Lazy::new(|| get_app_root_dir().join("config").join("config.json"));
@@ -79,7 +85,7 @@ static DEBUG_OVERRIDE: OnceCell<bool> = OnceCell::new();
 pub fn load_config() -> UFCRConfig {
     let config = read_config();
 
-    update_config(config.clone());
+    *get_mut_config() = config.clone();
 
     config
 }
@@ -88,7 +94,7 @@ pub fn load_config() -> UFCRConfig {
 #[must_use]
 pub fn read_config() -> UFCRConfig {
     let conf_file = fs::read_to_string(&*CONFIG_PATH).unwrap_or_quit(
-        r#"Unable to read config.json file. Check if the file exists in "config" directory"#,
+        r#"Unable to read "config.json" file. Check if the file exists in "config" directory"#,
     );
 
     serde_json::from_str(&conf_file).unwrap_or_quit(
@@ -134,7 +140,14 @@ pub fn is_debug() -> bool {
 }
 
 /// Updates the configuration with new data and writes to config.json.
-pub fn update_config(update: UFCRConfig) {
-    *get_mut_config() = update;
+pub fn update_config(update: ConfigUpdate) {
+    {
+        let mut config = get_mut_config();
+
+        match update {
+            ConfigUpdate::Config(val) => *config = *val,
+        }
+    }
+
     write_config();
 }

@@ -15,7 +15,7 @@ use socketioxide::{
 use crate::{
     app_util::{check_app_update, get_app_metadata},
     bin_util::validate_bins,
-    config_util::{get_config, is_debug, UFCRConfig, update_config},
+    config_util::{ConfigUpdate, get_config, is_debug, UFCRConfig, update_config},
     net_util::{JSON, search_vods},
     state_util::get_dlq,
 };
@@ -45,7 +45,7 @@ fn handle_ws_client(socket: &SocketRef) {
 
     socket.on("save-config", |ack: AckSender, Data(data): Data<JSON>| {
         if let Ok(new_config) = serde_json::from_value::<UFCRConfig>(data) {
-            update_config(new_config);
+            update_config(ConfigUpdate::Config(Box::new(new_config)));
             ack.send(get_config()).ok();
         } else {
             send_error(ack, "Invalid configuration format");
@@ -101,9 +101,9 @@ where
     let error_msg = error.to_string();
 
     if is_debug() {
-        log_err!("{error_dbg}");
+        log_err!("{error_dbg}\n");
     } else {
-        log_err!("{error_msg}");
+        log_err!("{error_msg}\n");
     }
 
     ack.send(json!({
