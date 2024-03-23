@@ -1,14 +1,16 @@
 // Libs
-use crate::{
-    net_util::{get_latest_app_meta, JSON},
-    rt_util::QuitUnwrap,
-};
+use std::{env, path::PathBuf};
+
 use anyhow::{Context, Result};
 use path_absolutize::Absolutize;
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::{env, path::PathBuf};
+
+use crate::{
+    net_util::{get_latest_app_meta, JSON},
+    rt_util::QuitUnwrap,
+};
 
 // Structs
 /// Holds all metadata related to the UFC Ripper application.

@@ -1,7 +1,9 @@
 // Libs
-use crate::{app_util::get_app_root_dir, net_util::JSON};
-use serde_json::json;
 use std::path::PathBuf;
+
+use serde_json::json;
+
+use crate::{app_util::get_app_root_dir, net_util::JSON};
 
 // Structs
 /// Holds all metadata for each helper media tool.

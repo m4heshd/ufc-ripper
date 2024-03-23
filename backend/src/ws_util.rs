@@ -1,11 +1,9 @@
 // Libs
-use crate::{
-    app_util::{check_app_update, get_app_metadata},
-    bin_util::validate_bins,
-    config_util::{get_config, is_debug},
-    net_util::{search_vods, JSON},
-    state_util::get_dlq,
+use std::{
+    fmt::{Debug, Display},
+    time::Duration,
 };
+
 use serde::Serialize;
 use serde_json::json;
 use socketioxide::{
@@ -13,9 +11,13 @@ use socketioxide::{
     layer::SocketIoLayer,
     SocketIoBuilder,
 };
-use std::{
-    fmt::{Debug, Display},
-    time::Duration,
+
+use crate::{
+    app_util::{check_app_update, get_app_metadata},
+    bin_util::validate_bins,
+    config_util::{get_config, is_debug},
+    net_util::{JSON, search_vods},
+    state_util::get_dlq,
 };
 
 /// Creates a new Tower layer with a `socket.io` server instance on the default namespace.

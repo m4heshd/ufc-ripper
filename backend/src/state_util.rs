@@ -1,11 +1,13 @@
 // Libs
-use crate::rt_util::QuitUnwrap;
-use once_cell::sync::Lazy;
-use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
 };
+
+use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
+
+use crate::rt_util::QuitUnwrap;
 
 // Structs
 /// Holds all information of a VOD.

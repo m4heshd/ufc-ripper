@@ -1,5 +1,5 @@
 // Libs
-use colored::{control::set_virtual_terminal, Colorize};
+use colored::{Colorize, control::set_virtual_terminal};
 
 // Macros
 /// Logs information message, in Blue color

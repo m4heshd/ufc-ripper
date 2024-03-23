@@ -1,7 +1,7 @@
 // Libs
 use std::{
     fmt::Display,
-    io::{stdin, Read},
+    io::{Read, stdin},
     panic::{panic_any, set_hook as set_panic_hook},
 };
 

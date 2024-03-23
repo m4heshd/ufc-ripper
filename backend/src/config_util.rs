@@ -1,15 +1,17 @@
 #![allow(clippy::struct_excessive_bools)]
 
 // Libs
-use crate::{app_util::get_app_root_dir, rt_util::QuitUnwrap};
-use once_cell::sync::{Lazy, OnceCell};
-use serde::{Deserialize, Serialize};
 use std::{
     fs,
     io::{BufWriter, Write},
     path::PathBuf,
     sync::{Arc, Mutex, MutexGuard},
 };
+
+use once_cell::sync::{Lazy, OnceCell};
+use serde::{Deserialize, Serialize};
+
+use crate::{app_util::get_app_root_dir, rt_util::QuitUnwrap};
 
 // Structs
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
