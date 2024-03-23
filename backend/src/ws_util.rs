@@ -16,6 +16,7 @@ use crate::{
     app_util::{check_app_update, get_app_metadata},
     bin_util::validate_bins,
     config_util::{ConfigUpdate, get_config, is_debug, UFCRConfig, update_config},
+    fs_util::open_downloads_dir,
     net_util::{JSON, login_to_fight_pass, search_vods},
     state_util::get_dlq,
 };
@@ -60,6 +61,10 @@ fn handle_ws_client(socket: &SocketRef) {
     socket.on("login", handle_login_event);
 
     socket.on("search-vods", handle_search_vods_event);
+
+    socket.on("open-dl-dir", |ack: AckSender| {
+        send_result(ack, open_downloads_dir());
+    });
 }
 
 /// Sends a response to the client-event with data or an error, according to the `Result`.
