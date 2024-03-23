@@ -15,7 +15,7 @@ use socketioxide::{
 use crate::{
     app_util::{check_app_update, get_app_metadata},
     bin_util::validate_bins,
-    config_util::{get_config, is_debug},
+    config_util::{get_config, is_debug, UFCRConfig, update_config},
     net_util::{JSON, search_vods},
     state_util::get_dlq,
 };
@@ -38,28 +38,39 @@ fn handle_ws_client(socket: &SocketRef) {
     socket.on("get-app-meta", |ack: AckSender| {
         ack.send(get_app_metadata()).ok();
     });
+
     socket.on("get-config", |ack: AckSender| {
         ack.send(get_config()).ok();
     });
+
+    socket.on("save-config", |ack: AckSender, Data(data): Data<JSON>| {
+        if let Ok(new_config) = serde_json::from_value::<UFCRConfig>(data) {
+            update_config(new_config);
+            ack.send(get_config()).ok();
+        } else {
+            send_error(ack, "Invalid configuration format");
+        }
+    });
+
     socket.on("get-dlq", |ack: AckSender| {
         ack.send(get_dlq()).ok();
     });
+
     socket.on("check-app-update", |ack: AckSender| async move {
         send_result(ack, check_app_update().await);
     });
+
     socket.on("validate-media-tools", |ack: AckSender| {
         ack.send(validate_bins()).ok();
     });
+
     socket.on(
         "search-vods",
         |ack: AckSender, Data(data): Data<JSON>| async move {
-            let query = data[0].as_str();
-            let page = data[1].as_u64();
-
-            if query.is_none() || page.is_none() {
-                send_error(ack, "Invalid search request");
+            if let (Some(query), Some(page)) = (data[0].as_str(), data[1].as_u64()) {
+                send_result(ack, search_vods(query, page).await);
             } else {
-                send_result(ack, search_vods(query.unwrap(), page.unwrap()).await);
+                send_error(ack, "Invalid search request");
             }
         },
     );
