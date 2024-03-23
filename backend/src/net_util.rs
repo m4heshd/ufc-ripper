@@ -10,7 +10,7 @@ use axum::{
     routing::get_service,
 };
 use once_cell::sync::Lazy;
-use reqwest::Client;
+use reqwest::{Client, header::HeaderMap};
 use serde_json::{json, Value};
 use tokio::net::TcpListener;
 use tower_http::{
@@ -25,6 +25,14 @@ use crate::{
     rt_util::QuitUnwrap,
     ws_util::create_ws_layer,
 };
+
+// Structs
+/// A pair of authentication and refresh tokens from a successful login.
+pub struct LoginSession {
+    pub user: String,
+    pub refresh: String,
+    pub auth: String,
+}
 
 // Types
 pub type JSON = Value;
@@ -110,6 +118,69 @@ pub async fn get_latest_app_meta() -> Result<JSON> {
         .context("App update information contains an invalid response")?;
 
     Ok(json_body)
+}
+
+/// Generates and returns a set of request headers required by the UFC Fight Pass.
+fn get_fight_pass_api_headers() -> Result<HeaderMap> {
+    let UFCRConfig {
+        region, api_key, ..
+    } = get_config();
+    let err_msg = r#"Invalid request-header configuration. Please check your "config.json" file"#;
+    let mut headers = HeaderMap::new();
+
+    headers.insert("app", "dice".parse().context(err_msg)?);
+    headers.insert("Realm", region.parse().context(err_msg)?);
+    headers.insert("x-app-var", "6.0.1.f8add0e".parse().context(err_msg)?);
+    headers.insert("x-api-key", api_key.parse().context(err_msg)?);
+
+    Ok(headers)
+}
+
+/// Logs into the UFC Fight Pass and returns the set of auth keys included in the response.
+pub async fn login_to_fight_pass(email: &str, pass: &str) -> Result<LoginSession> {
+    let resp = HTTP_CLIENT
+        .post("https://dce-frontoffice.imggaming.com/api/v2/login")
+        .headers(get_fight_pass_api_headers()?)
+        .json(&json!({
+            "id": email,
+            "secret": pass
+        }))
+        .send()
+        .await
+        .context("An error occurred while trying to log into the Fight Pass")?;
+
+    if !resp.status().is_success() {
+        let err_msg = "Login failed. Check your credentials and try again";
+        let login_error_messages = serde_json::from_value::<Vec<String>>(
+            resp.json::<JSON>().await.context(err_msg)?["messages"].take(),
+        )
+        .context(err_msg)?;
+
+        if login_error_messages.contains(&"badLocation".to_string()) {
+            return Err(anyhow!(
+                "Login was blocked because of the IP address your UFC Ripper backend is bound to. \
+                Try disabling any active VPN connections, or use a proxy service (check configuration)"
+            ));
+        }
+
+        return Err(anyhow!(err_msg));
+    };
+
+    let err_msg = "Login information contains an invalid response";
+    let json_body: JSON = resp.json().await.context(err_msg)?;
+
+    if let (Some(auth), Some(refresh)) = (
+        json_body["authorisationToken"].as_str(),
+        json_body["refreshToken"].as_str(),
+    ) {
+        Ok(LoginSession {
+            user: email.to_string(),
+            auth: auth.to_string(),
+            refresh: refresh.to_string(),
+        })
+    } else {
+        Err(anyhow!(err_msg))
+    }
 }
 
 /// Searches the UFC Fight Pass library for VODs.

@@ -11,7 +11,7 @@ use std::{
 use once_cell::sync::{Lazy, OnceCell};
 use serde::{Deserialize, Serialize};
 
-use crate::{app_util::get_app_root_dir, rt_util::QuitUnwrap};
+use crate::{app_util::get_app_root_dir, net_util::LoginSession, rt_util::QuitUnwrap};
 
 // Structs
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -71,6 +71,7 @@ pub struct ProxyAuth {
 /// Specifies which fields in the configuration are being updated.
 pub enum ConfigUpdate {
     Config(Box<UFCRConfig>),
+    Tokens(LoginSession),
 }
 
 // Statics
@@ -146,6 +147,11 @@ pub fn update_config(update: ConfigUpdate) {
 
         match update {
             ConfigUpdate::Config(val) => *config = *val,
+            ConfigUpdate::Tokens(val) => {
+                config.user = val.user;
+                config.refresh_token = val.refresh;
+                config.auth_token = val.auth;
+            }
         }
     }
 

@@ -16,7 +16,7 @@ use crate::{
     app_util::{check_app_update, get_app_metadata},
     bin_util::validate_bins,
     config_util::{ConfigUpdate, get_config, is_debug, UFCRConfig, update_config},
-    net_util::{JSON, search_vods},
+    net_util::{JSON, login_to_fight_pass, search_vods},
     state_util::get_dlq,
 };
 
@@ -43,14 +43,7 @@ fn handle_ws_client(socket: &SocketRef) {
         ack.send(get_config()).ok();
     });
 
-    socket.on("save-config", |ack: AckSender, Data(data): Data<JSON>| {
-        if let Ok(new_config) = serde_json::from_value::<UFCRConfig>(data) {
-            update_config(ConfigUpdate::Config(Box::new(new_config)));
-            ack.send(get_config()).ok();
-        } else {
-            send_error(ack, "Invalid configuration format");
-        }
-    });
+    socket.on("save-config", handle_save_config_event);
 
     socket.on("get-dlq", |ack: AckSender| {
         ack.send(get_dlq()).ok();
@@ -64,16 +57,9 @@ fn handle_ws_client(socket: &SocketRef) {
         ack.send(validate_bins()).ok();
     });
 
-    socket.on(
-        "search-vods",
-        |ack: AckSender, Data(data): Data<JSON>| async move {
-            if let (Some(query), Some(page)) = (data[0].as_str(), data[1].as_u64()) {
-                send_result(ack, search_vods(query, page).await);
-            } else {
-                send_error(ack, "Invalid search request");
-            }
-        },
-    );
+    socket.on("login", handle_login_event);
+
+    socket.on("search-vods", handle_search_vods_event);
 }
 
 /// Sends a response to the client-event with data or an error, according to the `Result`.
@@ -114,4 +100,40 @@ where
         },
     }))
     .ok();
+}
+
+/// Handles the `save-config` WS event.
+fn handle_save_config_event(ack: AckSender, Data(data): Data<JSON>) {
+    if let Ok(new_config) = serde_json::from_value::<UFCRConfig>(data) {
+        update_config(ConfigUpdate::Config(Box::new(new_config)));
+        ack.send(get_config()).ok();
+    } else {
+        send_error(ack, "Invalid configuration format");
+    }
+}
+
+/// Handles the `login` WS event.
+async fn handle_login_event(ack: AckSender, Data(data): Data<JSON>) {
+    if let (Some(email), Some(pass)) = (data[0].as_str(), data[1].as_str()) {
+        match login_to_fight_pass(email, pass).await {
+            Ok(tokens) => {
+                update_config(ConfigUpdate::Tokens(tokens));
+                ack.send(get_config()).ok();
+            }
+            Err(error) => {
+                send_error(ack, error);
+            }
+        }
+    } else {
+        send_error(ack, "Invalid login information");
+    }
+}
+
+/// Handles the `search-vods` WS event.
+async fn handle_search_vods_event(ack: AckSender, Data(data): Data<JSON>) {
+    if let (Some(query), Some(page)) = (data[0].as_str(), data[1].as_u64()) {
+        send_result(ack, search_vods(query, page).await);
+    } else {
+        send_error(ack, "Invalid search request");
+    }
 }
