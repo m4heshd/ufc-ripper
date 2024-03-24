@@ -2,8 +2,6 @@
 
 // Libs
 use std::{
-    fs,
-    io::{BufWriter, Write},
     path::PathBuf,
     sync::{Arc, Mutex, MutexGuard},
 };
@@ -11,7 +9,12 @@ use std::{
 use once_cell::sync::{Lazy, OnceCell};
 use serde::{Deserialize, Serialize};
 
-use crate::{app_util::get_app_root_dir, net_util::LoginSession, rt_util::QuitUnwrap};
+use crate::{
+    app_util::get_app_root_dir,
+    fs_util::{read_config_file_to_string, write_config_to_file},
+    net_util::LoginSession,
+    rt_util::QuitUnwrap,
+};
 
 // Structs
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -82,39 +85,21 @@ static CONFIG: Lazy<Arc<Mutex<UFCRConfig>>> =
 static DEBUG_OVERRIDE: OnceCell<bool> = OnceCell::new();
 
 /// Loads the configuration into global CONFIG and returns a copy.
-#[must_use]
-pub fn load_config() -> UFCRConfig {
-    let config = read_config();
+pub async fn load_config() -> UFCRConfig {
+    let config = get_config_from_file().await;
 
     *get_mut_config() = config.clone();
 
     config
 }
 
-/// Reads the config.json file from the disk.
-#[must_use]
-pub fn read_config() -> UFCRConfig {
-    let conf_file = fs::read_to_string(&*CONFIG_PATH).unwrap_or_quit(
-        r#"Unable to read "config.json" file. Check if the file exists in "config" directory"#,
-    );
+/// Gets the config.json file content and turn it into a valid `UFCRConfig`.
+pub async fn get_config_from_file() -> UFCRConfig {
+    let conf_file = read_config_file_to_string(&CONFIG_PATH).await;
 
     serde_json::from_str(&conf_file).unwrap_or_quit(
         r#"Invalid configuration format. Please reset your "config.json" file or check the configuration"#,
     )
-}
-
-/// Writes the current configuration to config.json file.
-pub fn write_config() {
-    (|| -> std::io::Result<()> {
-        let conf_file = fs::File::create(&*CONFIG_PATH)?;
-        let mut writer = BufWriter::new(conf_file);
-
-        serde_json::to_writer_pretty(&mut writer, &get_config())?;
-        writer.flush()?;
-
-        Ok(())
-    })()
-    .unwrap_or_quit("An error occurred while trying to update the config.json file");
 }
 
 /// Returns the current configuration.
@@ -141,7 +126,7 @@ pub fn is_debug() -> bool {
 }
 
 /// Updates the configuration with new data and writes to config.json.
-pub fn update_config(update: ConfigUpdate) {
+pub async fn update_config(update: ConfigUpdate) {
     {
         let mut config = get_mut_config();
 
@@ -155,5 +140,7 @@ pub fn update_config(update: ConfigUpdate) {
         }
     }
 
-    write_config();
+    write_config_to_file(&CONFIG_PATH)
+        .await
+        .unwrap_or_quit(r#"An error occurred while trying to update the "config.json" file"#);
 }

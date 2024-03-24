@@ -108,9 +108,9 @@ where
 }
 
 /// Handles the `save-config` WS event.
-fn handle_save_config_event(ack: AckSender, Data(data): Data<JSON>) {
+async fn handle_save_config_event(ack: AckSender, Data(data): Data<JSON>) {
     if let Ok(new_config) = serde_json::from_value::<UFCRConfig>(data) {
-        update_config(ConfigUpdate::Config(Box::new(new_config)));
+        update_config(ConfigUpdate::Config(Box::new(new_config))).await;
         ack.send(get_config()).ok();
     } else {
         send_error(ack, "Invalid configuration format");
@@ -122,7 +122,7 @@ async fn handle_login_event(ack: AckSender, Data(data): Data<JSON>) {
     if let (Some(email), Some(pass)) = (data[0].as_str(), data[1].as_str()) {
         match login_to_fight_pass(email, pass).await {
             Ok(tokens) => {
-                update_config(ConfigUpdate::Tokens(tokens));
+                update_config(ConfigUpdate::Tokens(tokens)).await;
                 ack.send(get_config()).ok();
             }
             Err(error) => {
