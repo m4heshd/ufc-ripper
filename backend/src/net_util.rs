@@ -20,7 +20,7 @@ use tower_http::{
 
 use crate::{
     app_util::{get_app_metadata, is_container},
-    config_util::{get_config, UFCRConfig},
+    config_util::get_config,
     log_success,
     rt_util::QuitUnwrap,
     ws_util::create_ws_layer,
@@ -56,8 +56,8 @@ static VOD_SEARCH_PARAMS: Lazy<String> = Lazy::new(|| {
 /// # Panics
 ///
 /// Will panic if the port is already in use or fails to serve the Vue "dist" directory.
-pub async fn init_server(config: &UFCRConfig) {
-    let port = config.port;
+pub async fn init_server() {
+    let port = get_config().port;
 
     // Axum router
     let app = Router::new()
@@ -122,16 +122,13 @@ pub async fn get_latest_app_meta() -> Result<JSON> {
 
 /// Generates and returns a set of request headers required by the UFC Fight Pass.
 fn get_fight_pass_api_headers() -> Result<HeaderMap> {
-    let UFCRConfig {
-        region, api_key, ..
-    } = get_config();
     let err_msg = r#"Invalid request-header configuration. Please check your "config.json" file"#;
     let mut headers = HeaderMap::new();
 
     headers.insert("app", "dice".parse().context(err_msg)?);
-    headers.insert("Realm", region.parse().context(err_msg)?);
+    headers.insert("Realm", get_config().region.parse().context(err_msg)?);
     headers.insert("x-app-var", "6.0.1.f8add0e".parse().context(err_msg)?);
-    headers.insert("x-api-key", api_key.parse().context(err_msg)?);
+    headers.insert("x-api-key", get_config().api_key.parse().context(err_msg)?);
 
     Ok(headers)
 }
@@ -196,7 +193,7 @@ pub async fn search_vods(query: &str, page: u64) -> Result<JSON> {
     let resp = HTTP_CLIENT
         .post("https://h99xldr8mj-dsn.algolia.net/1/indexes/*/queries")
         .header("x-algolia-application-id", "H99XLDR8MJ")
-        .header("x-algolia-api-key", get_config().search_api_key)
+        .header("x-algolia-api-key", &get_config().search_api_key)
         .json(&json!({
             "requests": [
                 {

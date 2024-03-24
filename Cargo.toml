@@ -17,6 +17,7 @@ path = "backend/src/lib.rs"
 
 [dependencies]
 anyhow = "1.0.81"
+arc-swap = "1.7.1"
 axum = "0.7.4"
 colored = "2.1.0"
 form_urlencoded = "1.2.1"

@@ -41,7 +41,7 @@ fn handle_ws_client(socket: &SocketRef) {
     });
 
     socket.on("get-config", |ack: AckSender| {
-        ack.send(get_config()).ok();
+        ack.send(get_config().as_ref()).ok();
     });
 
     socket.on("save-config", handle_save_config_event);
@@ -111,7 +111,7 @@ where
 async fn handle_save_config_event(ack: AckSender, Data(data): Data<JSON>) {
     if let Ok(new_config) = serde_json::from_value::<UFCRConfig>(data) {
         update_config(ConfigUpdate::Config(Box::new(new_config))).await;
-        ack.send(get_config()).ok();
+        ack.send(get_config().as_ref()).ok();
     } else {
         send_error(ack, "Invalid configuration format");
     }
@@ -123,7 +123,7 @@ async fn handle_login_event(ack: AckSender, Data(data): Data<JSON>) {
         match login_to_fight_pass(email, pass).await {
             Ok(tokens) => {
                 update_config(ConfigUpdate::Tokens(tokens)).await;
-                ack.send(get_config()).ok();
+                ack.send(get_config().as_ref()).ok();
             }
             Err(error) => {
                 send_error(ack, error);

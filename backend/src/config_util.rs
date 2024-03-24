@@ -1,11 +1,9 @@
 #![allow(clippy::struct_excessive_bools)]
 
 // Libs
-use std::{
-    path::PathBuf,
-    sync::{Arc, Mutex, MutexGuard},
-};
+use std::{path::PathBuf, sync::Arc};
 
+use arc_swap::{ArcSwap, Guard};
 use once_cell::sync::{Lazy, OnceCell};
 use serde::{Deserialize, Serialize};
 
@@ -80,17 +78,13 @@ pub enum ConfigUpdate {
 // Statics
 static CONFIG_PATH: Lazy<PathBuf> =
     Lazy::new(|| get_app_root_dir().join("config").join("config.json"));
-static CONFIG: Lazy<Arc<Mutex<UFCRConfig>>> =
-    Lazy::new(|| Arc::new(Mutex::new(UFCRConfig::default())));
+static CONFIG: Lazy<ArcSwap<UFCRConfig>> =
+    Lazy::new(|| ArcSwap::from_pointee(UFCRConfig::default()));
 static DEBUG_OVERRIDE: OnceCell<bool> = OnceCell::new();
 
-/// Loads the configuration into global CONFIG and returns a copy.
-pub async fn load_config() -> UFCRConfig {
-    let config = get_config_from_file().await;
-
-    *get_mut_config() = config.clone();
-
-    config
+/// Loads the configuration into global CONFIG.
+pub async fn load_config() {
+    update_config(ConfigUpdate::Config(Box::new(get_config_from_file().await))).await;
 }
 
 /// Gets the config.json file content and turn it into a valid `UFCRConfig`.
@@ -103,18 +97,8 @@ pub async fn get_config_from_file() -> UFCRConfig {
 }
 
 /// Returns the current configuration.
-pub fn get_config() -> UFCRConfig {
-    CONFIG
-        .lock()
-        .unwrap_or_quit("Failed to exclusively access the configuration")
-        .clone()
-}
-
-/// Returns the current configuration with mutability.
-pub fn get_mut_config() -> MutexGuard<'static, UFCRConfig> {
-    CONFIG
-        .lock()
-        .unwrap_or_quit("Failed to exclusively access the configuration")
+pub fn get_config() -> Guard<Arc<UFCRConfig>> {
+    CONFIG.load()
 }
 
 /// Returns the debug status.
@@ -128,14 +112,15 @@ pub fn is_debug() -> bool {
 /// Updates the configuration with new data and writes to config.json.
 pub async fn update_config(update: ConfigUpdate) {
     {
-        let mut config = get_mut_config();
-
         match update {
-            ConfigUpdate::Config(val) => *config = *val,
-            ConfigUpdate::Tokens(val) => {
-                config.user = val.user;
-                config.refresh_token = val.refresh;
-                config.auth_token = val.auth;
+            ConfigUpdate::Config(data) => CONFIG.store(Arc::new(*data)),
+            ConfigUpdate::Tokens(data) => {
+                CONFIG.store(Arc::new(UFCRConfig {
+                    user: data.user,
+                    refresh_token: data.refresh,
+                    auth_token: data.auth,
+                    ..get_config().as_ref().clone()
+                }));
             }
         }
     }

@@ -18,7 +18,7 @@ pub async fn write_config_to_file(path: &PathBuf) -> Result<()> {
     let mut conf_file = fs::File::create(path).await?;
 
     conf_file
-        .write_all(serde_json::to_string_pretty(&get_config())?.as_bytes())
+        .write_all(serde_json::to_string_pretty(get_config().as_ref())?.as_bytes())
         .await?;
 
     Ok(())
@@ -26,7 +26,7 @@ pub async fn write_config_to_file(path: &PathBuf) -> Result<()> {
 
 /// Opens the downloads directory in the default file explorer.
 pub fn open_downloads_dir() -> Result<()> {
-    open::that_detached(get_config().dl_path)
+    open::that_detached(&get_config().dl_path)
         .context("An error occurred while trying to open the downloads directory")?;
 
     Ok(())
