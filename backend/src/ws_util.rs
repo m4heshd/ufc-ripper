@@ -17,7 +17,7 @@ use crate::{
     bin_util::validate_bins,
     config_util::{ConfigUpdate, get_config, is_debug, UFCRConfig, update_config},
     fs_util::open_downloads_dir,
-    net_util::{JSON, login_to_fight_pass, search_vods},
+    net_util::{get_vod_meta, JSON, login_to_fight_pass, search_vods},
     state_util::get_dlq,
 };
 
@@ -61,6 +61,8 @@ fn handle_ws_client(socket: &SocketRef) {
     socket.on("login", handle_login_event);
 
     socket.on("search-vods", handle_search_vods_event);
+
+    socket.on("verify-url", handle_verify_url_event);
 
     socket.on("open-dl-dir", |ack: AckSender| {
         send_result(ack, open_downloads_dir());
@@ -140,5 +142,14 @@ async fn handle_search_vods_event(ack: AckSender, Data(data): Data<JSON>) {
         send_result(ack, search_vods(query, page).await);
     } else {
         send_error(ack, "Invalid search request");
+    }
+}
+
+/// Handles the `verify-url` WS event.
+async fn handle_verify_url_event(ack: AckSender, Data(data): Data<JSON>) {
+    if let Ok(url) = serde_json::from_value::<String>(data) {
+        send_result(ack, get_vod_meta(url.as_str()).await);
+    } else {
+        send_error(ack, "Invalid verify request");
     }
 }

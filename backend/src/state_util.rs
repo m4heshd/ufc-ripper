@@ -11,9 +11,9 @@ use crate::rt_util::QuitUnwrap;
 
 // Structs
 /// Holds all information of a VOD.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct VOD {
+pub struct Vod {
     pub id: u64,
     pub title: String,
     pub desc: String,
@@ -36,11 +36,11 @@ pub struct VOD {
 
 // Statics
 /// Holds the global downloads-queue.
-static DOWNLOADS_QUEUE: Lazy<Arc<Mutex<HashMap<String, VOD>>>> =
+static DOWNLOADS_QUEUE: Lazy<Arc<Mutex<HashMap<String, Vod>>>> =
     Lazy::new(|| Arc::new(Mutex::new(HashMap::new())));
 
 /// Returns a copy of the downloads-queue.
-pub fn get_dlq() -> HashMap<String, VOD> {
+pub fn get_dlq() -> HashMap<String, Vod> {
     DOWNLOADS_QUEUE
         .lock()
         .unwrap_or_quit("Failed to exclusively access the downloads queue")

@@ -10,7 +10,7 @@ use axum::{
     routing::get_service,
 };
 use once_cell::sync::Lazy;
-use reqwest::{Client, header::HeaderMap};
+use reqwest::{Client, header::HeaderMap, Response};
 use serde_json::{json, Value};
 use tokio::net::TcpListener;
 use tower_http::{
@@ -23,6 +23,8 @@ use crate::{
     config_util::{ConfigUpdate, get_config, is_debug, update_config},
     log_success,
     rt_util::QuitUnwrap,
+    state_util::Vod,
+    txt_util::get_vod_id_from_url,
     ws_util::create_ws_layer,
 };
 
@@ -120,24 +122,11 @@ pub async fn get_latest_app_meta() -> Result<JSON> {
     Ok(json_body)
 }
 
-/// Generates and returns a set of request headers required by the UFC Fight Pass.
-fn get_fight_pass_api_headers() -> Result<HeaderMap> {
-    let err_msg = r#"Invalid request-header configuration. Please check your "config.json" file"#;
-    let mut headers = HeaderMap::new();
-
-    headers.insert("app", "dice".parse().context(err_msg)?);
-    headers.insert("Realm", get_config().region.parse().context(err_msg)?);
-    headers.insert("x-app-var", "6.0.1.f8add0e".parse().context(err_msg)?);
-    headers.insert("x-api-key", get_config().api_key.parse().context(err_msg)?);
-
-    Ok(headers)
-}
-
 /// Logs into the UFC Fight Pass and returns the set of auth keys included in the response.
 pub async fn login_to_fight_pass(email: &str, pass: &str) -> Result<LoginSession> {
     let resp = HTTP_CLIENT
         .post("https://dce-frontoffice.imggaming.com/api/v2/login")
-        .headers(get_fight_pass_api_headers()?)
+        .headers(generate_fight_pass_api_headers()?)
         .json(&json!({
             "id": email,
             "secret": pass
@@ -148,10 +137,7 @@ pub async fn login_to_fight_pass(email: &str, pass: &str) -> Result<LoginSession
 
     if !resp.status().is_success() {
         let err_msg = "Login failed. Check your credentials and try again";
-        let resp_error_messages = serde_json::from_value::<Vec<String>>(
-            resp.json::<JSON>().await.context(err_msg)?["messages"].take(),
-        )
-        .context(err_msg)?;
+        let resp_error_messages = get_messages_from_response(resp).await.context(err_msg)?;
 
         if resp_error_messages.contains(&"badLocation".to_string()) {
             return Err(anyhow!(
@@ -188,7 +174,7 @@ pub async fn refresh_access_token() -> Result<()> {
 
     let resp = HTTP_CLIENT
         .post("https://dce-frontoffice.imggaming.com/api/v2/token/refresh")
-        .headers(get_fight_pass_api_headers()?)
+        .headers(generate_fight_pass_api_headers()?)
         .bearer_auth(&get_config().auth_token)
         .json(&json!({
             "refreshToken": &get_config().refresh_token
@@ -199,10 +185,7 @@ pub async fn refresh_access_token() -> Result<()> {
 
     if !resp.status().is_success() {
         let err_msg = "Failed to refresh your login session. Please login with your UFC Fight Pass account again";
-        let resp_error_messages = serde_json::from_value::<Vec<String>>(
-            resp.json::<JSON>().await.context(err_msg)?["messages"].take(),
-        )
-        .context(err_msg)?;
+        let resp_error_messages = get_messages_from_response(resp).await.context(err_msg)?;
 
         if resp_error_messages.contains(&"badLocation".to_string()) {
             return Err(anyhow!(
@@ -226,7 +209,8 @@ pub async fn refresh_access_token() -> Result<()> {
 
     match auth_token {
         Some(new_auth_token) => {
-            Ok(update_config(ConfigUpdate::Auth(new_auth_token.to_string())).await)
+            update_config(ConfigUpdate::Auth(new_auth_token.to_string())).await;
+            Ok(())
         }
         None => Err(anyhow!(
             "Server responded with an invalid response to the session refresh request"
@@ -277,4 +261,112 @@ pub async fn search_vods(query: &str, page: u64) -> Result<JSON> {
     } else {
         Ok(result.clone())
     }
+}
+
+/// Retrieves metadata for the given Fight Pass VOD.
+pub async fn get_vod_meta(url: &str) -> Result<Vod> {
+    enum ReqStatus {
+        Success(JSON),
+        NeedsRefresh,
+    }
+
+    /// Runs the metadata request and returns the status of that request.
+    /// Having this as an inner-function allows this process to be run multiple times.
+    async fn run_request(vod_id: &str) -> Result<ReqStatus> {
+        let resp = HTTP_CLIENT
+            .get(format!(
+                "https://dce-frontoffice.imggaming.com/api/v2/vod/{vod_id}"
+            ))
+            .headers(generate_fight_pass_api_headers()?)
+            .bearer_auth(&get_config().auth_token)
+            .send()
+            .await
+            .context("An error occurred while trying fetch VOD metadata")?;
+
+        let status = resp.status();
+
+        if !status.is_success() {
+            let err_msg = "An unknown error occurred while trying fetch VOD metadata";
+
+            return match status.as_u16() {
+                401 => {
+                    let resp_error_messages =
+                        get_messages_from_response(resp).await.context(err_msg)?;
+
+                    if resp_error_messages.contains(&"Bearer token is not valid".to_string()) {
+                        Ok(ReqStatus::NeedsRefresh)
+                    } else {
+                        Err(anyhow!(
+                            r#"The server responded to the request as "Unauthorized". Please try logging in with your UFC Fight Pass account again"#
+                        ))
+                    }
+                }
+                404 => Err(anyhow!(
+                    "The video you requested does not exist. Please check the URL and try again"
+                )),
+                _ => Err(anyhow!(err_msg)),
+            };
+        };
+
+        let json_body: JSON = resp
+            .json()
+            .await
+            .context("VOD metadata response contains invalid data")?;
+
+        Ok(ReqStatus::Success(json_body))
+    }
+
+    /// Creates and returns a `Vod` instance from JSON
+    fn create_vod_from_json_meta(url: &str, meta: JSON) -> Result<Vod> {
+        let err_msg = "VOD metadata response does not match the expected format";
+        let vod = Vod {
+            id: meta["id"].as_u64().context(err_msg)?,
+            title: meta["title"].as_str().context(err_msg)?.to_string(),
+            desc: meta["description"].as_str().context(err_msg)?.to_string(),
+            thumb: meta["thumbnailUrl"].as_str().context(err_msg)?.to_string(),
+            access: meta["accessLevel"].as_str().context(err_msg)? != "DENIED",
+            vod_url: url.to_string(),
+            ..Vod::default()
+        };
+
+        Ok(vod)
+    }
+
+    let vod_id = get_vod_id_from_url(url)?;
+
+    match run_request(&vod_id).await? {
+        ReqStatus::Success(vod_meta) => Ok(create_vod_from_json_meta(url, vod_meta)?),
+        ReqStatus::NeedsRefresh => {
+            refresh_access_token().await?;
+
+            match run_request(&vod_id).await? {
+                ReqStatus::Success(vod_meta) => Ok(create_vod_from_json_meta(url, vod_meta)?),
+                ReqStatus::NeedsRefresh => Err(anyhow!(
+                    r#"The server responded to the request as "Unauthorized". Please try logging in with your UFC Fight Pass account again"#
+                )),
+            }
+        }
+    }
+}
+
+/// Generates and returns a set of request headers required by the UFC Fight Pass.
+fn generate_fight_pass_api_headers() -> Result<HeaderMap> {
+    let err_msg = r#"Invalid request-header configuration. Please check your "config.json" file"#;
+    let mut headers = HeaderMap::new();
+
+    headers.insert("app", "dice".parse().context(err_msg)?);
+    headers.insert("Realm", get_config().region.parse().context(err_msg)?);
+    headers.insert("x-app-var", "6.0.1.f8add0e".parse().context(err_msg)?);
+    headers.insert("x-api-key", get_config().api_key.parse().context(err_msg)?);
+
+    Ok(headers)
+}
+
+/// Deserializes and returns the `messages` array from a response.
+async fn get_messages_from_response(resp: Response) -> Result<Vec<String>> {
+    let resp_messages = serde_json::from_value::<Vec<String>>(
+        resp.json::<JSON>().await?["messages"].take(),
+    )?;
+
+    Ok(resp_messages)
 }
