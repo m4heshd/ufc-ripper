@@ -20,7 +20,7 @@ use tower_http::{
 
 use crate::{
     app_util::{get_app_metadata, is_container},
-    config_util::get_config,
+    config_util::{ConfigUpdate, get_config, is_debug, update_config},
     log_success,
     rt_util::QuitUnwrap,
     ws_util::create_ws_layer,
@@ -148,12 +148,12 @@ pub async fn login_to_fight_pass(email: &str, pass: &str) -> Result<LoginSession
 
     if !resp.status().is_success() {
         let err_msg = "Login failed. Check your credentials and try again";
-        let login_error_messages = serde_json::from_value::<Vec<String>>(
+        let resp_error_messages = serde_json::from_value::<Vec<String>>(
             resp.json::<JSON>().await.context(err_msg)?["messages"].take(),
         )
         .context(err_msg)?;
 
-        if login_error_messages.contains(&"badLocation".to_string()) {
+        if resp_error_messages.contains(&"badLocation".to_string()) {
             return Err(anyhow!(
                 "Login was blocked because of the IP address your UFC Ripper backend is bound to. \
                 Try disabling any active VPN connections, or use a proxy service (check configuration)"
@@ -177,6 +177,60 @@ pub async fn login_to_fight_pass(email: &str, pass: &str) -> Result<LoginSession
         })
     } else {
         Err(anyhow!(err_msg))
+    }
+}
+
+/// Refreshes an expired access token and returns a new one.
+pub async fn refresh_access_token() -> Result<()> {
+    if is_debug() {
+        println!("Refreshing access token..\n");
+    }
+
+    let resp = HTTP_CLIENT
+        .post("https://dce-frontoffice.imggaming.com/api/v2/token/refresh")
+        .headers(get_fight_pass_api_headers()?)
+        .bearer_auth(&get_config().auth_token)
+        .json(&json!({
+            "refreshToken": &get_config().refresh_token
+        }))
+        .send()
+        .await
+        .context("An error occurred while trying fetch VOD metadata")?;
+
+    if !resp.status().is_success() {
+        let err_msg = "Failed to refresh your login session. Please login with your UFC Fight Pass account again";
+        let resp_error_messages = serde_json::from_value::<Vec<String>>(
+            resp.json::<JSON>().await.context(err_msg)?["messages"].take(),
+        )
+        .context(err_msg)?;
+
+        if resp_error_messages.contains(&"badLocation".to_string()) {
+            return Err(anyhow!(
+                "Session refresh request was blocked because of the IP address your UFC Ripper backend is bound to. \
+                Try disabling any active VPN connections, or use a proxy service (check configuration)"
+            ));
+        } else if resp_error_messages.contains(&"errorRefreshingToken".to_string()) {
+            return Err(anyhow!(
+                "Invalid refresh token. Please log in with your UFC Fight Pass account again"
+            ));
+        }
+
+        return Err(anyhow!(err_msg));
+    };
+
+    let json_body: JSON = resp
+        .json()
+        .await
+        .context("Search result contains an invalid response")?;
+    let auth_token = json_body["authorisationToken"].as_str();
+
+    match auth_token {
+        Some(new_auth_token) => {
+            Ok(update_config(ConfigUpdate::Auth(new_auth_token.to_string())).await)
+        }
+        None => Err(anyhow!(
+            "Server responded with an invalid response to the session refresh request"
+        )),
     }
 }
 

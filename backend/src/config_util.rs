@@ -72,6 +72,7 @@ pub struct ProxyAuth {
 /// Specifies which fields in the configuration are being updated.
 pub enum ConfigUpdate {
     Config(Box<UFCRConfig>),
+    Auth(String),
     Tokens(LoginSession),
 }
 
@@ -114,6 +115,12 @@ pub async fn update_config(update: ConfigUpdate) {
     {
         match update {
             ConfigUpdate::Config(data) => CONFIG.store(Arc::new(*data)),
+            ConfigUpdate::Auth(data) => {
+                CONFIG.store(Arc::new(UFCRConfig {
+                    auth_token: data,
+                    ..get_config().as_ref().clone()
+                }));
+            }
             ConfigUpdate::Tokens(data) => {
                 CONFIG.store(Arc::new(UFCRConfig {
                     user: data.user,
