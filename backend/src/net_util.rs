@@ -119,7 +119,7 @@ pub async fn get_latest_app_meta() -> Result<JSON> {
     let json_body: JSON = resp
         .json()
         .await
-        .context("App update response contains an invalid information")?;
+        .context("App update response contains invalid information")?;
 
     Ok(json_body)
 }
@@ -410,6 +410,57 @@ pub async fn get_vod_meta(url: &str) -> Result<Vod> {
                 )),
             }
         }
+    }
+}
+
+/// Fetches the HLS stream URL for a given Fight Pass video.
+pub async fn get_vod_stream_url(vod_id: u64) -> Result<String> {
+    let resp = HTTP_CLIENT
+        .get(format!(
+            "https://dce-frontoffice.imggaming.com/api/v3/stream/vod/{vod_id}"
+        ))
+        .headers(generate_fight_pass_api_headers()?)
+        .bearer_auth(&get_config().auth_token)
+        .send()
+        .await
+        .context("An error occurred while trying request the callback URL for VOD stream")?;
+
+    if !resp.status().is_success() {
+        return Err(anyhow!(
+            "Server responded with an error to the callback URL request"
+        ));
+    }
+
+    let json_body: JSON = resp
+        .json()
+        .await
+        .context("Callback response contains invalid information")?;
+
+    if let Some(url) = json_body["playerUrlCallback"].as_str() {
+        let resp = HTTP_CLIENT
+            .get(url)
+            .send()
+            .await
+            .context("An error occurred while trying request VOD stream URL")?;
+
+        if !resp.status().is_success() {
+            return Err(anyhow!(
+                "Server responded with an error to the VOD stream request"
+            ));
+        }
+
+        let json_body: JSON = resp
+            .json()
+            .await
+            .context("Stream response contains invalid information")?;
+
+        if let Some(url) = json_body["hls"][0]["url"].as_str() {
+            Ok(url.to_string())
+        } else {
+            Err(anyhow!("No stream URL present in the response"))
+        }
+    } else {
+        Err(anyhow!("No callback request URL present in the response"))
     }
 }
 
