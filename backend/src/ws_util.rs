@@ -19,6 +19,7 @@ use crate::{
     fs_util::open_downloads_dir,
     net_util::{download_media_tools, get_vod_meta, JSON, login_to_fight_pass, search_vods},
     state_util::get_dlq,
+    txt_util::create_uuid,
 };
 
 /// Creates a new Tower layer with a `socket.io` server instance on the default namespace.
@@ -180,7 +181,14 @@ async fn handle_search_vods_event(ack: AckSender, Data(data): Data<JSON>) {
 /// Handles the `verify-url` WS event.
 async fn handle_verify_url_event(ack: AckSender, Data(data): Data<JSON>) {
     if let Ok(url) = serde_json::from_value::<String>(data) {
-        send_result(ack, get_vod_meta(url.as_str()).await);
+        match get_vod_meta(url.as_str()).await {
+            Ok(mut meta) => {
+                meta.q_id = create_uuid();
+
+                ack.send(meta).ok();
+            }
+            Err(error) => send_error(ack, error),
+        }
     } else {
         send_error(ack, "Invalid verify request");
     }
