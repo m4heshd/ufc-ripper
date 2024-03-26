@@ -19,8 +19,10 @@ use tower_http::{
 };
 
 use crate::{
-    app_util::{get_app_metadata, is_container},
+    app_util::{get_app_metadata, get_os_id, is_container},
+    bin_util::BINS,
     config_util::{ConfigUpdate, get_config, is_debug, update_config},
+    fs_util::write_file_to_disk,
     log_success,
     rt_util::QuitUnwrap,
     state_util::Vod,
@@ -117,9 +119,70 @@ pub async fn get_latest_app_meta() -> Result<JSON> {
     let json_body: JSON = resp
         .json()
         .await
-        .context("App update information contains an invalid response")?;
+        .context("App update response contains an invalid information")?;
 
     Ok(json_body)
+}
+
+/// Fetches all the metadata for helper media-tools.
+pub async fn get_media_tools_meta() -> Result<JSON> {
+    let resp = HTTP_CLIENT
+        .get("https://raw.githubusercontent.com/m4heshd/media-tools/master/versions.json")
+        .send()
+        .await
+        .context("An error occurred while trying to retrieve media-tools information")?;
+
+    if !resp.status().is_success() {
+        return Err(anyhow!(
+            "Server responded with an error for the media-tools metadata request"
+        ));
+    };
+
+    let json_body: JSON = resp
+        .json()
+        .await
+        .context("Media-tools metadata response contains invalid information")?;
+
+    Ok(json_body)
+}
+
+/// Downloads given helper media-tools to the disk.
+pub async fn download_media_tools(
+    tools: Vec<String>,
+    on_progress: impl Fn(&str, f64),
+) -> Result<()> {
+    let media_tools_meta = get_media_tools_meta().await?[&get_os_id()].take();
+
+    for tool in tools {
+        if is_debug() {
+            println!("Downloading media tool - {tool}..\n");
+        }
+
+        let url = media_tools_meta[&tool]["download"]
+            .as_str()
+            .context("Invalid media-tool download URL")?;
+
+        let resp = HTTP_CLIENT.get(url).send().await.context(format!(
+            "An error occurred while trying to send the media-tool({tool}) download request"
+        ))?;
+
+        let dl_size = resp
+            .content_length()
+            .context(format!("Invalid media-tool download data ({tool})"))?;
+
+        write_file_to_disk(
+            BINS.get_by_name(&tool)
+                .context(format!("Invalid media-tool name ({tool})"))?
+                .get_path(),
+            dl_size,
+            resp.bytes_stream(),
+            |progress| on_progress(&tool, progress.round()),
+        )
+        .await
+        .context(format!(r#"Failed to save media-tool "{tool}" to the disk"#))?;
+    }
+
+    Ok(())
 }
 
 /// Logs into the UFC Fight Pass and returns the set of auth keys included in the response.
@@ -204,7 +267,7 @@ pub async fn refresh_access_token() -> Result<()> {
     let json_body: JSON = resp
         .json()
         .await
-        .context("Search result contains an invalid response")?;
+        .context("Search result contains invalid response data")?;
     let auth_token = json_body["authorisationToken"].as_str();
 
     match auth_token {
@@ -364,9 +427,8 @@ fn generate_fight_pass_api_headers() -> Result<HeaderMap> {
 
 /// Deserializes and returns the `messages` array from a response.
 async fn get_messages_from_response(resp: Response) -> Result<Vec<String>> {
-    let resp_messages = serde_json::from_value::<Vec<String>>(
-        resp.json::<JSON>().await?["messages"].take(),
-    )?;
+    let resp_messages =
+        serde_json::from_value::<Vec<String>>(resp.json::<JSON>().await?["messages"].take())?;
 
     Ok(resp_messages)
 }

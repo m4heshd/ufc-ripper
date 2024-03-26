@@ -17,7 +17,7 @@ use crate::{
     bin_util::validate_bins,
     config_util::{ConfigUpdate, get_config, is_debug, UFCRConfig, update_config},
     fs_util::open_downloads_dir,
-    net_util::{get_vod_meta, JSON, login_to_fight_pass, search_vods},
+    net_util::{download_media_tools, get_vod_meta, JSON, login_to_fight_pass, search_vods},
     state_util::get_dlq,
 };
 
@@ -57,6 +57,8 @@ fn handle_ws_client(socket: &SocketRef) {
     socket.on("validate-media-tools", |ack: AckSender| {
         ack.send(validate_bins()).ok();
     });
+
+    socket.on("get-media-tools", handle_get_media_tools_event);
 
     socket.on("login", handle_login_event);
 
@@ -117,6 +119,36 @@ async fn handle_save_config_event(ack: AckSender, Data(data): Data<JSON>) {
     } else {
         send_error(ack, "Invalid configuration format");
     }
+}
+
+/// Handles the `get-media-tools` WS event.
+async fn handle_get_media_tools_event(socket: SocketRef, ack: AckSender, Data(data): Data<JSON>) {
+    if let Ok(missing_tools) = serde_json::from_value::<Vec<String>>(data) {
+        send_result(
+            ack,
+            download_media_tools(missing_tools, |tool, progress| {
+                send_media_tool_download_progress(&socket, tool, progress);
+            })
+            .await,
+        );
+    } else {
+        send_error(ack, "Invalid media-tools list");
+    }
+}
+
+// Sends download progress of the given media tool the client that requested the download.
+fn send_media_tool_download_progress(socket: &SocketRef, tool: &str, progress: f64) {
+    socket
+        .emit(
+            "media-tool-dl-progress",
+            (
+                tool,
+                json!({
+                    "progress": progress
+                }),
+            ),
+        )
+        .ok();
 }
 
 /// Handles the `login` WS event.

@@ -7,14 +7,27 @@ use crate::{app_util::get_app_root_dir, net_util::JSON};
 
 // Structs
 /// Holds all metadata for each helper media tool.
-struct MediaTools {
+pub struct MediaTools {
     atomic_parsley: MediaToolsMeta,
     ffmpeg: MediaToolsMeta,
     ffprobe: MediaToolsMeta,
     yt_dlp: MediaToolsMeta,
 }
 
-struct MediaToolsMeta {
+impl MediaTools {
+    /// Fetches a media-tool by the given JSON-like name.
+    pub fn get_by_name(&self, name: &str) -> Option<&MediaToolsMeta> {
+        match name {
+            "atomicParsley" => Some(&self.atomic_parsley),
+            "ffmpeg" => Some(&self.ffmpeg),
+            "ffprobe" => Some(&self.ffprobe),
+            "ytDlp" => Some(&self.yt_dlp),
+            _ => None,
+        }
+    }
+}
+
+pub struct MediaToolsMeta {
     filename: &'static str,
 }
 
@@ -26,7 +39,7 @@ impl MediaToolsMeta {
 }
 
 // Statics
-static BINS: MediaTools = MediaTools {
+pub static BINS: MediaTools = MediaTools {
     atomic_parsley: MediaToolsMeta {
         filename: if cfg!(windows) {
             "AtomicParsley.exe"

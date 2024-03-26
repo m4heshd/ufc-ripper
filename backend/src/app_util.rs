@@ -31,6 +31,15 @@ pub fn get_app_metadata() -> AppMeta {
     }
 }
 
+/// Returns a Node.js-like platform name, which the application is currently running on.
+pub fn get_os_id() -> String {
+    if cfg!(windows) {
+        "win32".to_string()
+    } else {
+        "linux".to_string()
+    }
+}
+
 /// Determines if the application is running inside a container using the `RUN_ENV`
 /// environment variable.
 pub fn is_container() -> bool {
