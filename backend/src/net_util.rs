@@ -175,6 +175,7 @@ pub async fn download_media_tools(
                 .context(format!("Invalid media-tool name ({tool})"))?
                 .get_path(),
             dl_size,
+            true,
             resp.bytes_stream(),
             |progress| on_progress(&tool, progress.round()),
         )

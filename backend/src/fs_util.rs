@@ -30,6 +30,7 @@ pub async fn write_config_to_file(path: &PathBuf) -> Result<()> {
 pub async fn write_file_to_disk<S>(
     path: PathBuf,
     size: u64,
+    #[allow(unused_variables)] is_executable: bool,
     mut stream: S,
     on_progress: impl Fn(f64),
 ) -> Result<()>
@@ -54,6 +55,13 @@ where
     }
 
     file.flush().await?;
+
+    #[cfg(not(target_os = "windows"))]
+    if is_executable {
+        use std::os::unix::fs::PermissionsExt;
+        file.set_permissions(std::fs::Permissions::from_mode(0o775))
+            .await?;
+    }
 
     Ok(())
 }
