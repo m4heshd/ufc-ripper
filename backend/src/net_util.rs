@@ -334,9 +334,11 @@ pub async fn get_vod_meta(url: &str) -> Result<Vod> {
         NeedsRefresh,
     }
 
-    /// Runs the metadata request and returns the status of that request.
-    /// Having this as an inner-function allows this process to be run multiple times.
-    async fn run_request(vod_id: &str) -> Result<ReqStatus> {
+    let vod_id = get_vod_id_from_url(url)?;
+
+    // Runs the metadata request and returns the status of that request.
+    // Having this as a closure allows this process to be run multiple times.
+    let run_request = || async {
         let resp = HTTP_CLIENT
             .get(format!(
                 "https://dce-frontoffice.imggaming.com/api/v2/vod/{vod_id}"
@@ -377,15 +379,19 @@ pub async fn get_vod_meta(url: &str) -> Result<Vod> {
             .await
             .context("VOD metadata response contains invalid data")?;
 
-        Ok(ReqStatus::Success(json_body))
-    }
+        Ok::<ReqStatus, anyhow::Error>(ReqStatus::Success(json_body))
+    };
 
-    /// Creates and returns a `Vod` instance from JSON
-    fn create_vod_from_json_meta(url: &str, meta: JSON) -> Result<Vod> {
+    // Creates and returns a `Vod` instance from JSON
+    let create_vod_from_json_meta = |meta: &JSON| {
         let err_msg = "VOD metadata response does not match the expected format";
         let vod = Vod {
             id: meta["id"].as_u64().context(err_msg)?,
-            title: meta["title"].as_str().context(err_msg)?.to_string(),
+            title: meta["title"]
+                .as_str()
+                .context(err_msg)?
+                .to_string()
+                .replace(':', " -"),
             desc: meta["description"].as_str().context(err_msg)?.to_string(),
             thumb: meta["thumbnailUrl"].as_str().context(err_msg)?.to_string(),
             access: meta["accessLevel"].as_str().context(err_msg)? != "DENIED",
@@ -393,18 +399,16 @@ pub async fn get_vod_meta(url: &str) -> Result<Vod> {
             ..Vod::default()
         };
 
-        Ok(vod)
-    }
+        Ok::<Vod, anyhow::Error>(vod)
+    };
 
-    let vod_id = get_vod_id_from_url(url)?;
-
-    match run_request(&vod_id).await? {
-        ReqStatus::Success(vod_meta) => Ok(create_vod_from_json_meta(url, vod_meta)?),
+    match run_request().await? {
+        ReqStatus::Success(vod_meta) => Ok(create_vod_from_json_meta(&vod_meta)?),
         ReqStatus::NeedsRefresh => {
             refresh_access_token().await?;
 
-            match run_request(&vod_id).await? {
-                ReqStatus::Success(vod_meta) => Ok(create_vod_from_json_meta(url, vod_meta)?),
+            match run_request().await? {
+                ReqStatus::Success(vod_meta) => Ok(create_vod_from_json_meta(&vod_meta)?),
                 ReqStatus::NeedsRefresh => Err(anyhow!(
                     r#"The server responded to the request as "Unauthorized". Please try logging in with your UFC Fight Pass account again"#
                 )),
