@@ -4,12 +4,13 @@ use std::{
     time::Duration,
 };
 
+use once_cell::sync::OnceCell;
 use serde::Serialize;
 use serde_json::json;
 use socketioxide::{
     extract::{AckSender, Data, SocketRef},
     layer::SocketIoLayer,
-    SocketIoBuilder,
+    SocketIo, SocketIoBuilder,
 };
 
 use crate::{
@@ -18,9 +19,14 @@ use crate::{
     config_util::{ConfigUpdate, get_config, is_debug, UFCRConfig, update_config},
     fs_util::open_downloads_dir,
     net_util::{download_media_tools, get_vod_meta, JSON, login_to_fight_pass, search_vods},
+    rt_util::QuitUnwrap,
     state_util::get_dlq,
     txt_util::create_uuid,
 };
+
+// Statics
+/// Holds the global `WebSocket` instance.
+static IO: OnceCell<SocketIo> = OnceCell::new();
 
 /// Creates a new Tower layer with a `socket.io` server instance on the default namespace.
 pub fn create_ws_layer() -> SocketIoLayer {
@@ -29,6 +35,8 @@ pub fn create_ws_layer() -> SocketIoLayer {
         .build_layer();
 
     io.ns("/", |socket: SocketRef| handle_ws_client(&socket));
+    IO.set(io)
+        .expect("Failed to initiate the WebSocket instance on the server");
 
     layer
 }
@@ -70,6 +78,41 @@ fn handle_ws_client(socket: &SocketRef) {
     socket.on("open-dl-dir", |ack: AckSender| {
         send_result(ack, open_downloads_dir());
     });
+}
+
+/// Emits an event with data to all connected clients.
+fn emit_to_all<T>(event: &str, data: T)
+where
+    T: Serialize,
+{
+    IO.get()
+        .unwrap_or_quit("Unable to access the global WebSocket instance")
+        .emit(event.to_string(), data)
+        .ok();
+}
+
+/// Constructs and sends an error event to all connected clients with the provided error
+fn emit_error<E>(error: E)
+where
+    E: Display + Debug,
+{
+    let error_dbg = format!("{error:#?}");
+    let error_msg = error.to_string();
+
+    if is_debug() {
+        log_err!("{error_dbg}\n");
+    } else {
+        log_err!("{error_msg}\n");
+    }
+
+    emit_to_all(
+        "server-error",
+        json!({
+                "name": "UFCRError",
+                "message": error_dbg,
+                "userMsg": error_msg
+        }),
+    );
 }
 
 /// Sends a response to the client-event with data or an error, according to the `Result`.
