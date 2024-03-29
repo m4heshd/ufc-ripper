@@ -38,9 +38,9 @@ pub struct UFCRConfig {
     pub aud_quality: String,
     pub dl_path: String,
     pub number_files: bool,
-    pub cur_number: i64,
+    pub cur_number: u64,
     pub multi_frag: bool,
-    pub concur_frags: i64,
+    pub concur_frags: u64,
     pub throttle: bool,
     pub dl_rate: String,
     pub cus_format: bool,
@@ -74,6 +74,7 @@ pub enum ConfigUpdate {
     Config(Box<UFCRConfig>),
     Auth(String),
     Tokens(LoginSession),
+    FileNum(u64),
 }
 
 // Statics
@@ -129,10 +130,25 @@ pub async fn update_config(update: ConfigUpdate) {
                     ..get_config().as_ref().clone()
                 }));
             }
+            ConfigUpdate::FileNum(data) => {
+                CONFIG.store(Arc::new(UFCRConfig {
+                    cur_number: data,
+                    ..get_config().as_ref().clone()
+                }));
+            }
         }
     }
 
     write_config_to_file(&CONFIG_PATH)
         .await
         .unwrap_or_quit(r#"An error occurred while trying to update the "config.json" file"#);
+}
+
+/// Increases the current file number by one
+pub async fn inc_file_number() {
+    let config = get_config();
+
+    if config.number_files {
+        update_config(ConfigUpdate::FileNum(config.cur_number + 1)).await;
+    }
 }
