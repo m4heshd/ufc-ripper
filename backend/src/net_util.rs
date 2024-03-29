@@ -27,7 +27,7 @@ use crate::{
     rt_util::QuitUnwrap,
     state_util::Vod,
     txt_util::get_vod_id_from_url,
-    ws_util::create_ws_layer,
+    ws_util::{create_ws_layer, emit_config_update},
 };
 
 // Structs
@@ -274,6 +274,7 @@ pub async fn refresh_access_token() -> Result<()> {
     match auth_token {
         Some(new_auth_token) => {
             update_config(ConfigUpdate::Auth(new_auth_token.to_string())).await;
+            emit_config_update();
             Ok(())
         }
         None => Err(anyhow!(

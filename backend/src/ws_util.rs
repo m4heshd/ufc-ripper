@@ -115,6 +115,14 @@ where
     );
 }
 
+/// Emits any updated configuration to all connected clients
+pub fn emit_config_update() {
+    emit_to_all(
+        "config-update",
+        get_config().as_ref(),
+    );
+} 
+
 /// Sends a response to the client-event with data or an error, according to the `Result`.
 fn send_result<T, E>(ack: AckSender, result: Result<T, E>)
 where
