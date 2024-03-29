@@ -6,6 +6,7 @@ use serde_json::json;
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
     process::Command,
+    time::Instant,
 };
 
 use crate::{
@@ -153,8 +154,13 @@ where
             };
 
             let stdout_task = async move {
+                let mut last = Instant::now();
+
                 while let Some(line) = yt_dlp_stdout.next_line().await? {
-                    on_progress(&q_id, process_yt_dlp_stdout(&line));
+                    if last.elapsed().as_millis() > 500 {
+                        last = Instant::now();
+                        on_progress(&q_id, process_yt_dlp_stdout(&line));
+                    }
                 }
 
                 Ok::<(), anyhow::Error>(())
