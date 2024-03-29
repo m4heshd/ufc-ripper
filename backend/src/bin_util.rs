@@ -1,10 +1,20 @@
 // Libs
-use std::path::PathBuf;
+use std::{path::PathBuf, process::Stdio};
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use serde_json::json;
+use tokio::{
+    io::{AsyncBufReadExt, BufReader},
+    process::Command,
+};
 
-use crate::{app_util::get_app_root_dir, config_util::UFCRConfig, net_util::JSON, state_util::Vod};
+use crate::{
+    app_util::get_app_root_dir,
+    config_util::{get_config, inc_file_number, UFCRConfig},
+    net_util::JSON,
+    state_util::Vod,
+    txt_util::process_yt_dlp_stdout,
+};
 
 // Structs
 /// Holds all metadata for each helper media tool.
@@ -81,13 +91,117 @@ pub fn validate_bins() -> JSON {
     })
 }
 
+/// Starts a download process using `yt-dlp` and updates the downloads-queue with progress.
+pub async fn start_download<P, C, F>(
+    vod: &Vod,
+    is_restart: bool,
+    on_progress: P,
+    on_completion: C,
+    on_fail: F,
+) -> Result<Vod>
+where
+    P: Fn(&str, JSON) + Send + 'static,
+    C: FnOnce(&str) + Send + 'static,
+    F: Fn(&str, anyhow::Error) + Send + 'static,
+{
+    let config = get_config();
+    let (final_title, dl_config) = generate_vod_download_config(config.as_ref(), vod, is_restart)?;
+
+    if !is_restart {
+        inc_file_number().await;
+    };
+
+    let download_process = {
+        // Need these clones because it's not possible to clone values into a closure
+        // Ref: https://github.com/rust-lang/rfcs/issues/2407
+        let q_id = vod.q_id.clone();
+
+        async move {
+            let mut yt_dlp = Command::new(BINS.yt_dlp.get_path())
+                .args(dl_config)
+                .stderr(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stdin(Stdio::null())
+                .spawn()
+                .context(
+                    "Download failed: An error occurred while trying to launch the download process. \
+            Make sure that all of the media-tools are available in the \"bin\" directory",
+                )?;
+
+            let mut yt_dlp_stderr = BufReader::new(
+                yt_dlp
+                    .stderr
+                    .take()
+                    .context("Failed to capture the error output from download process")?,
+            )
+            .lines();
+
+            let mut yt_dlp_stdout = BufReader::new(
+                yt_dlp
+                    .stdout
+                    .take()
+                    .context("Failed to capture the output from download process")?,
+            )
+            .lines();
+
+            let stderr_task = async {
+                if let Some(line) = yt_dlp_stderr.next_line().await? {
+                    return Err(anyhow!(line));
+                }
+
+                Ok::<(), anyhow::Error>(())
+            };
+
+            let stdout_task = async move {
+                while let Some(line) = yt_dlp_stdout.next_line().await? {
+                    on_progress(&q_id, process_yt_dlp_stdout(&line));
+                }
+
+                Ok::<(), anyhow::Error>(())
+            };
+
+            tokio::try_join!(stderr_task, stdout_task).context(
+                "Download process failed with an error. Check the browser console for more information",
+            )
+        }
+    };
+
+    tokio::spawn({
+        let q_id = vod.q_id.clone();
+
+        async move {
+            if let Err(error) = download_process.await {
+                on_fail(&q_id, error);
+            } else {
+                // TODO: Might need to check the exit code of yt-dlp here
+                on_completion(&q_id);
+            }
+
+            println!("Download process completed");
+        }
+    });
+
+    // TODO: Update the backend's downloads queue with the VOD's idx here
+
+    Ok(Vod {
+        title: final_title,
+        task: "prepare".to_string(),
+        status: "downloading".to_string(),
+        progress: 0.0,
+        size: "N/A".to_string(),
+        speed: "N/A".to_string(),
+        eta: "N/A".to_string(),
+        ..vod.clone()
+    })
+}
+
 /// Generates all CLI arguments for a `yt-dlp` download according to the configuration and VOD
 /// settings, and returns them as a `Vec<String>`.
-pub fn generate_vod_download_config<'a>(
-    config: &'a UFCRConfig,
-    vod: &'a Vod,
+pub fn generate_vod_download_config(
+    config: &UFCRConfig,
+    vod: &Vod,
     is_restart: bool,
-) -> Result<Vec<String>> {
+) -> Result<(String, Vec<String>)> {
     let UFCRConfig {
         vid_quality,
         aud_quality,
@@ -114,14 +228,10 @@ pub fn generate_vod_download_config<'a>(
         ..
     } = vod;
 
-    let numbered_title = format!("{cur_number}. {title}");
-
-    let final_title = if is_restart {
-        title
-    } else if *number_files {
-        numbered_title.as_str()
+    let final_title = if is_restart || !*number_files {
+        title.to_string()
     } else {
-        title
+        format!("{cur_number}. {title}")
     };
 
     let default_format = format!(
@@ -147,14 +257,16 @@ pub fn generate_vod_download_config<'a>(
         merge_ext,
         "--output",
         dl_path_buf.to_str().context(
-            "Failed to build the given downloads path. Please change the path and try again",
+            "Failed to build the given downloads path. Please change the path and try again. \
+            Try changing the downloads directory",
         )?,
         "--progress-template",
         &progress_template,
         "--ffmpeg-location",
-        bin_path_buf
-            .to_str()
-            .context("Failed to build the path to media-tools")?,
+        bin_path_buf.to_str().context(
+            "Failed to build the path to media-tools. \
+            Try moving UFC Ripper to a different location",
+        )?,
     ];
 
     if *throttle {
@@ -175,7 +287,7 @@ pub fn generate_vod_download_config<'a>(
     arg_setup_final.extend(dl_args.clone());
     arg_setup_final.push(hls.to_string());
 
-    Ok(arg_setup_final)
+    Ok((final_title, arg_setup_final))
 }
 
 /// Generates the JSON download progress template for `yt-dlp` and returns it as a `String`
@@ -191,7 +303,6 @@ fn generate_yt_dlp_progress_template() -> String {
         "vcodec": "%(info.vcodec)s"
     }
     "#
-    .to_string()
     .replace(['\n', '\r'], "");
 
     progress_template.push('\n');

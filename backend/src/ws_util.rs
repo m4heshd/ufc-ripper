@@ -15,12 +15,15 @@ use socketioxide::{
 
 use crate::{
     app_util::{check_app_update, get_app_metadata},
-    bin_util::validate_bins,
+    bin_util::{start_download, validate_bins},
     config_util::{ConfigUpdate, get_config, is_debug, UFCRConfig, update_config},
     fs_util::open_downloads_dir,
-    net_util::{download_media_tools, get_vod_meta, JSON, login_to_fight_pass, search_vods},
+    net_util::{
+        download_media_tools, get_vod_meta, get_vod_stream_url, JSON, login_to_fight_pass,
+        search_vods,
+    },
     rt_util::QuitUnwrap,
-    state_util::get_dlq,
+    state_util::{get_dlq, Vod},
     txt_util::create_uuid,
 };
 
@@ -75,6 +78,8 @@ fn handle_ws_client(socket: &SocketRef) {
 
     socket.on("verify-url", handle_verify_url_event);
 
+    socket.on("download", handle_download_event);
+
     socket.on("open-dl-dir", |ack: AckSender| {
         send_result(ack, open_downloads_dir());
     });
@@ -117,11 +122,8 @@ where
 
 /// Emits any updated configuration to all connected clients
 pub fn emit_config_update() {
-    emit_to_all(
-        "config-update",
-        get_config().as_ref(),
-    );
-} 
+    emit_to_all("config-update", get_config().as_ref());
+}
 
 /// Sends a response to the client-event with data or an error, according to the `Result`.
 fn send_result<T, E>(ack: AckSender, result: Result<T, E>)
@@ -243,4 +245,52 @@ async fn handle_verify_url_event(ack: AckSender, Data(data): Data<JSON>) {
     } else {
         send_error(ack, "Invalid verify request");
     }
+}
+
+/// Handles the `download` WS event.
+async fn handle_download_event(ack: AckSender, Data(mut data): Data<JSON>) {
+    if let (Ok(mut vod), Some(is_restart)) = (
+        serde_json::from_value::<Vod>(data[0].take()),
+        data[1].as_bool(),
+    ) {
+        match get_vod_stream_url(vod.id).await {
+            Ok(hls) => vod.hls = hls,
+            Err(error) => return send_error(ack, error),
+        }
+
+        let dl = start_download(
+            &vod,
+            is_restart,
+            move |q_id, updates| {
+                emit_vod_download_progress(q_id, updates);
+            },
+            move |q_id| {
+                emit_vod_download_progress(
+                    q_id,
+                    json!({
+                        "status": "completed"
+                    }),
+                );
+            },
+            move |q_id, error| {
+                emit_error(error);
+                emit_vod_download_progress(
+                    q_id,
+                    json!({
+                        "status": "failed"
+                    }),
+                );
+            },
+        )
+        .await;
+
+        send_result(ack, dl);
+    } else {
+        send_error(ack, "Invalid download request");
+    }
+}
+
+/// Emits VOD download progress.
+fn emit_vod_download_progress(q_id: &str, updates: JSON) {
+    emit_to_all("dl-progress", (q_id, updates));
 }
