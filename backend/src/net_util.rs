@@ -23,7 +23,6 @@ use crate::{
     bin_util::BINS,
     config_util::{ConfigUpdate, get_config, is_debug, update_config},
     fs_util::write_file_to_disk,
-    log_success,
     rt_util::QuitUnwrap,
     state_util::Vod,
     txt_util::get_vod_id_from_url,

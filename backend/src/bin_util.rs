@@ -13,7 +13,7 @@ use crate::{
     app_util::get_app_root_dir,
     config_util::{get_config, inc_file_number, UFCRConfig},
     net_util::JSON,
-    state_util::{add_vod_to_queue, Vod},
+    state_util::{add_vod_to_queue, update_dlq_vod_status, Vod},
     txt_util::process_yt_dlp_stdout,
 };
 
@@ -176,10 +176,20 @@ where
         let q_id = vod.q_id.clone();
 
         async move {
+            let err_msg = "Unable to update the status of the VOD";
+
             if let Err(error) = download_process.await {
+                if let Err(inner_error) = update_dlq_vod_status(&q_id, "failed") {
+                    log_err!("{err_msg}:/n{inner_error}\n");
+                }
+
                 on_fail(&q_id, error);
             } else {
                 // TODO: Might need to check the exit code of yt-dlp here
+                if let Err(error) = update_dlq_vod_status(&q_id, "completed") {
+                    log_err!("{err_msg}:/n{error}\n");
+                }
+
                 on_completion(&q_id);
             }
 

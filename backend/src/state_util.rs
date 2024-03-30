@@ -4,6 +4,7 @@ use std::{
     sync::{Arc, Mutex, MutexGuard},
 };
 
+use anyhow::{Context, Result};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 
@@ -60,4 +61,16 @@ pub fn add_vod_to_queue(mut vod: Vod) -> Vod {
     }
 
     vod
+}
+
+/// Updates the status of a VOD in the downloads-queue.
+pub fn update_dlq_vod_status(q_id: &str, status: &str) -> Result<()> {
+    let mut q = get_dlq();
+    let vod = q
+        .get_mut(q_id)
+        .context("VOD does not exist in the downloads-queue")?;
+
+    vod.status = status.to_string();
+
+    Ok(())
 }
