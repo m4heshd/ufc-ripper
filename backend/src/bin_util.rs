@@ -14,7 +14,7 @@ use crate::{
     config_util::{get_config, inc_file_number, UFCRConfig},
     net_util::JSON,
     state_util::{add_vod_to_queue, update_dlq_vod_status, Vod},
-    txt_util::process_yt_dlp_stdout,
+    txt_util::{process_yt_dlp_stderr, process_yt_dlp_stdout},
 };
 
 // Structs
@@ -147,7 +147,15 @@ where
 
             let stderr_task = async {
                 if let Some(line) = yt_dlp_stderr.next_line().await? {
-                    return Err(anyhow!(line));
+                    if let Some(error) = process_yt_dlp_stderr(&line) {
+                        return Err(anyhow!(error.to_string()));
+                    }
+
+                    return Err(anyhow!(
+                        "Download process failed with an error. \
+                        Check the browser console for more information"
+                    )
+                    .context(line));
                 }
 
                 Ok::<(), anyhow::Error>(())
@@ -166,9 +174,7 @@ where
                 Ok::<(), anyhow::Error>(())
             };
 
-            tokio::try_join!(stderr_task, stdout_task).context(
-                "Download process failed with an error. Check the browser console for more information",
-            )
+            tokio::try_join!(stderr_task, stdout_task)
         }
     };
 

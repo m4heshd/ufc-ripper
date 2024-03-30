@@ -90,3 +90,14 @@ pub fn process_yt_dlp_stdout(line: &str) -> JSON {
         })
     }
 }
+
+/// Processes an stderr line from a `yt-dlp` process and returns a user-friendly message.
+pub fn process_yt_dlp_stderr(line: &str) -> Option<&str> {
+    if line.contains("Requested format is not available") {
+        Some("Requested format is not available. Please try checking available formats before downloading")
+    } else if line.contains("ended before the end-of-stream") {
+        Some("An error occurred in the download stream. Retry the download")
+    } else {
+        None
+    }
+}
