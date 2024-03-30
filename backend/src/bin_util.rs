@@ -13,7 +13,7 @@ use crate::{
     app_util::get_app_root_dir,
     config_util::{get_config, inc_file_number, UFCRConfig},
     net_util::JSON,
-    state_util::Vod,
+    state_util::{add_vod_to_queue, Vod},
     txt_util::process_yt_dlp_stdout,
 };
 
@@ -187,9 +187,7 @@ where
         }
     });
 
-    // TODO: Update the backend's downloads queue with the VOD's idx here
-
-    Ok(Vod {
+    let queued_vod = add_vod_to_queue(Vod {
         title: final_title,
         task: "prepare".to_string(),
         status: "downloading".to_string(),
@@ -198,7 +196,9 @@ where
         speed: "N/A".to_string(),
         eta: "N/A".to_string(),
         ..vod.clone()
-    })
+    });
+
+    Ok(queued_vod)
 }
 
 /// Generates all CLI arguments for a `yt-dlp` download according to the configuration and VOD

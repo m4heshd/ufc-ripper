@@ -59,7 +59,7 @@ fn handle_ws_client(socket: &SocketRef) {
     socket.on("save-config", handle_save_config_event);
 
     socket.on("get-dlq", |ack: AckSender| {
-        ack.send(get_dlq()).ok();
+        ack.send(get_dlq().clone()).ok();
     });
 
     socket.on("check-app-update", |ack: AckSender| async move {
@@ -283,6 +283,10 @@ async fn handle_download_event(ack: AckSender, Data(mut data): Data<JSON>) {
             },
         )
         .await;
+
+        if dl.is_ok() {
+            emit_config_update();
+        }
 
         send_result(ack, dl);
     } else {
