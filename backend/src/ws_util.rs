@@ -23,7 +23,7 @@ use crate::{
         search_vods,
     },
     rt_util::QuitUnwrap,
-    state_util::{get_dlq, Vod},
+    state_util::{clear_inactive_dlq_vods, get_dlq, Vod},
     txt_util::create_uuid,
 };
 
@@ -79,6 +79,11 @@ fn handle_ws_client(socket: &SocketRef) {
     socket.on("verify-url", handle_verify_url_event);
 
     socket.on("download", handle_download_event);
+
+    socket.on("clear-dlq", |ack: AckSender| {
+        clear_inactive_dlq_vods();
+        ack.send(get_dlq().clone()).ok();
+    });
 
     socket.on("open-dl-dir", |ack: AckSender| {
         send_result(ack, open_downloads_dir());

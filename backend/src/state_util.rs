@@ -74,3 +74,8 @@ pub fn update_dlq_vod_status(q_id: &str, status: &str) -> Result<()> {
 
     Ok(())
 }
+
+/// Removes finished or failed downloads from the downloads-queue.
+pub fn clear_inactive_dlq_vods() {
+    get_dlq().retain(|_, vod| vod.status == "downloading");
+}
