@@ -15,7 +15,7 @@ use socketioxide::{
 
 use crate::{
     app_util::{check_app_update, get_app_metadata},
-    bin_util::{start_download, validate_bins},
+    bin_util::{cancel_download, start_download, validate_bins},
     config_util::{ConfigUpdate, get_config, is_debug, UFCRConfig, update_config},
     fs_util::open_downloads_dir,
     net_util::{
@@ -79,6 +79,8 @@ fn handle_ws_client(socket: &SocketRef) {
     socket.on("verify-url", handle_verify_url_event);
 
     socket.on("download", handle_download_event);
+
+    socket.on("cancel-download", handle_cancel_download_event);
 
     socket.on("clear-dlq", |ack: AckSender| {
         clear_inactive_dlq_vods();
@@ -302,4 +304,13 @@ async fn handle_download_event(ack: AckSender, Data(mut data): Data<JSON>) {
 /// Emits VOD download progress.
 fn emit_vod_download_progress(q_id: &str, updates: JSON) {
     emit_to_all("dl-progress", (q_id, updates));
+}
+
+/// Handles the `cancel-download` WS event.
+fn handle_cancel_download_event(ack: AckSender, Data(data): Data<JSON>) {
+    if let Ok(vod) = serde_json::from_value::<Vod>(data) {
+        send_result(ack, cancel_download(&vod));
+    } else {
+        send_error(ack, "Invalid download cancellation request");
+    }
 }

@@ -1,11 +1,18 @@
 // Libs
-use std::{path::PathBuf, process::Stdio};
+use std::{
+    collections::HashMap,
+    path::PathBuf,
+    process::Stdio,
+    sync::{Arc, Mutex, MutexGuard},
+};
 
 use anyhow::{anyhow, Context, Result};
+use once_cell::sync::Lazy;
 use serde_json::json;
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
     process::Command,
+    task::JoinHandle,
     time::Instant,
 };
 
@@ -13,9 +20,13 @@ use crate::{
     app_util::get_app_root_dir,
     config_util::{get_config, inc_file_number, UFCRConfig},
     net_util::JSON,
+    rt_util::QuitUnwrap,
     state_util::{add_vod_to_queue, update_dlq_vod_status, Vod},
     txt_util::{process_yt_dlp_stderr, process_yt_dlp_stdout},
 };
+
+// Types
+type TaskMap = HashMap<String, JoinHandle<()>>;
 
 // Structs
 /// Holds all metadata for each helper media tool.
@@ -81,6 +92,8 @@ pub static BINS: MediaTools = MediaTools {
         },
     },
 };
+/// Holds the global yt-dlp download task handles.
+static DL_TASKS: Lazy<Arc<Mutex<TaskMap>>> = Lazy::new(|| Arc::new(Mutex::new(HashMap::new())));
 
 /// Validates if the media tools exist and returns the validation for each binary as JSON.
 pub fn validate_bins() -> JSON {
@@ -178,7 +191,7 @@ where
         }
     };
 
-    tokio::spawn({
+    let dl_process = tokio::spawn({
         let q_id = vod.q_id.clone();
 
         async move {
@@ -186,17 +199,21 @@ where
 
             if let Err(error) = download_process.await {
                 if let Err(inner_error) = update_dlq_vod_status(&q_id, "failed") {
-                    log_err!("{err_msg}:/n{inner_error}\n");
+                    log_err!("{err_msg}:\n{inner_error}\n");
                 }
 
                 on_fail(&q_id, error);
             } else {
                 // TODO: Might need to check the exit code of yt-dlp here
                 if let Err(error) = update_dlq_vod_status(&q_id, "completed") {
-                    log_err!("{err_msg}:/n{error}\n");
+                    log_err!("{err_msg}:\n{error}\n");
                 }
 
                 on_completion(&q_id);
+            }
+
+            if let Err(error) = remove_dl_task(&q_id) {
+                log_err!("Failed to remove the download task:\n{error}\n");
             }
 
             println!("Download process completed");
@@ -214,7 +231,17 @@ where
         ..vod.clone()
     });
 
+    add_dl_task(&vod.q_id, dl_process);
+
     Ok(queued_vod)
+}
+
+/// Cancels an active download.
+pub fn cancel_download(vod: &Vod) -> Result<()> {
+    remove_dl_task(&vod.q_id)?.abort();
+    update_dlq_vod_status(&vod.q_id, "cancelled")?;
+
+    Ok(())
 }
 
 /// Generates all CLI arguments for a `yt-dlp` download according to the configuration and VOD
@@ -330,4 +357,23 @@ fn generate_yt_dlp_progress_template() -> String {
     progress_template.push('\n');
 
     progress_template
+}
+
+/// Locks and returns a `MutexGuard` for the download tasks.
+fn get_dl_tasks() -> MutexGuard<'static, TaskMap> {
+    DL_TASKS
+        .lock()
+        .unwrap_or_quit("Failed to exclusively access the download tasks")
+}
+
+/// Adds a new task handle to the download tasks.
+fn add_dl_task(q_id: &str, task: JoinHandle<()>) {
+    get_dl_tasks().insert(q_id.to_string(), task);
+}
+
+/// Removes and returns a task handle from the download tasks.
+fn remove_dl_task(q_id: &str) -> Result<JoinHandle<()>> {
+    get_dl_tasks()
+        .remove(q_id)
+        .context("Download process is not actively available anymore")
 }
