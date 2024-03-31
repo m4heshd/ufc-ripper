@@ -92,6 +92,8 @@ pub static BINS: MediaTools = MediaTools {
         },
     },
 };
+/// Holds the download progress template for yt-dlp.
+static DL_PROGRESS_TEMPLATE: Lazy<String> = Lazy::new(generate_yt_dlp_progress_template);
 /// Holds the global yt-dlp download task handles.
 static DL_TASKS: Lazy<Arc<Mutex<TaskMap>>> = Lazy::new(|| Arc::new(Mutex::new(HashMap::new())));
 
@@ -287,7 +289,6 @@ pub fn generate_vod_download_config(
         "{vid_quality}[height={resolution}]+{aud_quality}/{vid_quality}*[height={resolution}]"
     );
     let dl_path_buf = PathBuf::from(dl_path).join(format!("{final_title}.%(ext)s"));
-    let progress_template = generate_yt_dlp_progress_template();
     let bin_path_buf = get_app_root_dir().join("bin");
     let concur_frags_string = concur_frags.to_string();
 
@@ -306,11 +307,10 @@ pub fn generate_vod_download_config(
         merge_ext,
         "--output",
         dl_path_buf.to_str().context(
-            "Failed to build the given downloads path. Please change the path and try again. \
-            Try changing the downloads directory",
+            "Failed to build the given downloads path. Try changing the downloads directory",
         )?,
         "--progress-template",
-        &progress_template,
+        &DL_PROGRESS_TEMPLATE,
         "--ffmpeg-location",
         bin_path_buf.to_str().context(
             "Failed to build the path to media-tools. \
@@ -352,8 +352,11 @@ fn generate_yt_dlp_progress_template() -> String {
         "vcodec": "%(info.vcodec)s"
     }
     "#
-    .replace(['\n', '\r'], "");
+    .to_string();
 
+    progress_template.retain(|c| !c.is_whitespace());
+    // This newline at the end is essential because else, the `next_line()` won't be triggered since
+    // the stdout buffer won't flush till it reaches a newline.
     progress_template.push('\n');
 
     progress_template
@@ -375,5 +378,5 @@ fn add_dl_task(q_id: &str, task: JoinHandle<()>) {
 fn remove_dl_task(q_id: &str) -> Result<JoinHandle<()>> {
     get_dl_tasks()
         .remove(q_id)
-        .context("Download process is not actively available anymore")
+        .context("The download task is not actively available anymore")
 }
