@@ -41,11 +41,7 @@ macro_rules! log_err {
 
 /// Enables color support for Windows classic CLI interface, conhost.exe.
 /// (Windows will not use the Terminal if the application is launched as administrator).
-///
-/// # Panics
-///
-/// The result always returns `Ok(())`, so this never actually panics.
 #[cfg(target_os = "windows")]
 pub fn enable_win32_conhost_support() {
-    colored::control::set_virtual_terminal(true).unwrap();
+    colored::control::set_virtual_terminal(true).ok();
 }
