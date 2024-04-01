@@ -1,6 +1,7 @@
 // Libs
 use std::{
     collections::HashMap,
+    ffi::OsStr,
     path::PathBuf,
     process::Stdio,
     sync::{Arc, Mutex, MutexGuard},
@@ -11,7 +12,7 @@ use once_cell::sync::Lazy;
 use serde_json::json;
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
-    process::Command,
+    process::{Child, Command},
     task::JoinHandle,
     time::Instant,
 };
@@ -133,16 +134,11 @@ where
         let q_id = vod.q_id.clone();
 
         async move {
-            let mut yt_dlp = Command::new(BINS.yt_dlp.get_path())
-                .args(dl_config)
-                .stderr(Stdio::piped())
-                .stdout(Stdio::piped())
-                .stdin(Stdio::null())
-                .spawn()
-                .context(
-                    "Download failed: An error occurred while trying to launch the download process. \
-            Make sure that all of the media-tools are available in the \"bin\" directory",
-                )?;
+            let mut yt_dlp = start_yt_dlp_process(dl_config).context(
+                "Download failed: \
+                An error occurred while trying to launch the download process. \
+                Make sure that all of the media-tools are available in the \"bin\" directory",
+            )?;
 
             let mut yt_dlp_stderr = BufReader::new(
                 yt_dlp
@@ -236,6 +232,95 @@ where
     add_dl_task(&vod.q_id, dl_process);
 
     Ok(queued_vod)
+}
+
+/// Starts a format query process using `yt-dlp` and returns the available formats as JSON.
+pub async fn get_vod_formats(hls: &str) -> Result<JSON> {
+    let yt_dlp_args = vec![
+        "--print",
+        "%(formats.:.{format_id,resolution,fps,tbr,vcodec,acodec})j",
+        hls,
+    ];
+
+    let mut yt_dlp = start_yt_dlp_process(yt_dlp_args).context(
+        "Formats query failed: \
+        An error occurred while trying to launch the formats query process. \
+        Make sure that all of the media-tools are available in the \"bin\" directory",
+    )?;
+
+    let mut yt_dlp_stderr = BufReader::new(
+        yt_dlp
+            .stderr
+            .take()
+            .context("Failed to capture the error output from formats query process")?,
+    )
+    .lines();
+
+    let mut yt_dlp_stdout = BufReader::new(
+        yt_dlp
+            .stdout
+            .take()
+            .context("Failed to capture the output from formats query process")?,
+    )
+    .lines();
+
+    let stderr_task = async {
+        if let Some(line) = yt_dlp_stderr.next_line().await? {
+            if let Some(error) = process_yt_dlp_stderr(&line) {
+                return Err(anyhow!(error.to_string()));
+            }
+
+            return Err(anyhow!(
+                "Formats query request failed with an error. \
+                Check the browser console for more information"
+            )
+            .context(line));
+        }
+
+        Ok::<(), anyhow::Error>(())
+    };
+
+    let stdout_task = async move {
+        let mut formats = String::new();
+
+        while let Some(line) = yt_dlp_stdout.next_line().await? {
+            formats = line;
+        }
+
+        Ok::<String, anyhow::Error>(formats)
+    };
+
+    match tokio::try_join!(stderr_task, stdout_task) {
+        Ok(((), formats)) => {
+            let err_msg = "Format output is invalid. Please try again or \
+                check the video on Fight Pass to verify that it actually streams";
+
+            if let Ok(formats_json) = serde_json::from_str::<JSON>(&formats) {
+                if formats_json.is_array() {
+                    Ok(formats_json)
+                } else {
+                    Err(anyhow!(err_msg))
+                }
+            } else {
+                Err(anyhow!(err_msg))
+            }
+        }
+        Err(error) => Err(error),
+    }
+}
+
+/// Starts a new `yt-dlp` process and returns the `Child` handle to it.
+fn start_yt_dlp_process<I, S>(args: I) -> std::io::Result<Child>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+{
+    Command::new(BINS.yt_dlp.get_path())
+        .args(args)
+        .stderr(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stdin(Stdio::null())
+        .spawn()
 }
 
 /// Cancels an active download.

@@ -15,7 +15,7 @@ use socketioxide::{
 
 use crate::{
     app_util::{check_app_update, get_app_metadata},
-    bin_util::{cancel_download, start_download, validate_bins},
+    bin_util::{cancel_download, get_vod_formats, start_download, validate_bins},
     config_util::{ConfigUpdate, get_config, is_debug, UFCRConfig, update_config},
     fs_util::open_downloads_dir,
     net_util::{
@@ -81,6 +81,8 @@ fn handle_ws_client(socket: &SocketRef) {
     socket.on("download", handle_download_event);
 
     socket.on("cancel-download", handle_cancel_download_event);
+
+    socket.on("get-formats", handle_get_formats_event);
 
     socket.on("clear-dlq", |ack: AckSender| {
         clear_inactive_dlq_vods();
@@ -312,5 +314,30 @@ fn handle_cancel_download_event(ack: AckSender, Data(data): Data<JSON>) {
         send_result(ack, cancel_download(&vod));
     } else {
         send_error(ack, "Invalid download cancellation request");
+    }
+}
+
+/// Handles the `get-formats` WS event.
+async fn handle_get_formats_event(ack: AckSender, Data(data): Data<JSON>) {
+    if let Some(url) = data.as_str() {
+        let formats_result = async {
+            let mut vod = get_vod_meta(url).await?;
+            let hls = get_vod_stream_url(vod.id).await?;
+            let formats = get_vod_formats(&hls).await?;
+
+            vod.q_id = create_uuid();
+
+            let response = json!({
+                "VOD": vod,
+                "formats": formats
+            });
+
+            Ok::<JSON, anyhow::Error>(response)
+        }
+        .await;
+
+        send_result(ack, formats_result);
+    } else {
+        send_error(ack, "Invalid url in the formats request");
     }
 }
