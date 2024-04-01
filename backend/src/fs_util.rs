@@ -4,9 +4,16 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use bytes::Bytes;
 use futures_util::{Stream, StreamExt};
+use rust_embed::RustEmbed;
 use tokio::{fs, io::AsyncWriteExt};
 
 use crate::{config_util::get_config, rt_util::QuitUnwrap};
+
+// Structs
+/// Holds all the static files for UFC Ripper GUI that will be served using axum.
+#[derive(RustEmbed, Clone)]
+#[folder = "$CARGO_MANIFEST_DIR/dist/"]
+pub struct WebAssets;
 
 /// Reads the config.json file from the disk and returns the content as `String`.
 pub async fn read_config_file_to_string(path: &PathBuf) -> String {

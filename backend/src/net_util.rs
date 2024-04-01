@@ -4,25 +4,19 @@
 use std::net::SocketAddr;
 
 use anyhow::{anyhow, Context, Result};
-use axum::{
-    http::{Method, StatusCode},
-    Router,
-    routing::get_service,
-};
+use axum::{http::Method, Router};
+use axum_embed::{FallbackBehavior::Redirect, ServeEmbed};
 use once_cell::sync::Lazy;
-use reqwest::{Client, header::HeaderMap, Response};
+use reqwest::{header::HeaderMap, Client, Response};
 use serde_json::{json, Value};
 use tokio::net::TcpListener;
-use tower_http::{
-    cors::{Any, CorsLayer},
-    services::ServeDir,
-};
+use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
     app_util::{get_app_metadata, get_os_id, is_container},
     bin_util::BINS,
-    config_util::{ConfigUpdate, get_config, is_debug, update_config},
-    fs_util::write_file_to_disk,
+    config_util::{get_config, is_debug, update_config, ConfigUpdate},
+    fs_util::{write_file_to_disk, WebAssets},
     rt_util::QuitUnwrap,
     state_util::Vod,
     txt_util::get_vod_id_from_url,
@@ -30,7 +24,7 @@ use crate::{
 };
 
 // Structs
-/// A pair of authentication and refresh tokens from a successful login.
+/// The user ID, plus a pair of authentication and refresh tokens from a successful login.
 pub struct LoginSession {
     pub user: String,
     pub refresh: String,
@@ -61,18 +55,13 @@ static VOD_SEARCH_PARAMS: Lazy<String> = Lazy::new(|| {
 /// Will panic if the port is already in use or fails to serve the Vue "dist" directory.
 pub async fn init_server() {
     let port = get_config().port;
+    let index_file = Some("index.html".to_string());
+    let web_assets =
+        ServeEmbed::<WebAssets>::with_parameters(index_file.clone(), Redirect, index_file);
 
     // Axum router
     let app = Router::new()
-        .nest_service(
-            "/",
-            get_service(ServeDir::new("./dist")).handle_error(|_| async move {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    "Serve error occurred while trying to serve UFC Ripper GUI files",
-                )
-            }),
-        )
+        .nest_service("/", web_assets)
         .layer(create_ws_layer())
         .layer(create_cors_layer());
 
