@@ -32,15 +32,15 @@ type TaskMap = HashMap<String, JoinHandle<()>>;
 // Structs
 /// Holds all metadata for each helper media tool.
 pub struct MediaTools {
-    atomic_parsley: MediaToolsMeta,
-    ffmpeg: MediaToolsMeta,
-    ffprobe: MediaToolsMeta,
-    yt_dlp: MediaToolsMeta,
+    atomic_parsley: MediaToolMeta,
+    ffmpeg: MediaToolMeta,
+    ffprobe: MediaToolMeta,
+    yt_dlp: MediaToolMeta,
 }
 
 impl MediaTools {
     /// Fetches a media-tool by the given JSON-like name.
-    pub fn get_by_name(&self, name: &str) -> Option<&MediaToolsMeta> {
+    pub fn get_by_name(&self, name: &str) -> Option<&MediaToolMeta> {
         match name {
             "atomicParsley" => Some(&self.atomic_parsley),
             "ffmpeg" => Some(&self.ffmpeg),
@@ -51,11 +51,11 @@ impl MediaTools {
     }
 }
 
-pub struct MediaToolsMeta {
+pub struct MediaToolMeta {
     filename: &'static str,
 }
 
-impl MediaToolsMeta {
+impl MediaToolMeta {
     /// Returns the absolute path to the media tool.
     pub fn get_path(&self) -> PathBuf {
         get_app_root_dir().join("bin").join(self.filename)
@@ -64,28 +64,28 @@ impl MediaToolsMeta {
 
 // Statics
 pub static BINS: MediaTools = MediaTools {
-    atomic_parsley: MediaToolsMeta {
+    atomic_parsley: MediaToolMeta {
         filename: if cfg!(windows) {
             "AtomicParsley.exe"
         } else {
             "AtomicParsley"
         },
     },
-    ffmpeg: MediaToolsMeta {
+    ffmpeg: MediaToolMeta {
         filename: if cfg!(windows) {
             "ffmpeg.exe"
         } else {
             "ffmpeg"
         },
     },
-    ffprobe: MediaToolsMeta {
+    ffprobe: MediaToolMeta {
         filename: if cfg!(windows) {
             "ffprobe.exe"
         } else {
             "ffprobe"
         },
     },
-    yt_dlp: MediaToolsMeta {
+    yt_dlp: MediaToolMeta {
         filename: if cfg!(windows) {
             "yt-dlp.exe"
         } else {
