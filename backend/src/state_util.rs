@@ -10,6 +10,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::rt_util::QuitUnwrap;
 
+// Types
+type VodMap = HashMap<String, Vod>;
+
 // Structs
 /// Holds all information of a VOD.
 #[derive(Default, Clone, Serialize, Deserialize)]
@@ -37,11 +40,11 @@ pub struct Vod {
 
 // Statics
 /// Holds the global downloads-queue.
-static DOWNLOADS_QUEUE: Lazy<Arc<Mutex<HashMap<String, Vod>>>> =
+static DOWNLOADS_QUEUE: Lazy<Arc<Mutex<VodMap>>> =
     Lazy::new(|| Arc::new(Mutex::new(HashMap::new())));
 
-/// Returns a copy of the downloads-queue.
-pub fn get_dlq() -> MutexGuard<'static, HashMap<String, Vod>> {
+/// Locks and returns a `MutexGuard` for the downloads-queue.
+pub fn get_dlq() -> MutexGuard<'static, VodMap> {
     DOWNLOADS_QUEUE
         .lock()
         .unwrap_or_quit("Failed to exclusively access the downloads-queue")
