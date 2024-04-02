@@ -162,11 +162,10 @@ where
                         return Err(anyhow!(error.to_string()));
                     }
 
-                    return Err(anyhow!(
+                    return Err(anyhow!(line).context(
                         "Download process failed with an error. \
-                        Check the browser console for more information"
-                    )
-                    .context(line));
+                        Check the browser console for more information",
+                    ));
                 }
 
                 Ok::<(), anyhow::Error>(())
@@ -270,11 +269,10 @@ pub async fn get_vod_formats(hls: &str) -> Result<JSON> {
                 return Err(anyhow!(error.to_string()));
             }
 
-            return Err(anyhow!(
+            return Err(anyhow!(line).context(
                 "Formats query request failed with an error. \
-                Check the browser console for more information"
-            )
-            .context(line));
+                Check the browser console for more information",
+            ));
         }
 
         Ok::<(), anyhow::Error>(())
