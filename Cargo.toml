@@ -15,6 +15,9 @@ path = "backend/src/bin/ufcr/main.rs"
 name = "ufcr_libs"
 path = "backend/src/lib.rs"
 
+[profile.release]
+lto = "fat"
+
 [dependencies]
 anyhow = "1.0.81"
 arc-swap = "1.7.1"
