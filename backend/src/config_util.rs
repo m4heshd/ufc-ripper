@@ -15,7 +15,7 @@ use crate::{
 };
 
 // Structs
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UFCRConfig {
     pub open_in_browser: bool,
@@ -52,7 +52,7 @@ pub struct UFCRConfig {
     pub dl_args: Vec<String>,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProxyConfig {
     pub protocol: String,
@@ -61,7 +61,7 @@ pub struct ProxyConfig {
     pub auth: ProxyAuth,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProxyAuth {
     pub username: String,
@@ -113,32 +113,20 @@ pub fn is_debug() -> bool {
 
 /// Updates the configuration with new data and writes to config.json.
 pub async fn update_config(update: ConfigUpdate) {
-    {
-        match update {
-            ConfigUpdate::Config(data) => CONFIG.store(Arc::new(*data)),
-            ConfigUpdate::Auth(data) => {
-                CONFIG.store(Arc::new(UFCRConfig {
-                    auth_token: data,
-                    ..get_config().as_ref().clone()
-                }));
-            }
-            ConfigUpdate::Tokens(data) => {
-                CONFIG.store(Arc::new(UFCRConfig {
-                    user: data.user,
-                    refresh_token: data.refresh,
-                    auth_token: data.auth,
-                    ..get_config().as_ref().clone()
-                }));
-            }
-            ConfigUpdate::FileNum(data) => {
-                CONFIG.store(Arc::new(UFCRConfig {
-                    cur_number: data,
-                    ..get_config().as_ref().clone()
-                }));
-            }
+    let mut new_config = get_config().as_ref().clone();
+
+    match update {
+        ConfigUpdate::Config(data) => new_config = *data,
+        ConfigUpdate::Auth(data) => new_config.auth_token = data,
+        ConfigUpdate::Tokens(data) => {
+            new_config.user = data.user;
+            new_config.refresh_token = data.refresh;
+            new_config.auth_token = data.auth;
         }
+        ConfigUpdate::FileNum(data) => new_config.cur_number = data,
     }
 
+    CONFIG.store(Arc::new(new_config));
     write_config_to_file(&CONFIG_PATH)
         .await
         .unwrap_or_quit(r#"An error occurred while trying to update the "config.json" file"#);
