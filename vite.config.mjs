@@ -14,7 +14,7 @@ export default defineConfig(async ({command}) => ({
                 if (command === 'serve') {
                     spawn(
                         platform() === 'win32' ? 'npm.cmd' : 'npm',
-                        ['run', 'start-server'],
+                        ['run', 'dev:backend'],
                         {stdio: 'inherit'}
                     );
                 }
