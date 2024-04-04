@@ -395,8 +395,8 @@
           </div>
           <div class="field label small border round">
             <input
-                v-model="modConfig.data.proxyConfig.port"
-                type="text"
+                v-model.number="modConfig.data.proxyConfig.port"
+                type="number"
                 autocomplete="off"
                 :disabled="!modConfig.data.useProxy"
             >

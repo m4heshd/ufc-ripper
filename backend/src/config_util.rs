@@ -57,7 +57,7 @@ pub struct UFCRConfig {
 pub struct ProxyConfig {
     pub protocol: String,
     pub host: String,
-    pub port: String,
+    pub port: u16,
     pub auth: ProxyAuth,
 }
 

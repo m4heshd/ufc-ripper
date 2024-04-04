@@ -20,7 +20,7 @@ use crate::{
     fs_util::open_downloads_dir,
     net_util::{
         download_media_tools, get_vod_meta, get_vod_stream_url, JSON, login_to_fight_pass,
-        search_vods,
+        search_vods, update_proxied_client,
     },
     rt_util::QuitUnwrap,
     state_util::{clear_inactive_dlq_vods, get_dlq, Vod},
@@ -179,6 +179,10 @@ async fn handle_save_config_event(ack: AckSender, Data(data): Data<JSON>) {
     if let Ok(new_config) = serde_json::from_value::<UFCRConfig>(data) {
         update_config(ConfigUpdate::Config(Box::new(new_config))).await;
         ack.send(get_config().as_ref()).ok();
+
+        if let Err(error) = update_proxied_client() {
+            emit_error(error);
+        }
     } else {
         send_error(ack, "Invalid configuration format");
     }

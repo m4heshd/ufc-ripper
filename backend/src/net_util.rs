@@ -1,13 +1,14 @@
 #![allow(clippy::missing_errors_doc)]
 
 // Libs
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
 
 use anyhow::{anyhow, Context, Result};
+use arc_swap::ArcSwap;
 use axum::{http::Method, Router};
 use axum_embed::{FallbackBehavior::Redirect, ServeEmbed};
 use once_cell::sync::Lazy;
-use reqwest::{header::HeaderMap, Client, Response};
+use reqwest::{header::HeaderMap, Client, Proxy, Response};
 use serde_json::{json, Value};
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
@@ -36,6 +37,9 @@ pub type JSON = Value;
 
 // Statics
 static HTTP_CLIENT: Lazy<Client> = Lazy::new(Client::new);
+static HTTP_PROXIED_CLIENT: Lazy<ArcSwap<Client>> = Lazy::new(|| {
+    ArcSwap::from_pointee(create_proxied_client().expect("Failed to create a proxied HTTP client"))
+});
 static VOD_SEARCH_PARAMS: Lazy<String> = Lazy::new(|| {
     form_urlencoded::Serializer::new(String::new())
         .append_pair("facetFilters", r#"["type:VOD_VIDEO"]"#)
@@ -87,6 +91,37 @@ fn create_cors_layer() -> CorsLayer {
     CorsLayer::new()
         .allow_methods([Method::GET])
         .allow_origin(Any)
+}
+
+/// Set up the proxy according to the configuration and returns a client with the proxy enabled.
+fn create_proxied_client() -> Result<Client> {
+    let proxy_conf = &get_config().proxy_config;
+    let mut proxy = Proxy::all(format!(
+        "{}://{}:{}",
+        proxy_conf.protocol, proxy_conf.host, proxy_conf.port
+    ))
+    .context("Invalid proxy configuration. Please update your proxy setup with correct values")?;
+
+    if !proxy_conf.auth.username.is_empty() {
+        proxy = proxy.basic_auth(
+            proxy_conf.auth.username.clone().as_str(),
+            proxy_conf.auth.password.clone().as_str(),
+        );
+    }
+
+    let client = Client::builder().proxy(proxy).build().context(
+        "Unable to build the HTTP client with the proxy configuration. \
+        Try updating the proxy setup or disabling proxied API requests",
+    )?;
+
+    Ok(client)
+}
+
+/// Updates the current proxied client with new proxy configuration.
+pub fn update_proxied_client() -> Result<()> {
+    HTTP_PROXIED_CLIENT.store(Arc::new(create_proxied_client()?));
+
+    Ok(())
 }
 
 /// Fetches UFC Ripper's update information from the GitHub repo.
@@ -176,7 +211,14 @@ pub async fn download_media_tools(
 
 /// Logs into the UFC Fight Pass and returns the set of auth keys included in the response.
 pub async fn login_to_fight_pass(email: &str, pass: &str) -> Result<LoginSession> {
-    let resp = HTTP_CLIENT
+    let proxied_client = &*HTTP_PROXIED_CLIENT.load();
+    let client = if get_config().use_proxy {
+        proxied_client
+    } else {
+        &*HTTP_CLIENT
+    };
+
+    let resp = client
         .post("https://dce-frontoffice.imggaming.com/api/v2/login")
         .headers(generate_fight_pass_api_headers()?)
         .json(&json!({
@@ -224,7 +266,14 @@ pub async fn refresh_access_token() -> Result<()> {
         println!("Refreshing access token..\n");
     }
 
-    let resp = HTTP_CLIENT
+    let proxied_client = &*HTTP_PROXIED_CLIENT.load();
+    let client = if get_config().use_proxy {
+        proxied_client
+    } else {
+        &*HTTP_CLIENT
+    };
+
+    let resp = client
         .post("https://dce-frontoffice.imggaming.com/api/v2/token/refresh")
         .headers(generate_fight_pass_api_headers()?)
         .bearer_auth(&get_config().auth_token)
@@ -273,6 +322,13 @@ pub async fn refresh_access_token() -> Result<()> {
 
 /// Searches the UFC Fight Pass library for VODs.
 pub async fn search_vods(query: &str, page: u64) -> Result<JSON> {
+    let proxied_client = &*HTTP_PROXIED_CLIENT.load();
+    let client = if get_config().use_proxy {
+        proxied_client
+    } else {
+        &*HTTP_CLIENT
+    };
+
     let search_params = format!(
         "{}&{}",
         VOD_SEARCH_PARAMS.as_str(),
@@ -281,7 +337,7 @@ pub async fn search_vods(query: &str, page: u64) -> Result<JSON> {
             .append_pair("page", &page.to_string())
             .finish()
     );
-    let resp = HTTP_CLIENT
+    let resp = client
         .post("https://h99xldr8mj-dsn.algolia.net/1/indexes/*/queries")
         .header("x-algolia-application-id", "H99XLDR8MJ")
         .header("x-algolia-api-key", &get_config().search_api_key)
@@ -328,7 +384,14 @@ pub async fn get_vod_meta(url: &str) -> Result<Vod> {
     // Runs the metadata request and returns the status of that request.
     // Having this as a closure allows this process to be run multiple times.
     let run_request = || async {
-        let resp = HTTP_CLIENT
+        let proxied_client = &*HTTP_PROXIED_CLIENT.load();
+        let client = if get_config().use_proxy {
+            proxied_client
+        } else {
+            &*HTTP_CLIENT
+        };
+
+        let resp = client
             .get(format!(
                 "https://dce-frontoffice.imggaming.com/api/v2/vod/{vod_id}"
             ))
@@ -408,7 +471,14 @@ pub async fn get_vod_meta(url: &str) -> Result<Vod> {
 
 /// Fetches the HLS stream URL for a given Fight Pass video.
 pub async fn get_vod_stream_url(vod_id: u64) -> Result<String> {
-    let resp = HTTP_CLIENT
+    let proxied_client = &*HTTP_PROXIED_CLIENT.load();
+    let client = if get_config().use_proxy {
+        proxied_client
+    } else {
+        &*HTTP_CLIENT
+    };
+
+    let resp = client
         .get(format!(
             "https://dce-frontoffice.imggaming.com/api/v3/stream/vod/{vod_id}"
         ))
@@ -430,7 +500,7 @@ pub async fn get_vod_stream_url(vod_id: u64) -> Result<String> {
         .context("Callback response contains invalid information")?;
 
     if let Some(url) = json_body["playerUrlCallback"].as_str() {
-        let resp = HTTP_CLIENT
+        let resp = client
             .get(url)
             .send()
             .await
