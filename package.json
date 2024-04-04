@@ -12,7 +12,7 @@
   "scripts": {
     "dev:backend": "cargo run --color=always --bin ufc-ripper",
     "dev": "vite",
-    "build:backend:win32": "cargo build-win32",
+    "build:backend:win32": "npm run build && cargo build-win32",
     "build": "vite build",
     "docker:up": "docker compose up --detach --build",
     "docker:down": "docker compose down --volumes",

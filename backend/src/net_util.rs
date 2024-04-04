@@ -16,7 +16,7 @@ use tower_http::cors::{Any, CorsLayer};
 use crate::{
     app_util::{get_app_metadata, get_os_id, is_container},
     bin_util::BINS,
-    config_util::{get_config, is_debug, update_config, ConfigUpdate},
+    config_util::{get_config, is_debug, update_config, ConfigUpdate, UFCRConfig},
     fs_util::{write_file_to_disk, WebAssets},
     rt_util::QuitUnwrap,
     state_util::Vod,
@@ -58,7 +58,13 @@ static VOD_SEARCH_PARAMS: Lazy<String> = Lazy::new(|| {
 ///
 /// Will panic if the port is already in use or fails to serve the Vue "dist" directory.
 pub async fn init_server() {
-    let port = get_config().port;
+    let config = get_config();
+    let UFCRConfig {
+        port,
+        open_in_browser,
+        ..
+    } = config.as_ref();
+
     let index_file = Some("index.html".to_string());
     let web_assets =
         ServeEmbed::<WebAssets>::with_parameters(index_file.clone(), Redirect, index_file);
@@ -70,7 +76,7 @@ pub async fn init_server() {
         .layer(create_cors_layer());
 
     // TCP listener
-    let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], port)))
+    let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], *port)))
         .await
         .unwrap_or_quit(format!("Failed to start the server on port \"{port}\"").as_str());
 
@@ -79,6 +85,12 @@ pub async fn init_server() {
         get_app_metadata().version,
         if is_container() { "(container)" } else { "" }
     );
+
+    if !is_container() && *open_in_browser {
+        if let Err(error) = open::that(format!("http://localhost:{port}")) {
+            log_err!("Failed to open the UFC Ripper GUI in default browser:\n{error}");
+        }
+    }
 
     // Axum server
     axum::serve(listener, app)
