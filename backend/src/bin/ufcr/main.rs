@@ -1,15 +1,21 @@
 // Libs
 use ufcr_libs::{
+    app_util::is_container,
     config_util::{is_debug, load_config},
     net_util::init_server,
-    rt_util::{ExitHandler, set_custom_panic},
+    rt_util::{ExitHandler, set_custom_panic}
 };
 
 #[tokio::main]
 async fn main() {
     set_custom_panic(true);
 
-    let _exit_handler = ExitHandler; // This needs to be here, so it would be the last thing that will be dropped
+    // This needs to be here, so it would be the last thing that will be dropped
+    let _exit_handler = if is_container() {
+        None
+    } else { 
+        Some(ExitHandler)
+    };
 
     #[cfg(target_os = "windows")]
     ufcr_libs::log_util::enable_win32_conhost_support();
