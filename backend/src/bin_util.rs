@@ -8,6 +8,7 @@ use std::{
 };
 
 use anyhow::{anyhow, Context, Result};
+use colored::Colorize;
 use once_cell::sync::Lazy;
 use serde_json::json;
 use tokio::{
@@ -19,7 +20,7 @@ use tokio::{
 
 use crate::{
     app_util::get_app_root_dir,
-    config_util::{get_config, inc_file_number, UFCRConfig},
+    config_util::{get_config, inc_file_number, is_debug, UFCRConfig},
     net_util::JSON,
     rt_util::QuitUnwrap,
     state_util::{add_vod_to_queue, update_dlq_vod_status, Vod},
@@ -108,6 +109,7 @@ pub fn validate_bins() -> JSON {
     })
 }
 
+#[allow(clippy::too_many_lines)]
 /// Starts a download process using `yt-dlp` and updates the downloads-queue with progress.
 pub async fn start_download<P, C, F>(
     vod: &Vod,
@@ -123,6 +125,27 @@ where
 {
     let config = get_config();
     let (final_title, dl_config) = generate_vod_download_config(config.as_ref(), vod, is_restart)?;
+
+    println!(
+        "\n{}",
+        format!(
+            "{} {final_title}",
+            if is_restart {
+                "Restarting"
+            } else {
+                "Downloading"
+            }
+        )
+        .bright_yellow()
+        .bold()
+        .underline()
+        .on_black()
+    );
+    println!("{}\n", vod.vod_url.clone().dimmed());
+
+    if is_debug() {
+        println!("[yt-dlp-args] {}", dl_config.join(" "));
+    }
 
     if !is_restart {
         inc_file_number().await;
@@ -190,6 +213,7 @@ where
 
     let dl_process = tokio::spawn({
         let q_id = vod.q_id.clone();
+        let final_title = final_title.clone();
 
         async move {
             let err_msg = "Unable to update the status of the VOD";
@@ -199,6 +223,14 @@ where
                     log_err!("{err_msg}:\n{inner_error}\n");
                 }
 
+                println!(
+                    "\n{}\n",
+                    format!("Download failed - {final_title}")
+                        .bright_red()
+                        .bold()
+                        .on_black()
+                );
+
                 on_fail(&q_id, error);
             } else {
                 // TODO: Might need to check the exit code of yt-dlp here
@@ -206,14 +238,20 @@ where
                     log_err!("{err_msg}:\n{error}\n");
                 }
 
+                println!(
+                    "\n{}\n",
+                    format!("Completed download - {final_title}")
+                        .bright_green()
+                        .bold()
+                        .on_black()
+                );
+
                 on_completion(&q_id);
             }
 
             if let Err(error) = remove_dl_task(&q_id) {
                 log_err!("Failed to remove the download task:\n{error}\n");
             }
-
-            println!("Download process completed");
         }
     });
 
@@ -325,6 +363,14 @@ where
 pub fn cancel_download(vod: &Vod) -> Result<()> {
     remove_dl_task(&vod.q_id)?.abort();
     update_dlq_vod_status(&vod.q_id, "cancelled")?;
+
+    println!(
+        "\n{}\n",
+        format!("Download cancelled by user - {}", vod.title)
+            .bright_red()
+            .bold()
+            .on_black()
+    );
 
     Ok(())
 }
