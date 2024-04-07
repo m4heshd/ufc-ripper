@@ -18,23 +18,35 @@ jobs:
     name: Building for tests on ${{ inputs.platform }}
     runs-on: ${{ inputs.platform }}
     env:
-      PACKAGE_NAME: ${{ fromJSON('{"windows-latest":"ufc-ripper-win-x64.zip","ubuntu-latest":"ufc-ripper-linux-x64.zip"}')[ inputs.platform ] }}
-      TARGET_PLATFORM: ${{ fromJSON('{"windows-latest":"win","ubuntu-latest":"linux"}')[ inputs.platform ] }}
+      PACKAGE_NAME: ${{ fromJSON('{"windows-latest":"ufc-ripper-win32-x64.zip","ubuntu-latest":"ufc-ripper-linux-x64.zip"}')[ inputs.platform ] }}
+      TARGET_PLATFORM: ${{ fromJSON('{"windows-latest":"win32","ubuntu-latest":"linux"}')[ inputs.platform ] }}
     steps:
       # Checkout repo
-      - uses: actions/checkout@v3
-      # Install node
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      # Setup Node.js
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-      # Install deps
-      - run: npm install --no-audit
-      # Package app
-      - name: Package for distribution
-        run: npm run pack-${{ env.TARGET_PLATFORM }}
+      # Install npm deps
+      - name: Install npm dependencies
+        run: npm install --no-audit
+      # Build Vue frontend
+      - name: Build frontend
+        run: npm run build
+      # Set up Rust and Cargo
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: 1.77.1
+      # Build client
+      - name: Build backend
+        run: cargo build-${{ env.TARGET_PLATFORM }}
+      # Build client
+      - name: Package app
+        run: cargo pack-${{ env.TARGET_PLATFORM }}
       # Upload build artifact
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ufc-ripper-test-build-${{ github.run_number }}-artifacts
           path: package/artifacts/${{ env.PACKAGE_NAME }}
