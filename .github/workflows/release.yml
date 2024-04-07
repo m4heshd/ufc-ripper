@@ -14,30 +14,44 @@ jobs:
           - windows-latest
         include:
           - os: ubuntu-latest
-            alias: linux
+            platform_alias: linux
           - os: windows-latest
-            alias: win
+            platform_alias: win32
     name: Build on ${{ matrix.os }} and upload release assets
     runs-on: ${{ matrix.os }}
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
     steps:
       # Checkout repo
       - uses: actions/checkout@v4
-      # Install node
+      # Setup Node.js
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      # Install deps
-      - run: npm install --no-audit
-      # Package app
-      - name: Package for distribution
-        run: npm run pack-${{ matrix.alias }}
+      # Install npm deps
+      - name: Install npm dependencies
+        run: npm install --no-audit
+      # Build Vue frontend
+      - name: Build frontend
+        run: npm run build
+      # Set up Rust and Cargo
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: 1.77.1
+      # Build app
+      - name: Build backend
+        run: cargo build-${{ matrix.platform_alias }}
+      # Package app for release
+      - name: Package app
+        run: cargo pack-${{ matrix.platform_alias }} --tag ${{ env.RELEASE_TAG }}
       # Upload release assets
       - name: Upload assets to release ${{ github.event.release.tag_name }}
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            ./package/artifacts/ufc-ripper-${{ matrix.alias }}-x64.zip
+            ./package/artifacts/*
       # Upload Linux build to artifacts
       - if: matrix.os == 'ubuntu-latest'
         name: Upload artifacts
@@ -50,6 +64,9 @@ jobs:
     name: Publish image to Docker Hub
     needs: build-assets
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+      DOCKER_REPO: m4heshd/ufc-ripper
     steps:
       # Checkout repo
       - name: Checkout
@@ -80,14 +97,14 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            m4heshd/ufc-ripper:${{ github.event.release.tag_name }}
-            m4heshd/ufc-ripper:latest
+            ${{ env.DOCKER_REPO }}:${{ github.event.release.tag_name }}
+            ${{ env.DOCKER_REPO }}:latest
       # Update Docker Hub repo description
       - name: Update repo description
         uses: peter-evans/dockerhub-description@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: m4heshd/ufc-ripper
+          repository: ${{ env.DOCKER_REPO }}
           readme-filepath: ./docker/README.md
           short-description: ${{ github.event.repository.description }}
