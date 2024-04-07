@@ -13,11 +13,12 @@
     "dev:backend": "cargo run --color=always --bin ufc-ripper",
     "dev": "vite",
     "build:backend:win32": "npm run build && cargo build-win32",
+    "build:backend:linux": "npm run build && cargo build-linux",
     "build": "vite build",
     "docker:up": "docker compose up --detach --build",
     "docker:down": "docker compose down --volumes",
-    "pack-win": "npm run build && cross-env PKG_CACHE_PATH=./package/pkg-cache node pack.js win",
-    "pack-linux": "npm run build && cross-env PKG_CACHE_PATH=./package/pkg-cache node pack.js linux"
+    "pack-win32": "cargo pack-win32",
+    "pack-linux": "cargo pack-linux"
   },
   "dependencies": {
     "algoliasearch": "4.22.1",

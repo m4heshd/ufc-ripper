@@ -3,3 +3,6 @@ rustflags = ["-C", "target-feature=+crt-static"]
 
 [alias]
 build-win32 = 'build --release --bin ufc-ripper --features=exe_res'
+build-linux = 'build --release --bin ufc-ripper'
+pack-win32 = 'run --release --bin pack -- --platform win32'
+pack-linux = 'run --release --bin pack -- --platform linux'
