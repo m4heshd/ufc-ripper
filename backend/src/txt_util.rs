@@ -1,5 +1,5 @@
 // Libs
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context};
 use regex_lite::Regex;
 use reqwest::Url;
 use serde_json::json;
@@ -13,7 +13,7 @@ pub fn create_uuid() -> String {
 }
 
 /// Validates a Fight Pass VOD URL and returns the VOD ID.
-pub fn get_vod_id_from_url(url: &str) -> Result<String> {
+pub fn get_vod_id_from_url(url: &str) -> anyhow::Result<String> {
     let err_msg = "Provided URL is invalid";
 
     match Url::parse(url)

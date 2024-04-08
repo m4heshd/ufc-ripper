@@ -4,7 +4,7 @@ use std::{
     sync::{Arc, Mutex, MutexGuard},
 };
 
-use anyhow::{Context, Result};
+use anyhow::Context;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 
@@ -54,11 +54,11 @@ pub fn get_dlq() -> MutexGuard<'static, VodMap> {
 pub fn add_vod_to_queue(mut vod: Vod) -> Vod {
     let mut q = get_dlq();
 
-    // FIXME: This will be an issue when clearing the DLQ because the VODs added in the future
-    //        could have the same `idx` since the DL queue's length could be reduced.
     if q.contains_key(&vod.q_id) {
         q.get_mut(&vod.q_id).unwrap().status = "downloading".to_string();
     } else {
+        // FIXME: This will be an issue when clearing the DLQ because the VODs added in the future
+        //        could have the same `idx` since the DL queue's length could be reduced.
         vod.idx = (q.len() + 1) as u64;
         q.insert(vod.q_id.clone(), vod.clone());
     }
@@ -67,7 +67,7 @@ pub fn add_vod_to_queue(mut vod: Vod) -> Vod {
 }
 
 /// Updates the status of a VOD in the downloads-queue.
-pub fn update_dlq_vod_status(q_id: &str, status: &str) -> Result<()> {
+pub fn update_dlq_vod_status(q_id: &str, status: &str) -> anyhow::Result<()> {
     let mut q = get_dlq();
     let vod = q
         .get_mut(q_id)

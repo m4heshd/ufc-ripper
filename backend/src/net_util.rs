@@ -3,7 +3,7 @@
 // Libs
 use std::{net::SocketAddr, sync::Arc};
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context};
 use arc_swap::ArcSwap;
 use axum::{http::Method, Router};
 use axum_embed::{FallbackBehavior::Redirect, ServeEmbed};
@@ -106,7 +106,7 @@ fn create_cors_layer() -> CorsLayer {
 }
 
 /// Set up the proxy according to the configuration and returns a client with the proxy enabled.
-fn create_proxied_client() -> Result<Client> {
+fn create_proxied_client() -> anyhow::Result<Client> {
     let proxy_conf = &get_config().proxy_config;
     let mut proxy = Proxy::all(format!(
         "{}://{}:{}",
@@ -130,14 +130,14 @@ fn create_proxied_client() -> Result<Client> {
 }
 
 /// Updates the current proxied client with new proxy configuration.
-pub fn update_proxied_client() -> Result<()> {
+pub fn update_proxied_client() -> anyhow::Result<()> {
     HTTP_PROXIED_CLIENT.store(Arc::new(create_proxied_client()?));
 
     Ok(())
 }
 
 /// Fetches UFC Ripper's update information from the GitHub repo.
-pub async fn get_latest_app_meta() -> Result<JSON> {
+pub async fn get_latest_app_meta() -> anyhow::Result<JSON> {
     let req_url = format!("{}/raw/master/package.json", get_app_metadata().repo);
     let resp = HTTP_CLIENT
         .get(req_url)
@@ -160,7 +160,7 @@ pub async fn get_latest_app_meta() -> Result<JSON> {
 }
 
 /// Fetches all the metadata for helper media-tools.
-pub async fn get_media_tools_meta() -> Result<JSON> {
+pub async fn get_media_tools_meta() -> anyhow::Result<JSON> {
     let resp = HTTP_CLIENT
         .get("https://raw.githubusercontent.com/m4heshd/media-tools/master/versions.json")
         .send()
@@ -185,7 +185,7 @@ pub async fn get_media_tools_meta() -> Result<JSON> {
 pub async fn download_media_tools(
     tools: Vec<String>,
     on_progress: impl Fn(&str, f64),
-) -> Result<()> {
+) -> anyhow::Result<()> {
     let media_tools_meta = get_media_tools_meta().await?[&get_os_id()].take();
 
     for tool in tools {
@@ -222,7 +222,7 @@ pub async fn download_media_tools(
 }
 
 /// Logs into the UFC Fight Pass and returns the set of auth keys included in the response.
-pub async fn login_to_fight_pass(email: &str, pass: &str) -> Result<LoginSession> {
+pub async fn login_to_fight_pass(email: &str, pass: &str) -> anyhow::Result<LoginSession> {
     let proxied_client = &*HTTP_PROXIED_CLIENT.load();
     let client = if get_config().use_proxy {
         proxied_client
@@ -273,7 +273,7 @@ pub async fn login_to_fight_pass(email: &str, pass: &str) -> Result<LoginSession
 }
 
 /// Refreshes an expired access token and returns a new one.
-pub async fn refresh_access_token() -> Result<()> {
+pub async fn refresh_access_token() -> anyhow::Result<()> {
     if is_debug() {
         println!("Refreshing access token..\n");
     }
@@ -333,7 +333,7 @@ pub async fn refresh_access_token() -> Result<()> {
 }
 
 /// Searches the UFC Fight Pass library for VODs.
-pub async fn search_vods(query: &str, page: u64) -> Result<JSON> {
+pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
     let proxied_client = &*HTTP_PROXIED_CLIENT.load();
     let client = if get_config().use_proxy {
         proxied_client
@@ -385,7 +385,7 @@ pub async fn search_vods(query: &str, page: u64) -> Result<JSON> {
 }
 
 /// Retrieves metadata for the given Fight Pass VOD.
-pub async fn get_vod_meta(url: &str) -> Result<Vod> {
+pub async fn get_vod_meta(url: &str) -> anyhow::Result<Vod> {
     enum ReqStatus {
         Success(JSON),
         NeedsRefresh,
@@ -482,7 +482,7 @@ pub async fn get_vod_meta(url: &str) -> Result<Vod> {
 }
 
 /// Fetches the HLS stream URL for a given Fight Pass video.
-pub async fn get_vod_stream_url(vod_id: u64) -> Result<String> {
+pub async fn get_vod_stream_url(vod_id: u64) -> anyhow::Result<String> {
     let proxied_client = &*HTTP_PROXIED_CLIENT.load();
     let client = if get_config().use_proxy {
         proxied_client
@@ -540,7 +540,7 @@ pub async fn get_vod_stream_url(vod_id: u64) -> Result<String> {
 }
 
 /// Generates and returns a set of request headers required by the UFC Fight Pass.
-fn generate_fight_pass_api_headers() -> Result<HeaderMap> {
+fn generate_fight_pass_api_headers() -> anyhow::Result<HeaderMap> {
     let err_msg = r#"Invalid request-header configuration. Please check your "config.json" file"#;
     let mut headers = HeaderMap::new();
 
@@ -553,7 +553,7 @@ fn generate_fight_pass_api_headers() -> Result<HeaderMap> {
 }
 
 /// Deserializes and returns the `messages` array from a response.
-async fn get_messages_from_response(resp: Response) -> Result<Vec<String>> {
+async fn get_messages_from_response(resp: Response) -> anyhow::Result<Vec<String>> {
     let resp_messages =
         serde_json::from_value::<Vec<String>>(resp.json::<JSON>().await?["messages"].take())?;
 

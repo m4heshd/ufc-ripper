@@ -1,7 +1,7 @@
 // Libs
 use std::path::PathBuf;
 
-use anyhow::{Context, Result};
+use anyhow::Context;
 use bytes::Bytes;
 use futures_util::{Stream, StreamExt};
 use rust_embed::RustEmbed;
@@ -23,7 +23,7 @@ pub async fn read_config_file_to_string(path: &PathBuf) -> String {
 }
 
 /// Writes the current configuration to config.json file.
-pub async fn write_config_to_file(path: &PathBuf) -> Result<()> {
+pub async fn write_config_to_file(path: &PathBuf) -> anyhow::Result<()> {
     let mut conf_file = fs::File::create(path).await?;
 
     conf_file
@@ -40,7 +40,7 @@ pub async fn write_file_to_disk<S>(
     #[allow(unused_variables)] is_executable: bool,
     mut stream: S,
     on_progress: impl Fn(f64),
-) -> Result<()>
+) -> anyhow::Result<()>
 where
     S: Stream<Item = Result<Bytes, reqwest::Error>> + Unpin,
 {
@@ -74,7 +74,7 @@ where
 }
 
 /// Opens the downloads directory in the default file explorer.
-pub fn open_downloads_dir() -> Result<()> {
+pub fn open_downloads_dir() -> anyhow::Result<()> {
     open::that_detached(&get_config().dl_path)
         .context("An error occurred while trying to open the downloads directory")?;
 

@@ -7,7 +7,7 @@ use std::{
     sync::{Arc, Mutex, MutexGuard},
 };
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context};
 use colored::Colorize;
 use once_cell::sync::Lazy;
 use serde_json::json;
@@ -117,7 +117,7 @@ pub async fn start_download<P, C, F>(
     on_progress: P,
     on_completion: C,
     on_fail: F,
-) -> Result<Vod>
+) -> anyhow::Result<Vod>
 where
     P: Fn(&str, JSON) + Send + 'static,
     C: FnOnce(&str) + Send + 'static,
@@ -272,7 +272,7 @@ where
 }
 
 /// Starts a format query process using `yt-dlp` and returns the available formats as JSON.
-pub async fn get_vod_formats(hls: &str) -> Result<JSON> {
+pub async fn get_vod_formats(hls: &str) -> anyhow::Result<JSON> {
     let yt_dlp_args = vec![
         "--print",
         "%(formats.:.{format_id,resolution,fps,tbr,vcodec,acodec})j",
@@ -360,7 +360,7 @@ where
 }
 
 /// Cancels an active download.
-pub fn cancel_download(vod: &Vod) -> Result<()> {
+pub fn cancel_download(vod: &Vod) -> anyhow::Result<()> {
     remove_dl_task(&vod.q_id)?.abort();
     update_dlq_vod_status(&vod.q_id, "cancelled")?;
 
@@ -381,7 +381,7 @@ pub fn generate_vod_download_config(
     config: &UFCRConfig,
     vod: &Vod,
     is_restart: bool,
-) -> Result<(String, Vec<String>)> {
+) -> anyhow::Result<(String, Vec<String>)> {
     let UFCRConfig {
         vid_quality,
         aud_quality,
@@ -504,7 +504,7 @@ fn add_dl_task(q_id: &str, task: JoinHandle<()>) {
 }
 
 /// Removes and returns a task handle from the download tasks.
-fn remove_dl_task(q_id: &str) -> Result<JoinHandle<()>> {
+fn remove_dl_task(q_id: &str) -> anyhow::Result<JoinHandle<()>> {
     get_dl_tasks()
         .remove(q_id)
         .context("The download task is not actively available anymore")

@@ -1,7 +1,7 @@
 // Libs
 use std::{env, path::PathBuf};
 
-use anyhow::{Context, Result};
+use anyhow::Context;
 use path_absolutize::Absolutize;
 use semver::Version;
 use serde::{Deserialize, Serialize};
@@ -68,7 +68,7 @@ pub fn get_app_root_dir() -> PathBuf {
 }
 
 /// Checks if the application has a newer release than the current version
-pub async fn check_app_update() -> Result<JSON> {
+pub async fn check_app_update() -> anyhow::Result<JSON> {
     let err_msg = "Invalid version information in the app update-check response";
     let remote_meta = get_latest_app_meta().await?;
     let version =
