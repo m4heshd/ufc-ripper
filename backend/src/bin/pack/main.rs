@@ -5,7 +5,6 @@ use clap::Parser;
 use fs_extra::{
     copy_items,
     dir::{CopyOptions, create_all},
-    error::Error,
 };
 use zip::{CompressionMethod, write::FileOptions, ZipWriter};
 use zip_extensions::write::ZipWriterExtensions;
@@ -24,15 +23,18 @@ struct CLIArgs {
     tag: Option<String>,
 }
 
-fn main() -> Result<(), Error> {
+fn main() -> anyhow::Result<()> {
     log_info!("\nPackaging UFC Ripper for release..\n");
 
     let cli_args = CLIArgs::parse();
     let platform = cli_args.platform.as_str();
     let bin_path = if platform == "win32" {
         "target/release/ufc-ripper.exe"
-    } else {
+    } else if platform == "linux" {
         "target/release/ufc-ripper"
+    } else {
+        log_err!("This platform is not supported\n");
+        panic!();
     };
     let tag = match cli_args.tag {
         None => String::new(),
@@ -55,11 +57,20 @@ fn main() -> Result<(), Error> {
     log_info!("Creating archive..\n");
     let file = File::create(archive)?;
     let mut zip = ZipWriter::new(file);
+    let default_file_options =
+        FileOptions::default().compression_method(CompressionMethod::Deflated);
 
-    zip.create_from_directory_with_options(
-        &PathBuf::from(&target_dir),
-        FileOptions::default().compression_method(CompressionMethod::Deflated),
-    )
+    zip.create_from_directory_with_options(&PathBuf::from(&target_dir), |file| {
+        if platform == "win32" {
+            default_file_options
+        } else if file.eq(&PathBuf::from("package/linux/ufc-ripper")) {
+            FileOptions::default()
+                .compression_method(CompressionMethod::Deflated)
+                .unix_permissions(0o775)
+        } else {
+            default_file_options
+        }
+    })
     .unwrap_or_else(|e| {
         log_err!("Archiving process failed.\nError: {}\n", e.to_string());
         panic!();

@@ -2400,8 +2400,7 @@ dependencies = [
 [[package]]
 name = "zip-extensions"
 version = "0.6.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cecf62554c4ff96bce01a7ef123d160c3ffe9180638820f8b4d545c65b221b8c"
+source = "git+https://github.com/m4heshd/zip-extensions-rs.git?branch=mappable-file-options#4096c01c1cebfcf5015c6150257e600ae40d3ce8"
 dependencies = [
  "zip",
 ]
