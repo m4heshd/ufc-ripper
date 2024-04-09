@@ -347,6 +347,14 @@ pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
         form_urlencoded::Serializer::new(String::new())
             .append_pair("query", query)
             .append_pair("page", &page.to_string())
+            .append_pair(
+                "restrictSearchableAttributes",
+                if get_config().search_title_only {
+                    r#"["name"]"#
+                } else {
+                    "[]"
+                }
+            )
             .finish()
     );
     let resp = client
