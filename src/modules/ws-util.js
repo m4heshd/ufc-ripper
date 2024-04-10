@@ -98,8 +98,8 @@ export function useWSUtil() {
         store.config = await emitPromise('save-config', newConfig);
     }
 
-    async function login(email, pass) {
-        store.config = await emitPromise('login', email, pass);
+    async function login(region, email, pass) {
+        store.config = await emitPromise('login', region, email, pass);
     }
 
     async function checkAppUpdate() {

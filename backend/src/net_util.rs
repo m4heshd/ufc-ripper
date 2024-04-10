@@ -222,7 +222,11 @@ pub async fn download_media_tools(
 }
 
 /// Logs into the UFC Fight Pass and returns the set of auth keys included in the response.
-pub async fn login_to_fight_pass(email: &str, pass: &str) -> anyhow::Result<LoginSession> {
+pub async fn login_to_fight_pass(
+    region: &str,
+    email: &str,
+    pass: &str,
+) -> anyhow::Result<LoginSession> {
     let proxied_client = &*HTTP_PROXIED_CLIENT.load();
     let client = if get_config().use_proxy {
         proxied_client
@@ -230,9 +234,13 @@ pub async fn login_to_fight_pass(email: &str, pass: &str) -> anyhow::Result<Logi
         &*HTTP_CLIENT
     };
 
+    let mut headers = generate_fight_pass_api_headers()?;
+
+    headers.insert("Realm", region.parse().context("Invalid region setting")?);
+
     let resp = client
         .post("https://dce-frontoffice.imggaming.com/api/v2/login")
-        .headers(generate_fight_pass_api_headers()?)
+        .headers(headers)
         .json(&json!({
             "id": email,
             "secret": pass

@@ -220,9 +220,12 @@ fn send_media_tool_download_progress(socket: &SocketRef, tool: &str, progress: f
 
 /// Handles the `login` WS event.
 async fn handle_login_event(ack: AckSender, Data(data): Data<JSON>) {
-    if let (Some(email), Some(pass)) = (data[0].as_str(), data[1].as_str()) {
-        match login_to_fight_pass(email, pass).await {
+    if let (Some(region), Some(email), Some(pass)) =
+        (data[0].as_str(), data[1].as_str(), data[2].as_str())
+    {
+        match login_to_fight_pass(region, email, pass).await {
             Ok(tokens) => {
+                update_config(ConfigUpdate::Region(region.to_string())).await;
                 update_config(ConfigUpdate::Tokens(tokens)).await;
                 ack.send(get_config().as_ref()).ok();
             }

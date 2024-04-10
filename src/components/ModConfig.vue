@@ -485,7 +485,7 @@ function onBtnLogoutClick() {
 
 function onBtnLoginClick() {
   switchBusyState();
-  login(txtEmail.value, txtPass.value)
+  login(modConfig.data.region, txtEmail.value, txtPass.value)
       .then(() => {
         store.popSuccess('Successfully logged in');
         window.ui('#modConfig');
