@@ -217,7 +217,7 @@ That's it. Now you're ready to go.
 
 **To package the application for production,**
 
-1. Run `npm run pack-win` or `npm run pack-linux` (packaging process is cross-platform compatible)
+1. Run `npm run pack:win` or `npm run pack:linux` (packaging process is cross-platform compatible)
 
 **To build and run the docker container,**
 
