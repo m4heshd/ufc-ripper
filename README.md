@@ -41,15 +41,16 @@
 
 ### What is UFC Ripper?
 
-An open-source video downloader tool for UFC Fight Pass that can run on both desktop and the cloud. The only thing it
-can't do is STEAL videos free of charge for you. A paid Fight Pass subscription is required for this tool to work.
+An open-source video downloader tool for UFC Fight Pass, powered by [**Rust**](https://www.rust-lang.org/)
+and [**Vue**](https://vuejs.org/), that can run on both desktop and the cloud. The only thing it can't do is STEAL
+videos free of charge for you. A **paid Fight Pass subscription** is required for this tool to work.
 
 > [!WARNING]
 >### Intellectual property (DISCLAIMER) ⚠️
 >
 >The UFC logo and the UFC Fight Pass logo used in this project are intellectual properties of Zuffa LLC.
 >
->The user will be responsible for any content downloaded through this tool. Any kind of redistribution of that content
+>The user will be responsible for any content downloaded through this tool. Redistribution of that content in any form
 > is illegal, and this application or I (the developer) will not be liable for that.
 
 ### Dear Dana White,
@@ -61,8 +62,8 @@ in any way meant to rob you or them of any revenue coming in.
 
 The whole reason for me to create this tool is for my own need. I live in a third-world country that was destroyed by
 politicians. That made internet services more of a luxury than a right for the people of this country. Our internet
-connections are very spotty and extremely limited. 1GB of data here costs more than a meal. Imagine that. I also
-travel and the only thing that can keep me entertained is some UFC. But how do I watch UFC if I can hardly find 4G
+connections are very spotty and extremely limited. 1GB of data here costs more than a meal. Imagine that. I also travel,
+and the only thing that can keep me entertained is some UFC. But how do I watch UFC if I can hardly find 4G
 coverage in my messed-up land? 🤷🏽
 
 The thing about Fight Pass is, you can't control how much of your quota it's going to burn. Also, repeated viewings
@@ -107,14 +108,14 @@ We have two social groups dedicated to any discussion regarding UFC Ripper.
 No installation is required on the desktop. The app is portable.
 
 1. Download the latest release corresponding to your system,
-    - ### [Windows (x64)](https://github.com/m4heshd/ufc-ripper/releases/latest/download/ufc-ripper-win-x64.zip)
-    - ### [Linux (x64)](https://github.com/m4heshd/ufc-ripper/releases/latest/download/ufc-ripper-linux-x64.zip)
+    - ### [Windows (x64)](https://github.com/m4heshd/ufc-ripper/releases/latest)
+    - ### [Linux (x64)](https://github.com/m4heshd/ufc-ripper/releases/latest)
 
 2. Extract the content of the zip file to anywhere you like
 
 3. Run the executable file (`ufc-ripper.exe` or `ufc-ripper`)
 
-4. Open the browser and visit the URL shown in the console window.
+4. Open the browser and visit the URL shown in the console window. (it should automatically open on the default browser)
 
 5. The first run might ask you to download some third-party tools used by UFC Ripper. Click yes, and it will
    automatically download the latest versions from [media-tools](https://github.com/m4heshd/media-tools) repo.
@@ -199,7 +200,8 @@ before and interested in watching all of their fights in order. This feature wou
 
 ## Development
 
-You need to have Node.js (>=18) installed locally to develop, compile, and package this project yourself.
+You need to have the Rust compiler, platform build-tools, and Node.js (>=18) installed locally to develop, compile,
+and package this project yourself.
 
 1. Run `git clone https://github.com/m4heshd/ufc-ripper.git`
 
@@ -209,24 +211,27 @@ That's it. Now you're ready to go.
 
 **To run for development,**
 
-1. Set `VITE_WS_URI=http://localhost:8383/` in `.env` file
+1. Set `VITE_WS_URI=http://localhost:8383/` in the `.env` file
 
-2. Run `npm run dev` to start the front-end and back-end with Vue HMR support
+2. Run `npm run dev` to start the frontend and the backend with Vue HMR support
 
 3. Open the browser and visit `http://localhost:8384/`
 
 **To package the application for production,**
 
-1. Run `npm run pack:win` or `npm run pack:linux` (packaging process is cross-platform compatible)
+1. Run `build:backend:win32` or `build:backend:linux` to build both the frontend and the backend
+
+2. Run `npm run pack:win32` or `npm run pack:linux` (packaging process is NOT cross-platform compatible)
 
 **To build and run the docker container,**
 
-1. Run `npm run pack-linux`
+1. Run `npm run pack:linux`
 
 2. Run `npm run docker:up`
 
 # Future improvements planned
 
+- [x] Rewrite the backend in Rust
 - [x] Ability to search the Fight Pass library right from UFC Ripper
 - [x] Migrate to Vite (dev)
 - [x] Support for concurrent multi-fragment download
