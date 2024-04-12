@@ -30,7 +30,7 @@ impl Drop for ExitHandler {
 /// Implements custom unwrap functionality which quits the application when fails
 pub trait QuitUnwrap<T> {
     /// Unwraps the value or quits the application with a custom message
-    fn unwrap_or_quit(self, msg: &str) -> T;
+    fn unwrap_or_quit(self, msg: impl AsRef<str>) -> T;
 }
 
 // Implements `QuitUnwrap` for `Result`
@@ -38,20 +38,20 @@ impl<T, E> QuitUnwrap<T> for Result<T, E>
 where
     E: Display,
 {
-    fn unwrap_or_quit(self, msg: &str) -> T {
+    fn unwrap_or_quit(self, msg: impl AsRef<str>) -> T {
         match self {
             Ok(val) => val,
-            Err(err) => quit(Some(format!("Error: {err}\n{msg}").as_str())),
+            Err(err) => quit(Some(&format!("Error: {err}\n{}", msg.as_ref()))),
         }
     }
 }
 
 // Implements `QuitUnwrap` for `Option`
 impl<T> QuitUnwrap<T> for Option<T> {
-    fn unwrap_or_quit(self, msg: &str) -> T {
+    fn unwrap_or_quit(self, msg: impl AsRef<str>) -> T {
         match self {
             Some(val) => val,
-            None => quit(Some(msg)),
+            None => quit(Some(msg.as_ref())),
         }
     }
 }

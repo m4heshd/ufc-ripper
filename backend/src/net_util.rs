@@ -78,7 +78,7 @@ pub async fn init_server() {
     // TCP listener
     let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], *port)))
         .await
-        .unwrap_or_quit(format!("Failed to start the server on port \"{port}\"").as_str());
+        .unwrap_or_quit(format!("Failed to start the server on port \"{port}\""));
 
     log_success!(
         "UFC Ripper (v{}) GUI is live at http://localhost:{port} {}\n",

@@ -62,7 +62,7 @@ pub fn get_app_root_dir() -> PathBuf {
         env::current_exe()
             .unwrap_or_quit(err_msg)
             .parent()
-            .unwrap_or_quit(format!("{err_msg}. Invalid executable path").as_str())
+            .unwrap_or_quit(format!("{err_msg}. Invalid executable path"))
             .to_path_buf()
     }
 }
