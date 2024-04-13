@@ -7,7 +7,10 @@ use futures_util::{Stream, StreamExt};
 use rust_embed::RustEmbed;
 use tokio::{fs, io::AsyncWriteExt};
 
-use crate::{config_util::get_config, rt_util::QuitUnwrap};
+use crate::{
+    config_util::{get_config, is_debug},
+    rt_util::QuitUnwrap,
+};
 
 // Structs
 /// Holds all the static files for UFC Ripper GUI that will be served using axum.
@@ -16,10 +19,27 @@ use crate::{config_util::get_config, rt_util::QuitUnwrap};
 pub struct WebAssets;
 
 /// Reads the config.json file from the disk and returns the content as `String`.
+/// Will create the default config file if it doesn't exist.
 pub async fn read_config_file_to_string(path: &PathBuf) -> String {
-    fs::read_to_string(path).await.unwrap_or_quit(
-        r#"Unable to read "config.json" file. Check if the file exists in "config" directory"#,
-    )
+    let read = async {
+        fs::read_to_string(path).await.unwrap_or_quit(
+            r#"Unable to read "config.json" file. Check if the file exists in "config" directory"#,
+        )
+    };
+
+    if path.exists() {
+        read.await
+    } else {
+        if is_debug() {
+            println!("\"config.json\" file not found. Creating the default config file.\n");
+        }
+
+        write_config_to_file(path)
+            .await
+            .unwrap_or_quit("An error occurred while trying to create a new config file");
+
+        read.await
+    }
 }
 
 /// Writes the current configuration to config.json file.

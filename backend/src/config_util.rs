@@ -15,7 +15,7 @@ use crate::{
 };
 
 // Structs
-#[derive(Default, Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UFCRConfig {
     pub open_in_browser: bool,
@@ -52,13 +52,69 @@ pub struct UFCRConfig {
     pub dl_args: Vec<String>,
 }
 
-#[derive(Default, Clone, Serialize, Deserialize)]
+impl Default for UFCRConfig {
+    fn default() -> Self {
+        UFCRConfig {
+            open_in_browser: true,
+            port: 8383,
+            verbose_logging: false,
+            api_key: "857a1e5d-e35e-4fdf-805b-a87b6f8364bf".into(),
+            search_api_key: "e55ccb3db0399eabe2bfc37a0314c346".into(),
+            region: "dce.ufc".into(),
+            user: String::new(),
+            refresh_token: String::new(),
+            auth_token: String::new(),
+            search_title_only: false,
+            show_thumb: true,
+            show_duration: true,
+            show_desc: true,
+            resolution: "720".into(),
+            merge_ext: "mp4".into(),
+            vid_quality: "worstvideo".into(),
+            aud_quality: "bestaudio".into(),
+            dl_path: String::new(),
+            number_files: true,
+            cur_number: 1,
+            multi_frag: true,
+            concur_frags: 64,
+            throttle: false,
+            dl_rate: "100K".into(),
+            cus_format: false,
+            format_id: String::new(),
+            metadata: false,
+            use_proxy: false,
+            proxy_config: ProxyConfig::default(),
+            dl_args: vec![
+                "--no-warnings".into(),
+                "--no-mtime".into(),
+                "--output-na-placeholder".into(),
+                "\"\"".into(),
+                "--no-cache-dir".into(),
+                "--ignore-config".into(),
+                "--no-check-certificate".into(),
+            ],
+        }
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProxyConfig {
     pub protocol: String,
     pub host: String,
     pub port: u16,
     pub auth: ProxyAuth,
+}
+
+impl Default for ProxyConfig {
+    fn default() -> Self {
+        ProxyConfig {
+            protocol: "http".into(),
+            host: "0.0.0.0".into(),
+            port: 1111,
+            auth: ProxyAuth::default(),
+        }
+    }
 }
 
 #[derive(Default, Clone, Serialize, Deserialize)]
