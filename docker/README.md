@@ -22,12 +22,21 @@
     <a href="https://ko-fi.variatix.net">
         <img src="https://img.shields.io/static/v1?logo=ko-fi&label=%E2%80%8B&message=Ko-fi&color=ff5e5b&style=for-the-badge" alt="Ko-fi">
     </a> <!--Ko-fi-->
+    <br>
+    <br>
+    <a href="https://t.me/+1aacMrVWdr1jOWY1">
+        <img src="https://img.shields.io/static/v1?logo=telegram&label=%E2%80%8B&message=Telegram group&color=2592c8&style=for-the-badge" alt="UFC Ripper Telegram support group">
+    </a> <!--Telegram-->
+    <a href="https://discord.gg/cQeXkvxCMn">
+        <img src="https://img.shields.io/static/v1?logo=discord&label=%E2%80%8B&message=Discord&color=5865f2&style=for-the-badge" alt="UFC Ripper Discord server">
+    </a> <!--Discord-->
     <!---------->
 </h2>
 
 ### What is UFC Ripper?
 
-An open-source video downloader tool for UFC Fight Pass that can run on both desktop and the cloud. The only thing it
-can't do is STEAL videos free of charge for you. A paid Fight Pass account is required for this tool to work.
+An open-source video downloader tool for UFC Fight Pass, powered by [**Rust**](https://www.rust-lang.org/)
+and [**Vue**](https://vuejs.org/), that can run on both desktop and the cloud. The only thing it can't do is STEAL
+videos free of charge for you. A **paid Fight Pass subscription** is required for this tool to work.
 
 ### Please head over to [ufc-ripper GitHub repository](https://github.com/m4heshd/ufc-ripper) for the complete documentation.
