@@ -15,7 +15,7 @@ use crate::{
 };
 
 // Structs
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UFCRConfig {
     pub open_in_browser: bool,
@@ -97,7 +97,7 @@ impl Default for UFCRConfig {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProxyConfig {
     pub protocol: String,
@@ -117,7 +117,7 @@ impl Default for ProxyConfig {
     }
 }
 
-#[derive(Default, Clone, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProxyAuth {
     pub username: String,
@@ -196,5 +196,30 @@ pub async fn inc_file_number() {
 
     if config.number_files {
         update_config(ConfigUpdate::FileNum(config.cur_number + 1)).await;
+    }
+}
+
+/*************
+ *   Tests   *
+ *************/
+
+#[cfg(test)]
+mod tests {
+    use super::{get_config, is_debug, load_config, UFCRConfig};
+
+    #[tokio::test]
+    async fn unit_load_config() {
+        load_config().await;
+    }
+
+    #[tokio::test]
+    async fn unit_get_config() {
+        load_config().await;
+        assert_eq!(get_config().as_ref(), &UFCRConfig::default());
+    }
+
+    #[test]
+    fn unit_is_debug() {
+        assert!(!is_debug());
     }
 }
