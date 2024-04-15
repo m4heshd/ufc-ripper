@@ -20,6 +20,16 @@ jobs:
     steps:
       # Checkout repo
       - uses: actions/checkout@v4
+      # Setup Node.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # Install npm deps
+      - name: Install npm dependencies
+        run: npm install --no-audit
+      # Build Vue frontend
+      - name: Build frontend
+        run: npm run build
       # Set up Rust and Cargo
       - name: Set up Rust toolchain
         uses: dtolnay/rust-toolchain@v1

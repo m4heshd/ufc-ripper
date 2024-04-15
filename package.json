@@ -13,6 +13,7 @@
   "scripts": {
     "dev:backend": "cargo run --color=always --bin ufc-ripper",
     "dev": "vite",
+    "test": "npm run build && cargo test",
     "build:backend:win32": "npm run build && cargo build-win32",
     "build:backend:linux": "npm run build && cargo build-linux",
     "build": "vite build",
