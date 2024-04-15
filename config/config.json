@@ -14,7 +14,7 @@
   "showDesc": true,
   "resolution": "720",
   "mergeExt": "mp4",
-  "vidQuality": "worstvideo",
+  "vidQuality": "bestvideo",
   "audQuality": "bestaudio",
   "dlPath": "",
   "numberFiles": true,

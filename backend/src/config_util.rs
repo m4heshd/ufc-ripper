@@ -70,7 +70,7 @@ impl Default for UFCRConfig {
             show_desc: true,
             resolution: "720".into(),
             merge_ext: "mp4".into(),
-            vid_quality: "worstvideo".into(),
+            vid_quality: "bestvideo".into(),
             aud_quality: "bestaudio".into(),
             dl_path: String::new(),
             number_files: true,
