@@ -86,3 +86,17 @@ pub async fn check_app_update() -> anyhow::Result<JSON> {
         }))
     }
 }
+
+/*************
+ *   Tests   *
+ *************/
+
+#[cfg(test)]
+mod tests {
+    use super::is_container;
+
+    #[test]
+    fn unit_is_container() {
+        assert!(!is_container());
+    }
+}
