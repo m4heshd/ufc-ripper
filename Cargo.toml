@@ -6,6 +6,7 @@ authors = ["Mahesh Bandara Wijerathna <m4heshd@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/m4heshd/ufc-ripper"
 edition = "2021"
+publish = false
 
 [[bin]]
 name = "ufc-ripper"
