@@ -19,8 +19,8 @@ use crate::{
     config_util::{ConfigUpdate, get_config, is_debug, UFCRConfig, update_config},
     fs_util::open_downloads_dir,
     net_util::{
-        download_media_tools, get_vod_meta, get_vod_stream_url, JSON, login_to_fight_pass,
-        search_vods, update_proxied_client,
+        download_media_tools, get_vod_meta, get_vod_stream_url, JSON, JsonTryGet,
+        login_to_fight_pass, search_vods, update_proxied_client,
     },
     rt_util::QuitUnwrap,
     state_util::{clear_inactive_dlq_vods, get_dlq, Vod},
@@ -220,9 +220,11 @@ fn send_media_tool_download_progress(socket: &SocketRef, tool: &str, progress: f
 
 /// Handles the `login` WS event.
 async fn handle_login_event(ack: AckSender, Data(data): Data<JSON>) {
-    if let (Some(region), Some(email), Some(pass)) =
-        (data[0].as_str(), data[1].as_str(), data[2].as_str())
-    {
+    if let (Some(region), Some(email), Some(pass)) = (
+        data.try_get(0).as_str(),
+        data.try_get(1).as_str(),
+        data.try_get(2).as_str(),
+    ) {
         match login_to_fight_pass(region, email, pass).await {
             Ok(tokens) => {
                 update_config(ConfigUpdate::Region(region.to_string())).await;
@@ -240,7 +242,7 @@ async fn handle_login_event(ack: AckSender, Data(data): Data<JSON>) {
 
 /// Handles the `search-vods` WS event.
 async fn handle_search_vods_event(ack: AckSender, Data(data): Data<JSON>) {
-    if let (Some(query), Some(page)) = (data[0].as_str(), data[1].as_u64()) {
+    if let (Some(query), Some(page)) = (data.try_get(0).as_str(), data.try_get(1).as_u64()) {
         send_result(ack, search_vods(query, page).await);
     } else {
         send_error(ack, "Invalid search request");
@@ -266,8 +268,8 @@ async fn handle_verify_url_event(ack: AckSender, Data(data): Data<JSON>) {
 /// Handles the `download` WS event.
 async fn handle_download_event(ack: AckSender, Data(mut data): Data<JSON>) {
     if let (Ok(mut vod), Some(is_restart)) = (
-        serde_json::from_value::<Vod>(data[0].take()),
-        data[1].as_bool(),
+        serde_json::from_value::<Vod>(data.try_get_mut(0, &mut JSON::Null).take()),
+        data.try_get(1).as_bool(),
     ) {
         match get_vod_stream_url(vod.id).await {
             Ok(hls) => vod.hls = hls,

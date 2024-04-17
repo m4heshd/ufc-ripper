@@ -9,7 +9,7 @@ use axum::{http::Method, Router};
 use axum_embed::{FallbackBehavior::Redirect, ServeEmbed};
 use once_cell::sync::Lazy;
 use reqwest::{header::HeaderMap, Client, Proxy, Response};
-use serde_json::{json, Value};
+use serde_json::{json, value::Index, Value};
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 
@@ -34,6 +34,25 @@ pub struct LoginSession {
 
 // Types
 pub type JSON = Value;
+
+// Traits
+/// Allows getting a value out of a JSON using index but returns a `Value` instead of an Option.
+/// Returns `Value::Null` if failed to grab the value at index.
+pub trait JsonTryGet {
+    fn try_get<I: Index>(&self, index: I) -> &JSON;
+
+    fn try_get_mut<'a, I: Index>(&'a mut self, index: I, alt: &'a mut JSON) -> &'a mut JSON;
+}
+
+impl JsonTryGet for JSON {
+    fn try_get<I: Index>(&self, index: I) -> &JSON {
+        self.get(index).unwrap_or(&JSON::Null)
+    }
+
+    fn try_get_mut<'a, I: Index>(&'a mut self, index: I, alt: &'a mut JSON) -> &'a mut JSON {
+        index.index_into_mut(self).unwrap_or(alt)
+    }
+}
 
 // Statics
 static HTTP_CLIENT: Lazy<Client> = Lazy::new(Client::new);
