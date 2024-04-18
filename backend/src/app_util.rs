@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::{
-    net_util::{get_latest_app_meta, JSON},
+    net_util::{get_latest_app_meta, JSON, JsonTryGet},
     rt_util::QuitUnwrap,
 };
 
@@ -71,8 +71,8 @@ pub fn get_app_root_dir() -> PathBuf {
 pub async fn check_app_update() -> anyhow::Result<JSON> {
     let err_msg = "Invalid version information in the app update-check response";
     let remote_meta = get_latest_app_meta().await?;
-    let version =
-        Version::parse(remote_meta["version"].as_str().context(err_msg)?).context(err_msg)?;
+    let version = Version::parse(remote_meta.try_get("version").as_str().context(err_msg)?)
+        .context(err_msg)?;
 
     if version > Version::parse(get_app_metadata().version)? {
         Ok(json!({

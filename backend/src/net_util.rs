@@ -205,14 +205,23 @@ pub async fn download_media_tools(
     tools: Vec<String>,
     on_progress: impl Fn(&str, f64),
 ) -> anyhow::Result<()> {
-    let media_tools_meta = get_media_tools_meta().await?[&get_os_id()].take();
+    let media_tools_meta = get_media_tools_meta()
+        .await?
+        .get_mut(&get_os_id())
+        .context("Media tools metadata not available for the current platform")?
+        .take();
 
     for tool in tools {
         if is_debug() {
             println!("Downloading media tool - {tool}..\n");
         }
 
-        let url = media_tools_meta[&tool]["download"]
+        let url = media_tools_meta
+            .get(&tool)
+            .context(format!(
+                "No metadata available for the third-party tool - {tool}"
+            ))?
+            .try_get("download")
             .as_str()
             .context("Invalid media-tool download URL")?;
 
@@ -286,8 +295,8 @@ pub async fn login_to_fight_pass(
     let json_body: JSON = resp.json().await.context(err_msg)?;
 
     if let (Some(auth), Some(refresh)) = (
-        json_body["authorisationToken"].as_str(),
-        json_body["refreshToken"].as_str(),
+        json_body.try_get("authorisationToken").as_str(),
+        json_body.try_get("refreshToken").as_str(),
     ) {
         Ok(LoginSession {
             user: email.to_string(),
@@ -344,8 +353,9 @@ pub async fn refresh_access_token() -> anyhow::Result<()> {
     let json_body: JSON = resp
         .json()
         .await
-        .context("Search result contains invalid response data")?;
-    let auth_token = json_body["authorisationToken"].as_str();
+        .context("Login session refresh response contains invalid data")?;
+
+    let auth_token = json_body.try_get("authorisationToken").as_str();
 
     match auth_token {
         Some(new_auth_token) => {
@@ -410,7 +420,8 @@ pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
         .json()
         .await
         .context("Search result contains an invalid response")?;
-    let result = &json_body["results"][0];
+
+    let result = json_body.try_get("results").try_get(0);
 
     if result == &JSON::Null {
         Err(anyhow!("Response does not contain any search results"))
@@ -485,15 +496,24 @@ pub async fn get_vod_meta(url: &str) -> anyhow::Result<Vod> {
     let create_vod_from_json_meta = |meta: &JSON| {
         let err_msg = "VOD metadata response does not match the expected format";
         let vod = Vod {
-            id: meta["id"].as_u64().context(err_msg)?,
-            title: meta["title"]
+            id: meta.try_get("id").as_u64().context(err_msg)?,
+            title: meta
+                .try_get("title")
                 .as_str()
                 .context(err_msg)?
                 .to_string()
                 .replace(':', " -"),
-            desc: meta["description"].as_str().context(err_msg)?.to_string(),
-            thumb: meta["thumbnailUrl"].as_str().context(err_msg)?.to_string(),
-            access: meta["accessLevel"].as_str().context(err_msg)? != "DENIED",
+            desc: meta
+                .try_get("description")
+                .as_str()
+                .context(err_msg)?
+                .to_string(),
+            thumb: meta
+                .try_get("thumbnailUrl")
+                .as_str()
+                .context(err_msg)?
+                .to_string(),
+            access: meta.try_get("accessLevel").as_str().context(err_msg)? != "DENIED",
             vod_url: url.to_string(),
             ..Vod::default()
         };
@@ -546,7 +566,7 @@ pub async fn get_vod_stream_url(vod_id: u64) -> anyhow::Result<String> {
         .await
         .context("Callback response contains invalid information")?;
 
-    if let Some(url) = json_body["playerUrlCallback"].as_str() {
+    if let Some(url) = json_body.try_get("playerUrlCallback").as_str() {
         let resp = client
             .get(url)
             .send()
@@ -564,7 +584,7 @@ pub async fn get_vod_stream_url(vod_id: u64) -> anyhow::Result<String> {
             .await
             .context("Stream response contains invalid information")?;
 
-        if let Some(url) = json_body["hls"][0]["url"].as_str() {
+        if let Some(url) = json_body.try_get("hls").try_get(0).try_get("url").as_str() {
             Ok(url.to_string())
         } else {
             Err(anyhow!("No stream URL present in the response"))
@@ -589,8 +609,12 @@ fn generate_fight_pass_api_headers() -> anyhow::Result<HeaderMap> {
 
 /// Deserializes and returns the `messages` array from a response.
 async fn get_messages_from_response(resp: Response) -> anyhow::Result<Vec<String>> {
-    let resp_messages =
-        serde_json::from_value::<Vec<String>>(resp.json::<JSON>().await?["messages"].take())?;
+    let resp_messages = serde_json::from_value::<Vec<String>>(
+        resp.json::<JSON>()
+            .await?
+            .try_get_mut("messages", &mut JSON::Null)
+            .take(),
+    )?;
 
     Ok(resp_messages)
 }

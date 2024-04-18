@@ -5,7 +5,7 @@ use reqwest::Url;
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::net_util::JSON;
+use crate::net_util::{JSON, JsonTryGet};
 
 /// Creates a UUID and returns it as a `String`.
 pub fn create_uuid() -> String {
@@ -33,10 +33,10 @@ pub fn get_vod_id_from_url(url: &str) -> anyhow::Result<String> {
 /// Processes stdout lines from a `yt-dlp` process and returns the progress status as JSON.
 pub fn process_yt_dlp_stdout(line: &str) -> JSON {
     if let Ok(dl_stat_json) = serde_json::from_str::<JSON>(line) {
-        let size = dl_stat_json["size"].as_str().unwrap_or("").trim();
-        let speed = dl_stat_json["speed"].as_str().unwrap_or("").trim();
-        let eta = dl_stat_json["eta"].as_str().unwrap_or("").trim();
-        let task = if let Some(vcodec) = dl_stat_json["vcodec"].as_str() {
+        let size = dl_stat_json.try_get("size").as_str().unwrap_or("").trim();
+        let speed = dl_stat_json.try_get("speed").as_str().unwrap_or("").trim();
+        let eta = dl_stat_json.try_get("eta").as_str().unwrap_or("").trim();
+        let task = if let Some(vcodec) = dl_stat_json.try_get("vcodec").as_str() {
             if vcodec == "none" {
                 "audio"
             } else {
@@ -47,8 +47,8 @@ pub fn process_yt_dlp_stdout(line: &str) -> JSON {
         };
 
         let progress: f64 = if let (Some(total_size), Some(dl_size)) = (
-            dl_stat_json["total_size"].as_f64(),
-            dl_stat_json["dl_size"].as_f64(),
+            dl_stat_json.try_get("total_size").as_f64(),
+            dl_stat_json.try_get("dl_size").as_f64(),
         ) {
             ((dl_size / total_size) * 100.0).round()
         } else {
