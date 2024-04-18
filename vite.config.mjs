@@ -6,6 +6,11 @@ import vue from '@vitejs/plugin-vue';
 
 // https://vitejs.dev/config/
 export default defineConfig(async ({command}) => ({
+    root: path.resolve(__dirname, 'frontend'),
+    build: {
+        outDir: path.resolve(__dirname, 'dist'),
+        emptyOutDir: true
+    },
     plugins: [
         vue(),
         {
@@ -23,7 +28,7 @@ export default defineConfig(async ({command}) => ({
     ],
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, './src')
+            '@': path.resolve(__dirname, 'frontend', 'src')
         }
     },
     server: {
