@@ -29,9 +29,9 @@ fn main() -> anyhow::Result<()> {
     let cli_args = CLIArgs::parse();
     let platform = cli_args.platform.as_str();
     let bin_path = if platform == "win32" {
-        "target/release/ufc-ripper.exe"
+        "target/dist/ufc-ripper.exe"
     } else if platform == "linux" {
-        "target/release/ufc-ripper"
+        "target/dist/ufc-ripper"
     } else {
         log_err!("This platform is not supported\n");
         panic!();

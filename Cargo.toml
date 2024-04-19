@@ -16,3 +16,7 @@ license = "MIT"
 repository = "https://github.com/m4heshd/ufc-ripper"
 edition = "2021"
 publish = false
+
+[profile.dist]
+inherits = "release"
+lto = "fat"
