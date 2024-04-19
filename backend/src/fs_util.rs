@@ -15,7 +15,7 @@ use crate::{
 // Structs
 /// Holds all the static files for UFC Ripper GUI that will be served using axum.
 #[derive(RustEmbed, Clone)]
-#[folder = "$CARGO_MANIFEST_DIR/dist/"]
+#[folder = "$CARGO_MANIFEST_DIR/../dist/"]
 pub struct WebAssets;
 
 /// Reads the config.json file from the disk and returns the content as `String`.

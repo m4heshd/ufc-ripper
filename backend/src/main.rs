@@ -1,5 +1,5 @@
 // Libs
-use ufcr_libs::{
+use ufcr_util::{
     app_util::is_container,
     config_util::{is_debug, load_config},
     net_util::init_server,

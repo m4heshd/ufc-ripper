@@ -12,7 +12,7 @@ fn main() {
 
         let mut res = WindowsResource::new();
 
-        res.set_icon("project-res/images/ufc-ripper-icon.ico")
+        res.set_icon("../project-res/images/ufc-ripper-icon.ico")
             .set("ProductName", "UFC Ripper")
             .set("FileDescription", "UFC Ripper")
             .set(

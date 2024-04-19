@@ -1,6 +1,4 @@
 // Module exports
-#[macro_use]
-pub mod log_util;
 pub mod app_util;
 mod bin_util;
 pub mod config_util;

@@ -1,0 +1,12 @@
+[package]
+name = "ufcr_libs"
+description = "UFC Ripper's shared libraries"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+colored = "2.1.0"

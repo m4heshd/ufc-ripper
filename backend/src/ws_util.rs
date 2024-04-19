@@ -13,6 +13,8 @@ use socketioxide::{
     SocketIo, SocketIoBuilder,
 };
 
+use ufcr_libs::{log_err, log_info};
+
 use crate::{
     app_util::{check_app_update, get_app_metadata},
     bin_util::{cancel_download, get_vod_formats, start_download, validate_bins},

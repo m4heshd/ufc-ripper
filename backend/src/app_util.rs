@@ -54,7 +54,9 @@ pub fn get_app_root_dir() -> PathBuf {
     let err_msg = "Failed to determine the application's root directory";
 
     if cfg!(debug_assertions) {
-        PathBuf::from(".")
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .unwrap_or_quit(err_msg)
             .absolutize()
             .unwrap_or_quit(err_msg)
             .to_path_buf()

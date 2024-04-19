@@ -5,6 +5,8 @@ use std::{
     panic::{panic_any, set_hook as set_panic_hook},
 };
 
+use ufcr_libs::{log_err, log_warn};
+
 // Enums
 /// Defines an exit type to determine if the exit event is an unknown panic or intentional.
 pub enum ExitType {

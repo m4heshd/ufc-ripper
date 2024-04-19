@@ -18,6 +18,8 @@ use tokio::{
     time::Instant,
 };
 
+use ufcr_libs::log_err;
+
 use crate::{
     app_util::get_app_root_dir,
     config_util::{get_config, inc_file_number, is_debug, UFCRConfig},

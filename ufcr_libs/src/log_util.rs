@@ -3,7 +3,7 @@
 #[macro_export]
 macro_rules! log_info {
     ($($arg:tt)*) => {
-        println!("{}", colored::Colorize::bright_cyan(
+        println!("{}", $crate::Colorize::bright_cyan(
             format!($($arg)*).as_str()
         ))
     };
@@ -13,7 +13,7 @@ macro_rules! log_info {
 #[macro_export]
 macro_rules! log_success {
     ($($arg:tt)*) => {
-        println!("{}", colored::Colorize::bright_green(
+        println!("{}", $crate::Colorize::bright_green(
             format!($($arg)*).as_str()
         ))
     };
@@ -23,7 +23,7 @@ macro_rules! log_success {
 #[macro_export]
 macro_rules! log_warn {
     ($($arg:tt)*) => {
-        println!("{}", colored::Colorize::bright_yellow(
+        println!("{}", $crate::Colorize::bright_yellow(
             format!($($arg)*).as_str()
         ))
     };
@@ -33,7 +33,7 @@ macro_rules! log_warn {
 #[macro_export]
 macro_rules! log_err {
     ($($arg:tt)*) => {
-        eprintln!("{}", colored::Colorize::bright_red(
+        eprintln!("{}", $crate::Colorize::bright_red(
             format!($($arg)*).as_str()
         ))
     };
