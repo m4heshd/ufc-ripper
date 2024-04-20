@@ -205,10 +205,13 @@ pub async fn inc_file_number() {
 
 #[cfg(test)]
 mod tests {
+    use crate::rt_util::set_custom_panic;
+
     use super::{get_config, is_debug, load_config, UFCRConfig};
 
     #[tokio::test]
     async fn unit_load_config() {
+        set_custom_panic(true);
         load_config().await;
     }
 
