@@ -34,9 +34,17 @@ pub async fn read_config_file_to_string(path: &PathBuf) -> String {
             println!("\"config.json\" file not found. Creating the default config file.\n");
         }
 
+        let dir_tree = path
+            .parent()
+            .unwrap_or_quit(r#"Unable to determine the path for the "config" directory"#);
+
+        fs::create_dir_all(dir_tree)
+            .await
+            .unwrap_or_quit(r#"An error occurred while creating the "config" directory"#);
+
         write_config_to_file(path)
             .await
-            .unwrap_or_quit("An error occurred while trying to create a new config file");
+            .unwrap_or_quit("An error occurred while creating a new config file");
 
         read.await
     }
