@@ -44,9 +44,17 @@ jobs:
       # Package app for release
       - name: Package app
         run: cargo pack-${{ env.TARGET_PLATFORM }}
+      # Create Windows installer
+      - if: inputs.platform == 'windows-latest'
+        name: Create Windows installer
+        shell: bash
+        run: |
+          cargo install cargo-packager --version 0.8.1 --locked
+          cargo create-installer-win32
+          rm -rf ./package/artifacts/.cargo-packager || true
       # Upload build artifact
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ufc-ripper-test-build-${{ github.run_number }}-artifacts
-          path: package/artifacts/${{ env.PACKAGE_NAME }}
+          path: package/artifacts/*

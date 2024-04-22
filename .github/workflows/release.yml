@@ -45,6 +45,14 @@ jobs:
       # Package app for release
       - name: Package app
         run: cargo pack-${{ matrix.platform_alias }} --tag ${{ env.RELEASE_TAG }}
+      # Create Windows installer
+      - if: matrix.os == 'windows-latest'
+        name: Create Windows installer
+        shell: bash
+        run: |
+          cargo install cargo-packager --version 0.8.1 --locked
+          cargo create-installer-win32
+          rm -rf ./package/artifacts/.cargo-packager || true
       # Upload release assets
       - name: Upload assets to release ${{ github.event.release.tag_name }}
         uses: softprops/action-gh-release@v2

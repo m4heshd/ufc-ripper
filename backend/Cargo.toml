@@ -41,3 +41,13 @@ uuid = { version = "1.8.0", features = ["v4", "fast-rng"] }
 
 [build-dependencies]
 winresource = "0.1.17"
+
+[package.metadata.packager]
+product-name = "UFC Ripper"
+identifier = "com.m4heshd.ufc-ripper"
+resources = ["../config"]
+icons = ["../project-res/images/ufc-ripper-icon.ico"]
+out-dir = "../package/artifacts"
+
+[package.metadata.packager.nsis]
+installer-icon = "../project-res/images/ufc-ripper-icon.ico"
