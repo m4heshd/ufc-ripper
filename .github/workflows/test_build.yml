@@ -1,5 +1,7 @@
 name: test_build
 
+run-name: Test build on ${{ inputs.platform }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -18,7 +20,6 @@ jobs:
     name: Building for tests on ${{ inputs.platform }}
     runs-on: ${{ inputs.platform }}
     env:
-      PACKAGE_NAME: ${{ fromJSON('{"windows-latest":"ufc-ripper-win32-x64.zip","ubuntu-latest":"ufc-ripper-linux-x64.zip"}')[ inputs.platform ] }}
       TARGET_PLATFORM: ${{ fromJSON('{"windows-latest":"win32","ubuntu-latest":"linux"}')[ inputs.platform ] }}
     steps:
       # Checkout repo
@@ -43,7 +44,7 @@ jobs:
         run: cargo build-${{ env.TARGET_PLATFORM }}
       # Package app for release
       - name: Package app
-        run: cargo pack-${{ env.TARGET_PLATFORM }}
+        run: cargo pack-${{ env.TARGET_PLATFORM }} --tag debug-${{ github.run_number }}
       # Create Windows installer
       - if: inputs.platform == 'windows-latest'
         name: Create Windows installer
