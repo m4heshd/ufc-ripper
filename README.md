@@ -211,23 +211,27 @@ That's it. Now you're ready to go.
 
 **To run for development,**
 
-1. Set `VITE_WS_URI=http://localhost:8383/` in the `.env` file
+In development mode, the backend is set to run on port `8383` and the frontend is set to run on port `8384`.
+You can change this behavior by editing the port in `config.json`, `frontend/.env` and `vite.config.mjs`
 
-2. Run `npm run dev` to start the frontend and the backend with Vue HMR support
+1. Run `npm run dev` to start the frontend and the backend with Vue HMR support
 
-3. Open the browser and visit `http://localhost:8384/`
+2. Open the browser and visit `http://localhost:8384/` _(if you visit `http://localhost:8383/`, you'll be viewing the
+   production version of the frontend without the HMR support instead)_
 
 **To package the application for production,**
 
-1. Run `build:backend:win32` or `build:backend:linux` to build both the frontend and the backend
+1. Run `npm run build:backend:win32` or `npm run build:backend:linux` to build both the frontend and the backend
 
 2. Run `npm run pack:win32` or `npm run pack:linux` (packaging process is NOT cross-platform compatible)
 
 **To build and run the docker container,**
 
-1. Run `npm run pack:linux`
+1. Run `npm run build:backend:linux`
 
-2. Run `npm run docker:up`
+2. Run `npm run pack:linux`
+
+3. Run `npm run docker:up`
 
 # Future improvements planned
 
