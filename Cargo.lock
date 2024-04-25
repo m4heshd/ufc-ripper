@@ -1029,7 +1029,7 @@ checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
 
 [[package]]
 name = "pack"
-version = "2.2.0"
+version = "3.0.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -1822,7 +1822,7 @@ checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
 
 [[package]]
 name = "ufc-ripper"
-version = "2.2.0"
+version = "3.0.0"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1851,7 +1851,7 @@ dependencies = [
 
 [[package]]
 name = "ufcr_libs"
-version = "2.2.0"
+version = "3.0.0"
 dependencies = [
  "colored",
 ]
