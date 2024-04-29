@@ -37,4 +37,4 @@ jobs:
           toolchain: 1.77.2
       # Run tests
       - name: Run tests
-        run: cargo test
+        run: cargo test-backend
