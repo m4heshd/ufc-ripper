@@ -3,11 +3,14 @@ use std::path::PathBuf;
 
 use anyhow::Context;
 use bytes::Bytes;
+use dirs::home_dir;
 use futures_util::{Stream, StreamExt};
+use path_absolutize::Absolutize;
 use rust_embed::RustEmbed;
 use tokio::{fs, io::AsyncWriteExt};
 
 use crate::{
+    app_util::is_container,
     config_util::{get_config, is_debug},
     rt_util::QuitUnwrap,
 };
@@ -107,4 +110,27 @@ pub fn open_downloads_dir() -> anyhow::Result<()> {
         .context("An error occurred while trying to open the downloads directory")?;
 
     Ok(())
+}
+
+/// Generates the path to downloads directory depending on the source path and the OS
+/// and returns it as a String.
+pub fn build_downloads_dir_path(org_dl_path: String) -> anyhow::Result<String> {
+    if is_container() {
+        Ok("/downloads".to_string())
+    } else if org_dl_path.is_empty() {
+        let home_opt = home_dir();
+
+        if let Some(home) = home_opt {
+            Ok(home
+                .join("Downloads")
+                .absolutize()?
+                .to_str()
+                .context("Failed to convert absolute path to a string")?
+                .to_string())
+        } else {
+            Ok("~/Downloads".to_string())
+        }
+    } else {
+        Ok(org_dl_path)
+    }
 }

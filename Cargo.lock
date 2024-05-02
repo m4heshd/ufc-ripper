@@ -1830,6 +1830,7 @@ dependencies = [
  "axum-embed",
  "bytes",
  "colored",
+ "dirs",
  "form_urlencoded",
  "futures-util",
  "once_cell",

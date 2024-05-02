@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     app_util::get_app_root_dir,
-    fs_util::{read_config_file_to_string, write_config_to_file},
+    fs_util::{build_downloads_dir_path, read_config_file_to_string, write_config_to_file},
     net_util::LoginSession,
     rt_util::QuitUnwrap,
 };
@@ -150,9 +150,14 @@ pub async fn load_config() {
 pub async fn get_config_from_file() -> UFCRConfig {
     let conf_file = read_config_file_to_string(&CONFIG_PATH).await;
 
-    serde_json::from_str(&conf_file).unwrap_or_quit(
+    let mut config: UFCRConfig = serde_json::from_str(&conf_file).unwrap_or_quit(
         r#"Invalid configuration format. Please reset your "config.json" file or check the configuration"#,
-    )
+    );
+
+    config.dl_path = build_downloads_dir_path(config.dl_path)
+        .unwrap_or_quit("Failed to build the path for user's downloads directory");
+
+    config
 }
 
 /// Returns the current configuration.
@@ -205,7 +210,7 @@ pub async fn inc_file_number() {
 
 #[cfg(test)]
 mod tests {
-    use crate::rt_util::set_custom_panic;
+    use crate::{fs_util::build_downloads_dir_path, rt_util::set_custom_panic};
 
     use super::{get_config, is_debug, load_config, UFCRConfig};
 
@@ -218,7 +223,14 @@ mod tests {
     #[tokio::test]
     async fn unit_get_config() {
         load_config().await;
-        assert_eq!(get_config().as_ref(), &UFCRConfig::default());
+
+        let config = get_config();
+        let default_config = UFCRConfig {
+            dl_path: build_downloads_dir_path(config.dl_path.clone()).unwrap(),
+            ..UFCRConfig::default()
+        };
+
+        assert_eq!(config.as_ref(), &default_config);
     }
 
     #[test]
