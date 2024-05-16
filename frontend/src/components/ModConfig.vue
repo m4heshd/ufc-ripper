@@ -203,6 +203,13 @@
                 :disabled="!modConfig.data.numberFiles"
             >
           </div>
+          <button
+              class="circle fill medium"
+              title="Reset file number to 1"
+              @click="modConfig.data.curNumber = 1"
+          >
+            <i>restart_alt</i>
+          </button>
         </div>
         <nav class="v-switch">
           <div class="max">
