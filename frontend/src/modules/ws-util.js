@@ -124,6 +124,10 @@ export function useWSUtil() {
         return emitPromise('verify-url', url);
     }
 
+    function getPlayableVOD(url) {
+        return emitPromise('get-playable', url);
+    }
+
     function searchVODs(query, page) {
         return emitPromise('search-vods', query, page);
     }
@@ -168,6 +172,7 @@ export function useWSUtil() {
         saveConfig,
         login,
         verifyURL,
+        getPlayableVOD,
         getFormats,
         downloadVOD,
         cancelDownload,

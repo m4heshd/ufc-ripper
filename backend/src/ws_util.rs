@@ -80,6 +80,8 @@ fn handle_ws_client(socket: &SocketRef) {
 
     socket.on("verify-url", handle_verify_url_event);
 
+    socket.on("get-playable", handle_get_playable_event);
+
     socket.on("download", handle_download_event);
 
     socket.on("cancel-download", handle_cancel_download_event);
@@ -264,6 +266,33 @@ async fn handle_verify_url_event(ack: AckSender, Data(data): Data<JSON>) {
         }
     } else {
         send_error(ack, "Invalid verify request");
+    }
+}
+
+/// Handles the `get-playable` WS event.
+async fn handle_get_playable_event(ack: AckSender, Data(data): Data<JSON>) {
+    if let Ok(url) = serde_json::from_value::<String>(data) {
+        match get_vod_meta(url.as_str()).await {
+            Ok(mut vod) => {
+                if !vod.access {
+                    return send_error(
+                        ack,
+                        "You need a Fight Pass subscription to watch this video",
+                    );
+                }
+
+                match get_vod_stream_url(vod.id).await {
+                    Ok(hls) => {
+                        vod.hls = hls;
+                        ack.send(vod).ok();
+                    }
+                    Err(error) => send_error(ack, error),
+                }
+            }
+            Err(error) => send_error(ack, error),
+        }
+    } else {
+        send_error(ack, "Invalid video play request");
     }
 }
 

@@ -178,6 +178,7 @@
             :vShowDuration="store.config.showDuration"
             :vShowDesc="store.config.showDesc"
             :vBusyState="busy"
+            @play="(id) => playVOD(store.getFightPassURLByID(id))"
             @download="(id) => verifyVODURL(store.getFightPassURLByID(id))"
             @getFormats="(id) => getAvailableFormats(store.getFightPassURLByID(id))"
             @openExternal="(id) => store.openVODInFightPass(id)"
@@ -218,6 +219,7 @@
     <ModViewFormats
         @download="onModViewFormatsDownload"
     ></ModViewFormats>
+    <ModPlayVOD></ModPlayVOD>
     <ModSearchHelp></ModSearchHelp>
     <ModSupport></ModSupport>
     <ModMsgBox
@@ -238,10 +240,11 @@
 
 <script setup>
 // Core
-import {ref, nextTick, onMounted} from 'vue';
+import {nextTick, onMounted, ref} from 'vue';
 // Store
 import {useAppStore} from '@/store';
 import {useModViewFormatsStore} from '@/store/modViewFormats';
+import {useModPlayVODStore} from '@/store/modPlayVOD';
 // Modules
 import {useWSUtil} from '@/modules/ws-util';
 // Components
@@ -251,6 +254,7 @@ import BlockVODCard from '@/components/BlockVODCard.vue';
 import ModVODConfirm from '@/components/ModVODConfirm.vue';
 import ModConfig from '@/components/ModConfig.vue';
 import ModBinDL from '@/components/ModBinDL.vue';
+import ModPlayVOD from '@/components/ModPlayVOD.vue';
 import ModViewFormats from '@/components/ModViewFormats.vue';
 import ModSupport from '@/components/ModSupport.vue';
 import ModMsgBox from '@/components/ModMsgBox.vue';
@@ -260,6 +264,7 @@ import Overlay from '@/components/Overlay.vue';
 // Store
 const store = useAppStore();
 const modViewFormats = useModViewFormatsStore();
+const modPlayVOD = useModPlayVODStore();
 
 // Websocket
 const {
@@ -270,6 +275,7 @@ const {
   openDownloadsDir,
   searchVODs,
   verifyURL,
+  getPlayableVOD,
   getFormats
 } = useWSUtil();
 
@@ -352,6 +358,20 @@ function searchNextPage() {
 
 function searchPreviousPage() {
   searchVOD(store.search.result.query, store.search.result.page - 1);
+}
+
+function playVOD(url) {
+  if (!store.isLoggedIn) return store.popError('You need to be logged in to play videos');
+
+  switchBusyState();
+
+  getPlayableVOD(url)
+      .then((VOD) => {
+        modPlayVOD.setVOD(VOD);
+        modPlayVOD.showModPlayVOD();
+      })
+      .catch(store.popError)
+      .finally(switchBusyState);
 }
 
 function verifyVODURL(url) {

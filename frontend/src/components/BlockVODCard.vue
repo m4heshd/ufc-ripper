@@ -15,6 +15,14 @@
           <div class="center-content block-vod-card__details__thumbnail__actions__buttons">
             <button
                 class="circle fill medium"
+                title="Play video"
+                :disabled="vBusyState"
+                @click="$emit('play', vVODData.id)"
+            >
+              <i>play_arrow</i>
+            </button>
+            <button
+                class="circle fill medium"
                 title="Download"
                 :disabled="vBusyState"
                 @click="$emit('download', vVODData.id)"
@@ -23,7 +31,7 @@
             </button>
             <button
                 class="circle fill medium"
-                title="Get available formats"
+                title="View available formats"
                 :disabled="vBusyState"
                 @click="$emit('getFormats', vVODData.id)"
             >
@@ -83,6 +91,7 @@ const props = defineProps({
 
 // Emits
 defineEmits([
+  'play',
   'download',
   'getFormats',
   'openExternal'
@@ -176,6 +185,10 @@ onMounted(() => nextTick(loadThumbnailImg));
           height: 55%;
           transform: translateY(20rem);
           transition: transform .2s ease-in-out;
+
+          & > button {
+            margin: 0 6rem;
+          }
         }
 
         &__bg {
