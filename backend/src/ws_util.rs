@@ -284,6 +284,8 @@ async fn handle_get_playable_event(ack: AckSender, Data(data): Data<JSON>) {
                 match get_vod_stream_url(vod.id).await {
                     Ok(hls) => {
                         vod.hls = hls;
+                        vod.q_id = create_uuid();
+                        
                         ack.send(vod).ok();
                     }
                     Err(error) => send_error(ack, error),

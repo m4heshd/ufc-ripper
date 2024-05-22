@@ -13,7 +13,21 @@
     </template>
 
     <template #controls>
-      <button @click="modPlayVOD.closeModPlayVOD()">
+      <button
+          class="border"
+          title="Check available formats for this video"
+          @click="$emit('onCheckFormats', modPlayVOD.VOD.vodURL)"
+      >
+        <i>stock_media</i>
+      </button>
+      <button
+          class="border"
+          title="Download this video"
+          @click="$emit('onDownload', modPlayVOD.VOD)"
+      >
+        <i>download</i>
+      </button>
+      <button @click="modPlayVOD.close()">
         <i>close</i>
         <span>Close</span>
       </button>
@@ -27,6 +41,12 @@ import {useModPlayVODStore} from '@/store/modPlayVOD';
 // Components
 import VModal from '@/components/VModal.vue';
 import VMediaPlayer from '@/components/VMediaPlayer.vue';
+
+// Emits
+defineEmits([
+  'onDownload',
+  'onCheckFormats'
+]);
 
 // Store
 const modPlayVOD = useModPlayVODStore();

@@ -50,7 +50,7 @@
           class="square round large"
           title="Get available formats"
           :disabled="busy"
-          @click="getAvailableFormats(txtLink)"
+          @click="viewAvailableFormats(txtLink)"
       >
         <i>stock_media</i>
       </button>
@@ -180,7 +180,7 @@
             :vBusyState="busy"
             @play="(id) => playVOD(store.getFightPassURLByID(id))"
             @download="(id) => verifyVODURL(store.getFightPassURLByID(id))"
-            @getFormats="(id) => getAvailableFormats(store.getFightPassURLByID(id))"
+            @getFormats="(id) => viewAvailableFormats(store.getFightPassURLByID(id))"
             @openExternal="(id) => store.openVODInFightPass(id)"
         ></BlockVODCard>
       </div>
@@ -212,14 +212,17 @@
         :vShowThumb="store.config.showThumb"
         :vShowDesc="store.config.showDesc"
         @onConfirm="download"
-        @onCheckFormats="url => getAvailableFormats(url)"
+        @onCheckFormats="url => viewAvailableFormats(url)"
     ></ModVODConfirm>
     <ModConfig></ModConfig>
     <ModBinDL></ModBinDL>
     <ModViewFormats
         @download="onModViewFormatsDownload"
     ></ModViewFormats>
-    <ModPlayVOD></ModPlayVOD>
+    <ModPlayVOD
+        @onCheckFormats="onModPlayVODViewFormats"
+        @onDownload="onModPlayVODDownload"
+    ></ModPlayVOD>
     <ModSearchHelp></ModSearchHelp>
     <ModSupport></ModSupport>
     <ModMsgBox
@@ -323,6 +326,20 @@ function onBtnSearchHelpClick() {
   window.ui('#modSearchHelp');
 }
 
+// ModPlayVOD
+function onModPlayVODViewFormats(url) {
+  modPlayVOD.close();
+  viewAvailableFormats(url)
+}
+
+function onModPlayVODDownload(VOD) {
+  modPlayVOD.close();
+
+  verifiedVOD.value = VOD;
+
+  window.ui('#modVODConfirm');
+}
+
 // ModViewFormats
 function onModViewFormatsDownload(VOD, format) {
   download({
@@ -366,10 +383,7 @@ function playVOD(url) {
   switchBusyState();
 
   getPlayableVOD(url)
-      .then((VOD) => {
-        modPlayVOD.setVOD(VOD);
-        modPlayVOD.showModPlayVOD();
-      })
+      .then(VOD => modPlayVOD.show(VOD))
       .catch(store.popError)
       .finally(switchBusyState);
 }
@@ -389,7 +403,7 @@ function verifyVODURL(url) {
       .finally(switchBusyState);
 }
 
-function getAvailableFormats(url) {
+function viewAvailableFormats(url) {
   if (!store.isLoggedIn) return store.popError('You need to be logged in to check download formats');
 
   switchBusyState();

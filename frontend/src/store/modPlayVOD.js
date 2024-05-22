@@ -7,10 +7,11 @@ export const useModPlayVODStore = defineStore('modPlayVOD', {
         VOD: {}
     }),
     actions: {
-        showModPlayVOD() {
+        show(VOD) {
+            if (VOD) this.setVOD(VOD);
             this.active = true;
         },
-        closeModPlayVOD() {
+        close() {
             this.active = false;
         },
         setVOD(VOD) {
