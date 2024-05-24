@@ -45,6 +45,8 @@ An open-source video downloader tool for UFC Fight Pass, powered by [**Rust**](h
 and [**Vue**](https://vuejs.org/), that can run on both desktop and the cloud. The only thing it can't do is STEAL
 videos free of charge for you. A **paid Fight Pass subscription** is required for this tool to work.
 
+### [👉🏻 Read about UFC Ripper on TorrentFreak.](https://torrentfreak.com/ufc-ripper-tool-can-download-ufc-fight-pass-streams-240524/)
+
 > [!WARNING]
 >### Intellectual property (DISCLAIMER) ⚠️
 >
