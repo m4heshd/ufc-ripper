@@ -94,6 +94,20 @@
         </button>
       </article>
 
+      <article class="border round mod-config__content__section mod-config__content__general">
+        <h5>General</h5>
+        <nav class="v-switch">
+          <div class="max">
+            <h6>Configuration</h6>
+          </div>
+        </nav>
+        <button>
+          <i>file_save</i>
+          Import
+          <input ref="configFileInput" type="file" id="config-import" accept=".json"/>
+        </button>
+      </article>
+
       <article class="border round mod-config__content__section">
         <h5>Search</h5>
         <nav class="v-switch">
@@ -456,7 +470,7 @@
 
 <script setup>
 // Core
-import {ref} from 'vue';
+import {nextTick, onMounted, ref} from 'vue';
 // Store
 import {useAppStore} from '@/store';
 // Modules
@@ -501,15 +515,39 @@ function onBtnLoginClick() {
       .finally(switchBusyState);
 }
 
+// Config import
+let configFileInput = ref(null);
+
+async function onConfigFileImport() {
+  const file = configFileInput.value?.files[0];
+
+  if (file) {
+    try {
+      save(JSON.parse(await file.text()));
+    } catch (error) {
+      store.popError('Imported file is not a valid configuration file');
+      console.error(error);
+    } finally {
+      configFileInput.value.value = null;
+    }
+  }
+}
+
 // Misc functions
-function save() {
-  saveConfig(modConfig.data)
+function save(config) {
+  saveConfig(config || modConfig.data)
       .then(() => {
         store.popSuccess('Configuration successfully updated');
         window.ui('#modConfig');
       })
       .catch(fail);
 }
+
+onMounted(() =>
+    nextTick(() => {
+      configFileInput.value.addEventListener('change', onConfigFileImport);
+    })
+);
 </script>
 
 <style lang="scss">
@@ -648,6 +686,12 @@ function save() {
             margin-bottom: 25rem;
           }
         }
+      }
+    }
+
+    &__general {
+      & > .v-switch {
+        margin-bottom: 20rem;
       }
     }
 
