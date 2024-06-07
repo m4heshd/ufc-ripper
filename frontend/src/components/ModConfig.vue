@@ -460,7 +460,7 @@
       >
         Cancel
       </button>
-      <button @click="save">
+      <button @click="save()">
         <i>save</i>
         <span>Save</span>
       </button>
