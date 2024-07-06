@@ -7,7 +7,7 @@ use anyhow::{anyhow, Context};
 use arc_swap::ArcSwap;
 use axum::{
     body::Body,
-    http::{header, Method},
+    http::{header, Method, StatusCode},
     response::IntoResponse,
     routing::get,
     Router,
@@ -21,8 +21,6 @@ use tower_http::cors::{Any, CorsLayer};
 
 use ufcr_libs::{log_err, log_success};
 
-use crate::config_util::CONFIG_PATH;
-use crate::fs_util::read_config_file_to_string;
 use crate::{
     app_util::{get_app_metadata, get_os_id, is_container},
     bin_util::BINS,
@@ -168,7 +166,16 @@ pub fn update_proxied_client() -> anyhow::Result<()> {
 
 /// Sends the config file as a download.
 async fn handle_config_dl_req() -> impl IntoResponse {
-    let body = Body::from(read_config_file_to_string(&CONFIG_PATH).await);
+    let config_json = match serde_json::to_string_pretty(get_config().as_ref()) {
+        Ok(config) => config,
+        Err(err) => {
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to prepare JSON: {err}"),
+            ))
+        }
+    };
+    let body = Body::from(config_json);
     let headers = [
         (header::CONTENT_TYPE, "text/json; charset=utf-8"),
         (
@@ -177,7 +184,7 @@ async fn handle_config_dl_req() -> impl IntoResponse {
         ),
     ];
 
-    (headers, body)
+    Ok((headers, body))
 }
 
 /// Fetches UFC Ripper's update information from the GitHub repo.
