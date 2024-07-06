@@ -135,7 +135,7 @@ pub enum ConfigUpdate {
 }
 
 // Statics
-static CONFIG_PATH: Lazy<PathBuf> =
+pub static CONFIG_PATH: Lazy<PathBuf> =
     Lazy::new(|| get_app_root_dir().join("config").join("config.json"));
 static CONFIG: Lazy<ArcSwap<UFCRConfig>> =
     Lazy::new(|| ArcSwap::from_pointee(UFCRConfig::default()));

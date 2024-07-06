@@ -5,7 +5,13 @@ use std::{net::SocketAddr, sync::Arc};
 
 use anyhow::{anyhow, Context};
 use arc_swap::ArcSwap;
-use axum::{http::Method, Router};
+use axum::{
+    body::Body,
+    http::{header, Method},
+    response::IntoResponse,
+    routing::get,
+    Router,
+};
 use axum_embed::{FallbackBehavior::Redirect, ServeEmbed};
 use once_cell::sync::Lazy;
 use reqwest::{header::HeaderMap, Client, Proxy, Response};
@@ -15,6 +21,8 @@ use tower_http::cors::{Any, CorsLayer};
 
 use ufcr_libs::{log_err, log_success};
 
+use crate::config_util::CONFIG_PATH;
+use crate::fs_util::read_config_file_to_string;
 use crate::{
     app_util::{get_app_metadata, get_os_id, is_container},
     bin_util::BINS,
@@ -93,6 +101,7 @@ pub async fn init_server() {
     // Axum router
     let app = Router::new()
         .nest_service("/", web_assets)
+        .route("/export_config", get(handle_config_dl_req))
         .layer(create_ws_layer())
         .layer(create_cors_layer());
 
@@ -155,6 +164,20 @@ pub fn update_proxied_client() -> anyhow::Result<()> {
     HTTP_PROXIED_CLIENT.store(Arc::new(create_proxied_client()?));
 
     Ok(())
+}
+
+/// Sends the config file as a download.
+async fn handle_config_dl_req() -> impl IntoResponse {
+    let body = Body::from(read_config_file_to_string(&CONFIG_PATH).await);
+    let headers = [
+        (header::CONTENT_TYPE, "text/json; charset=utf-8"),
+        (
+            header::CONTENT_DISPOSITION,
+            "attachment; filename=\"config.json\"",
+        ),
+    ];
+
+    (headers, body)
 }
 
 /// Fetches UFC Ripper's update information from the GitHub repo.

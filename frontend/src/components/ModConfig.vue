@@ -106,6 +106,10 @@
           Import
           <input ref="configFileInput" type="file" id="config-import" accept=".json"/>
         </button>
+        <button @click="onConfigFileExport">
+          <i>upload_file</i>
+          Export
+        </button>
       </article>
 
       <article class="border round mod-config__content__section">
@@ -531,6 +535,11 @@ async function onConfigFileImport() {
       configFileInput.value.value = null;
     }
   }
+}
+
+// Config export
+function onConfigFileExport() {
+  window.location.href = '/export_config';
 }
 
 // Misc functions
