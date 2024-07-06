@@ -199,7 +199,11 @@ where
             let stdout_task = async move {
                 let mut last = Instant::now();
 
-                while let Some(line) = yt_dlp_stdout.next_line().await? {
+                while let Some(line) = yt_dlp_stdout
+                    .next_line()
+                    .await
+                    .unwrap_or(Some(String::new()))
+                {
                     if last.elapsed().as_millis() > 500 {
                         last = Instant::now();
                         on_progress(&q_id, process_yt_dlp_stdout(&line));
