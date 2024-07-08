@@ -52,4 +52,5 @@ out-dir = "../package/artifacts"
 
 [package.metadata.packager.nsis]
 installer-icon = "../project-res/images/ufc-ripper-icon.ico"
+header-image = "../project-res/images/installer_header.bmp"
 sidebar-image = "../project-res/images/installer_sidebar.bmp"
