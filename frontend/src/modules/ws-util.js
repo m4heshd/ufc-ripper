@@ -98,6 +98,10 @@ export function useWSUtil() {
         store.config = await emitPromise('save-config', newConfig);
     }
 
+    async function resetConfig() {
+        store.config = await emitPromise('reset-config');
+    }
+
     async function login(region, email, pass) {
         store.config = await emitPromise('login', region, email, pass);
     }
@@ -170,6 +174,7 @@ export function useWSUtil() {
         initSocket,
         getConfig,
         saveConfig,
+        resetConfig,
         login,
         verifyURL,
         getPlayableVOD,

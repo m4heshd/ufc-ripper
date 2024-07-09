@@ -95,6 +95,9 @@ export const useAppStore = defineStore('app', {
         showModUpdatePrompt() {
             window.ui('#modUpdatePrompt');
         },
+        showModConfigResetPrompt() {
+            window.ui('#modConfigResetPrompt');
+        },
         showModConfig() {
             this.modals.modConfig.data = JSON.parse(JSON.stringify(this.config));
             window.ui('#modConfig');

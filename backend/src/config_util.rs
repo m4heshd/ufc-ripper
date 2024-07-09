@@ -127,6 +127,7 @@ pub struct ProxyAuth {
 // Enums
 /// Specifies which fields in the configuration are being updated.
 pub enum ConfigUpdate {
+    Default,
     Config(Box<UFCRConfig>),
     Region(String),
     Auth(String),
@@ -178,6 +179,7 @@ pub async fn update_config(update: ConfigUpdate) {
     let mut new_config = get_config().as_ref().clone();
 
     match update {
+        ConfigUpdate::Default => new_config = UFCRConfig::default(),
         ConfigUpdate::Config(data) => new_config = *data,
         ConfigUpdate::Region(data) => new_config.region = data,
         ConfigUpdate::Auth(data) => new_config.auth_token = data,

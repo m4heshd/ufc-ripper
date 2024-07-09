@@ -104,11 +104,20 @@
         <button>
           <i>file_save</i>
           Import
-          <input ref="configFileInput" type="file" id="config-import" accept=".json"/>
+          <input
+              ref="configFileInput"
+              type="file"
+              id="config-import"
+              accept=".json"
+          />
         </button>
         <button @click="onConfigFileExport">
           <i>upload_file</i>
           Export
+        </button>
+        <button @click="store.showModConfigResetPrompt">
+          <i>settings_backup_restore</i>
+          Reset
         </button>
       </article>
 
@@ -469,6 +478,17 @@
         <span>Save</span>
       </button>
     </nav>
+
+    <ModMsgBox
+        vID="modConfigResetPrompt"
+        vIcon="settings_backup_restore"
+        vTitle="Reset configuration to default"
+        vType="yes-no"
+        @onYes="onConfigReset"
+    >
+      This process will reset all of the configurations to default and log you out of the currently logged in Fight Pass
+      account. Are you sure you want to continue?
+    </ModMsgBox>
   </div>
 </template>
 
@@ -481,6 +501,7 @@ import {useAppStore} from '@/store';
 import {useWSUtil} from '@/modules/ws-util';
 // Components
 import VAnchor from '@/components/VAnchor.vue';
+import ModMsgBox from '@/components/ModMsgBox.vue';
 
 // Store
 const store = useAppStore();
@@ -495,7 +516,7 @@ const fail = (error) => {
 };
 
 // Websocket
-const {login, saveConfig} = useWSUtil();
+const {login, resetConfig, saveConfig} = useWSUtil();
 
 // Account
 const txtEmail = ref('');
@@ -540,6 +561,16 @@ async function onConfigFileImport() {
 // Config export
 function onConfigFileExport() {
   window.location.href = '/export_config';
+}
+
+// Config reset
+function onConfigReset() {
+  resetConfig()
+      .then(() => {
+        store.popSuccess('Configuration was successfully reset to default');
+        window.ui('#modConfig');
+      })
+      .catch(fail);
 }
 
 // Misc functions

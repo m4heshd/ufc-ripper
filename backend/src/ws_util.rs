@@ -18,11 +18,11 @@ use ufcr_libs::{log_err, log_info};
 use crate::{
     app_util::{check_app_update, get_app_metadata},
     bin_util::{cancel_download, get_vod_formats, start_download, validate_bins},
-    config_util::{ConfigUpdate, get_config, is_debug, UFCRConfig, update_config},
+    config_util::{get_config, is_debug, update_config, ConfigUpdate, UFCRConfig},
     fs_util::open_downloads_dir,
     net_util::{
-        download_media_tools, get_vod_meta, get_vod_stream_url, JSON, JsonTryGet,
-        login_to_fight_pass, search_vods, update_proxied_client,
+        download_media_tools, get_vod_meta, get_vod_stream_url, login_to_fight_pass, search_vods,
+        update_proxied_client, JsonTryGet, JSON,
     },
     rt_util::QuitUnwrap,
     state_util::{clear_inactive_dlq_vods, get_dlq, Vod},
@@ -59,6 +59,8 @@ fn handle_ws_client(socket: &SocketRef) {
     });
 
     socket.on("save-config", handle_save_config_event);
+
+    socket.on("reset-config", handle_reset_config_event);
 
     socket.on("get-dlq", |ack: AckSender| {
         ack.send(get_dlq().clone()).ok();
@@ -192,6 +194,16 @@ async fn handle_save_config_event(ack: AckSender, Data(data): Data<JSON>) {
     }
 }
 
+/// Handles the `reset-config` WS event.
+async fn handle_reset_config_event(ack: AckSender) {
+    update_config(ConfigUpdate::Default).await;
+    ack.send(get_config().as_ref()).ok();
+
+    if let Err(error) = update_proxied_client() {
+        emit_error(error);
+    }
+}
+
 /// Handles the `get-media-tools` WS event.
 async fn handle_get_media_tools_event(socket: SocketRef, ack: AckSender, Data(data): Data<JSON>) {
     if let Ok(missing_tools) = serde_json::from_value::<Vec<String>>(data) {
@@ -285,7 +297,7 @@ async fn handle_get_playable_event(ack: AckSender, Data(data): Data<JSON>) {
                     Ok(hls) => {
                         vod.hls = hls;
                         vod.q_id = create_uuid();
-                        
+
                         ack.send(vod).ok();
                     }
                     Err(error) => send_error(ack, error),
