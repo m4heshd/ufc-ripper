@@ -39,4 +39,10 @@ An open-source video downloader tool for UFC Fight Pass, powered by [**Rust**](h
 and [**Vue**](https://vuejs.org/), that can run on both the desktop and the cloud. The only thing it can't do is STEAL
 videos free of charge for you. A **paid Fight Pass subscription** is required for this tool to work.
 
+<p align="center">
+    <br>
+    <img src="https://raw.githubusercontent.com/m4heshd/ufc-ripper/master/project-res/images/ufcr-repo-demo.gif" alt="UFC Ripper demo">
+    <br>
+</p>
+
 ### Please head over to [ufc-ripper GitHub repository](https://github.com/m4heshd/ufc-ripper) for the complete documentation.

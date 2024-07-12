@@ -179,6 +179,12 @@ library than UFC Fight Pass itself.
 You can restrict the search algorithm to only look inside the event titles which would result in way more accurate
 results, or you can use advanced query syntax like double quotes and negative symbol like you would on Google search.
 
+### Streaming
+
+UFC Ripper can stream videos directly, right from the search results. The advantage of streaming in UFC Ripper is you're
+the one in control. You can force the player to stream the video in your preferred settings, unlike the UFC Fight Pass.
+You choose how much of your data quota you'll be burning to watch a video.
+
 ### Concurrent multi-fragment downloads
 
 UFC Fight Pass streams are very heavily limited to slower bandwidths. But these streams are broken down to little
@@ -243,6 +249,7 @@ You can change this behavior by editing the port in `config.json`, `frontend/.en
 - [x] Support for concurrent multi-fragment download
 - [x] Ability to restart failed/canceled downloads
 - [x] Support for downloading custom formats
+- [x] Support for streaming VODs
 - [ ] Support for more architectures, including ARM-based systems
 - [ ] Mobile-responsive Web UI
 - [ ] Make completed files downloadable right from the UFC Ripper Web UI (hosted)
