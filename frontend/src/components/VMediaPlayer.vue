@@ -109,6 +109,7 @@ onBeforeUnmount(() => {
   --plyr-color-main: var(--primary);
 
   video {
+    height: 100%;
     min-width: 100%;
     aspect-ratio: 16 / 9;
     object-fit: cover;

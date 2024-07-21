@@ -58,5 +58,14 @@ const modPlayVOD = useModPlayVODStore();
   max-width: 950rem;
   max-height: 80%;
   overflow: hidden;
+
+  .v-media-player {
+    height: 100%;
+
+    & > .plyr {
+      height: 100%;
+      max-height: 100%;
+    }
+  }
 }
 </style>
