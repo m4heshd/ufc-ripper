@@ -107,17 +107,20 @@ We have two social groups dedicated to any discussion regarding UFC Ripper.
 
 ### Desktop
 
-No installation is required on the desktop. The app is portable.
+UFC Ripper is available on desktop, both as an Installer _(Windows)_ and a portable app.
 
 1. Download the latest release corresponding to your system,
-    - ### [Windows (x64)](https://github.com/m4heshd/ufc-ripper/releases/latest)
-    - ### [Linux (x64)](https://github.com/m4heshd/ufc-ripper/releases/latest)
+    - ### [Windows (x64) [Installer]](https://github.com/m4heshd/ufc-ripper/releases/download/v3.1.0/ufc-ripper_3.1.0_x64-setup.exe)
+    - ### [Windows (x64) [Portable]](https://github.com/m4heshd/ufc-ripper/releases/download/v3.1.0/ufc-ripper-v3.1.0-win32-x64.zip)
+    - ### [Linux (x64) [Portable]](https://github.com/m4heshd/ufc-ripper/releases/download/v3.1.0/ufc-ripper-v3.1.0-linux-x64.zip)
 
-2. Extract the content of the zip file to anywhere you like
+2. Run the installer or extract the content of the zip file to anywhere you like
 
-3. Run the executable file (`ufc-ripper.exe` or `ufc-ripper`)
+3. Run the executable file (`ufc-ripper.exe` or `ufc-ripper`) _(Installer version should have a shortcut on the start
+   menu)_
 
-4. Open the browser and visit the URL shown in the console window. (it should automatically open on the default browser)
+4. Open the browser and visit the URL shown in the console window. _(it should automatically open on the default
+   browser)_
 
 5. The first run might ask you to download some third-party tools used by UFC Ripper. Click yes, and it will
    automatically download the latest versions from [media-tools](https://github.com/m4heshd/media-tools) repo.
@@ -159,8 +162,7 @@ That's it.
 > Ripper.
 
 1. Open up the GUI in the browser and go into Configuration (⚙️ button) and log in with your UFC Fight Pass account
-   using
-   the "Fight Pass account" section.
+   using the "Fight Pass account" section.
 
 2. Once successfully logged in, you can search for videos and download them, or copy and paste a link to a UFC Fight
    Pass video in the "Link" input and hit the download button.
