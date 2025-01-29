@@ -81,6 +81,12 @@ and there. But this COULD improve a lot. Working on this project requires a lot 
 You can help me by buying me a few coffees ☕, so I'm all buzzed up and got time to work on this further.
 Or you can send a few monies my way to simply say thanks for the work that's already been done.
 
+**Wise is the preferred method for donations because PayPal takes a huge chunk (~22%) off of every donation _(ko-fi also uses PayPal)_.**
+
+[![Donate to m4heshd on Wise](https://i.ibb.co/s9nT2hfp/donate-on-wise.png)](https://wise.variatix.net/)
+
+Other donation methods:
+
 [![Donate to m4heshd](https://i.ibb.co/8PgVcwK/Paypal.png)](https://paypal.variatix.net)
 
 Or you can buy me a "ko-fi" by clicking this button
