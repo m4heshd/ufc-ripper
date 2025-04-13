@@ -119,6 +119,17 @@
           <i>settings_backup_restore</i>
           Reset
         </button>
+        <button>
+          <i>file_upload</i>
+          Upload CSV
+          <input
+              ref="csvFileInput"
+              type="file"
+              id="csv-upload"
+              accept=".csv"
+              @change="onCSVFileUpload"
+          />
+        </button>
       </article>
 
       <article class="border round mod-config__content__section">
@@ -573,6 +584,32 @@ function onConfigReset() {
       .catch(fail);
 }
 
+// CSV upload
+let csvFileInput = ref(null);
+
+async function onCSVFileUpload() {
+  const file = csvFileInput.value?.files[0];
+
+  if (file) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      await fetch('/upload_csv', {
+        method: 'POST',
+        body: formData,
+      });
+
+      store.popSuccess('CSV file uploaded successfully');
+    } catch (error) {
+      store.popError('Failed to upload CSV file');
+      console.error(error);
+    } finally {
+      csvFileInput.value.value = null;
+    }
+  }
+}
+
 // Misc functions
 function save(config) {
   saveConfig(config || modConfig.data)
@@ -586,6 +623,7 @@ function save(config) {
 onMounted(() =>
     nextTick(() => {
       configFileInput.value.addEventListener('change', onConfigFileImport);
+      csvFileInput.value.addEventListener('change', onCSVFileUpload);
     })
 );
 </script>

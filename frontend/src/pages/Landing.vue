@@ -72,6 +72,15 @@
       >
         <i>favorite</i>
       </button>
+
+      <button
+          class="square round large"
+          title="Upload CSV"
+          :disabled="busy"
+          @click="onBtnUploadCSVClick"
+      >
+        <i>file_upload</i>
+      </button>
     </div>
 
     <article
@@ -294,6 +303,13 @@ const txtLink = ref('');
 
 function onBtnSupportClick() {
   window.ui('#modSupport');
+}
+
+function onBtnUploadCSVClick() {
+  const csvFileInput = document.getElementById('csv-upload');
+  if (csvFileInput) {
+    csvFileInput.click();
+  }
 }
 
 // Downloads section

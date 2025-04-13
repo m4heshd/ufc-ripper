@@ -9,8 +9,9 @@ use axum::{
     body::Body,
     http::{header, Method, StatusCode},
     response::IntoResponse,
-    routing::get,
+    routing::{get, post},
     Router,
+    Json,
 };
 use axum_embed::{FallbackBehavior::Redirect, ServeEmbed};
 use once_cell::sync::Lazy;
@@ -18,6 +19,7 @@ use reqwest::{header::HeaderMap, Client, Proxy, Response};
 use serde_json::{json, value::Index, Value};
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
+use axum::extract::Multipart;
 
 use ufcr_libs::{log_err, log_success};
 
@@ -25,7 +27,7 @@ use crate::{
     app_util::{get_app_metadata, get_os_id, is_container},
     bin_util::BINS,
     config_util::{get_config, is_debug, update_config, ConfigUpdate, UFCRConfig},
-    fs_util::{write_file_to_disk, WebAssets},
+    fs_util::{write_file_to_disk, WebAssets, parse_csv_file},
     rt_util::QuitUnwrap,
     state_util::Vod,
     txt_util::get_vod_id_from_url,
@@ -100,6 +102,7 @@ pub async fn init_server() {
     let app = Router::new()
         .nest_service("/", web_assets)
         .route("/export_config", get(handle_config_dl_req))
+        .route("/upload_csv", post(handle_csv_upload))
         .layer(create_ws_layer())
         .layer(create_cors_layer());
 
@@ -129,7 +132,7 @@ pub async fn init_server() {
 /// Creates a new Tower layer with CORS rules.
 fn create_cors_layer() -> CorsLayer {
     CorsLayer::new()
-        .allow_methods([Method::GET])
+        .allow_methods([Method::GET, Method::POST])
         .allow_origin(Any)
 }
 
@@ -187,6 +190,34 @@ async fn handle_config_dl_req() -> impl IntoResponse {
     Ok((headers, body))
 }
 
+/// Handles CSV file upload and parsing.
+async fn handle_csv_upload(mut multipart: Multipart) -> impl IntoResponse {
+    while let Some(field) = multipart.next_field().await.unwrap() {
+        let file_name = field.file_name().unwrap().to_string();
+        let file_path = format!("/tmp/{}", file_name);
+        let mut file = tokio::fs::File::create(&file_path).await.unwrap();
+        while let Some(chunk) = field.chunk().await.unwrap() {
+            file.write_all(&chunk).await.unwrap();
+        }
+
+        match parse_csv_file(PathBuf::from(file_path)).await {
+            Ok(records) => {
+                for record in records {
+                    println!("{:?}", record);
+                }
+            }
+            Err(err) => {
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to parse CSV file: {err}"),
+                ));
+            }
+        }
+    }
+
+    Ok(StatusCode::OK)
+}
+
 /// Fetches UFC Ripper's update information from the GitHub repo.
 pub async fn get_latest_app_meta() -> anyhow::Result<JSON> {
     let req_url = format!("{}/raw/master/package.json", get_app_metadata().repo);
@@ -196,7 +227,7 @@ pub async fn get_latest_app_meta() -> anyhow::Result<JSON> {
         .await
         .context("An error occurred while trying to retrieve app update information")?;
 
-    if !resp.status().is_success() {
+    if (!resp.status().is_success()) {
         return Err(anyhow!(
             "Server responded with an error for the app update check"
         ));
@@ -218,7 +249,7 @@ pub async fn get_media_tools_meta() -> anyhow::Result<JSON> {
         .await
         .context("An error occurred while trying to retrieve media-tools information")?;
 
-    if !resp.status().is_success() {
+    if (!resp.status().is_success()) {
         return Err(anyhow!(
             "Server responded with an error for the media-tools metadata request"
         ));
@@ -244,7 +275,7 @@ pub async fn download_media_tools(
         .take();
 
     for tool in tools {
-        if is_debug() {
+        if (is_debug()) {
             println!("Downloading media tool - {tool}..\n");
         }
 
@@ -288,7 +319,7 @@ pub async fn login_to_fight_pass(
     pass: &str,
 ) -> anyhow::Result<LoginSession> {
     let proxied_client = &*HTTP_PROXIED_CLIENT.load();
-    let client = if get_config().use_proxy {
+    let client = if (get_config().use_proxy) {
         proxied_client
     } else {
         &*HTTP_CLIENT
@@ -309,11 +340,11 @@ pub async fn login_to_fight_pass(
         .await
         .context("An error occurred while trying to log into the Fight Pass")?;
 
-    if !resp.status().is_success() {
+    if (!resp.status().is_success()) {
         let err_msg = "Login failed. Check your credentials and try again";
         let resp_error_messages = get_messages_from_response(resp).await.context(err_msg)?;
 
-        if resp_error_messages.contains(&"badLocation".to_string()) {
+        if (resp_error_messages.contains(&"badLocation".to_string())) {
             return Err(anyhow!(
                 "Login was blocked because of the IP address your UFC Ripper backend is bound to. \
                 Try disabling any active VPN connections, or use a proxy service (check configuration)"
@@ -342,12 +373,12 @@ pub async fn login_to_fight_pass(
 
 /// Refreshes an expired access token and returns a new one.
 pub async fn refresh_access_token() -> anyhow::Result<()> {
-    if is_debug() {
+    if (is_debug()) {
         println!("Refreshing access token..\n");
     }
 
     let proxied_client = &*HTTP_PROXIED_CLIENT.load();
-    let client = if get_config().use_proxy {
+    let client = if (get_config().use_proxy) {
         proxied_client
     } else {
         &*HTTP_CLIENT
@@ -364,16 +395,16 @@ pub async fn refresh_access_token() -> anyhow::Result<()> {
         .await
         .context("An error occurred while trying fetch VOD metadata")?;
 
-    if !resp.status().is_success() {
+    if (!resp.status().is_success()) {
         let err_msg = "Failed to refresh your login session. Please login with your UFC Fight Pass account again";
         let resp_error_messages = get_messages_from_response(resp).await.context(err_msg)?;
 
-        if resp_error_messages.contains(&"badLocation".to_string()) {
+        if (resp_error_messages.contains(&"badLocation".to_string())) {
             return Err(anyhow!(
                 "Session refresh request was blocked because of the IP address your UFC Ripper backend is bound to. \
                 Try disabling any active VPN connections, or use a proxy service (check configuration)"
             ));
-        } else if resp_error_messages.contains(&"errorRefreshingToken".to_string()) {
+        } else if (resp_error_messages.contains(&"errorRefreshingToken".to_string())) {
             return Err(anyhow!(
                 "Invalid refresh token. Please log in with your UFC Fight Pass account again"
             ));
@@ -404,7 +435,7 @@ pub async fn refresh_access_token() -> anyhow::Result<()> {
 /// Searches the UFC Fight Pass library for VODs.
 pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
     let proxied_client = &*HTTP_PROXIED_CLIENT.load();
-    let client = if get_config().use_proxy {
+    let client = if (get_config().use_proxy) {
         proxied_client
     } else {
         &*HTTP_CLIENT
@@ -418,7 +449,7 @@ pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
             .append_pair("page", &page.to_string())
             .append_pair(
                 "restrictSearchableAttributes",
-                if get_config().search_title_only {
+                if (get_config().search_title_only) {
                     r#"["name"]"#
                 } else {
                     "[]"
@@ -442,7 +473,7 @@ pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
         .await
         .context("An error occurred while trying to search the Fight Pass library")?;
 
-    if !resp.status().is_success() {
+    if (!resp.status().is_success()) {
         return Err(anyhow!(
             "Server responded with an error for the search request"
         ));
@@ -455,7 +486,7 @@ pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
 
     let result = json_body.try_get("results").try_get(0);
 
-    if result == &JSON::Null {
+    if (result == &JSON::Null) {
         Err(anyhow!("Response does not contain any search results"))
     } else {
         Ok(result.clone())
@@ -475,7 +506,7 @@ pub async fn get_vod_meta(url: &str) -> anyhow::Result<Vod> {
     // Having this as a closure allows this process to be run multiple times.
     let run_request = || async {
         let proxied_client = &*HTTP_PROXIED_CLIENT.load();
-        let client = if get_config().use_proxy {
+        let client = if (get_config().use_proxy) {
             proxied_client
         } else {
             &*HTTP_CLIENT
@@ -493,7 +524,7 @@ pub async fn get_vod_meta(url: &str) -> anyhow::Result<Vod> {
 
         let status = resp.status();
 
-        if !status.is_success() {
+        if (!status.is_success()) {
             let err_msg = "An unknown error occurred while trying fetch VOD metadata";
 
             return match status.as_u16() {
@@ -501,7 +532,7 @@ pub async fn get_vod_meta(url: &str) -> anyhow::Result<Vod> {
                     let resp_error_messages =
                         get_messages_from_response(resp).await.context(err_msg)?;
 
-                    if resp_error_messages.contains(&"Bearer token is not valid".to_string()) {
+                    if (resp_error_messages.contains(&"Bearer token is not valid".to_string())) {
                         Ok(ReqStatus::NeedsRefresh)
                     } else {
                         Err(anyhow!(
@@ -571,7 +602,7 @@ pub async fn get_vod_meta(url: &str) -> anyhow::Result<Vod> {
 /// Fetches the HLS stream URL for a given Fight Pass video.
 pub async fn get_vod_stream_url(vod_id: u64) -> anyhow::Result<String> {
     let proxied_client = &*HTTP_PROXIED_CLIENT.load();
-    let client = if get_config().use_proxy {
+    let client = if (get_config().use_proxy) {
         proxied_client
     } else {
         &*HTTP_CLIENT
@@ -587,7 +618,7 @@ pub async fn get_vod_stream_url(vod_id: u64) -> anyhow::Result<String> {
         .await
         .context("An error occurred while trying request the callback URL for VOD stream")?;
 
-    if !resp.status().is_success() {
+    if (!resp.status().is_success()) {
         return Err(anyhow!(
             "Server responded with an error to the callback URL request"
         ));
@@ -605,7 +636,7 @@ pub async fn get_vod_stream_url(vod_id: u64) -> anyhow::Result<String> {
             .await
             .context("An error occurred while trying request VOD stream URL")?;
 
-        if !resp.status().is_success() {
+        if (!resp.status().is_success()) {
             return Err(anyhow!(
                 "Server responded with an error to the VOD stream request"
             ));

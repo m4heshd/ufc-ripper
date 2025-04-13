@@ -1,6 +1,4 @@
-// Libs
 use std::path::PathBuf;
-
 use anyhow::Context;
 use bytes::Bytes;
 use dirs::home_dir;
@@ -8,21 +6,25 @@ use futures_util::{Stream, StreamExt};
 use path_absolutize::Absolutize;
 use rust_embed::RustEmbed;
 use tokio::{fs, io::AsyncWriteExt};
-
 use crate::{
     app_util::is_container,
     config_util::{get_config, is_debug},
     rt_util::QuitUnwrap,
 };
+use csv::ReaderBuilder;
+use serde::Deserialize;
 
-// Structs
-/// Holds all the static files for UFC Ripper GUI that will be served using axum.
+#[derive(Debug, Deserialize)]
+struct CsvRecord {
+    field1: String,
+    field2: String,
+    // Add more fields as needed
+}
+
 #[derive(RustEmbed, Clone)]
 #[folder = "$CARGO_MANIFEST_DIR/../dist/"]
 pub struct WebAssets;
 
-/// Reads the config.json file from the disk and returns the content as `String`.
-/// Will create the default config file if it doesn't exist.
 pub async fn read_config_file_to_string(path: &PathBuf) -> String {
     let read = async {
         fs::read_to_string(path).await.unwrap_or_quit(
@@ -53,7 +55,6 @@ pub async fn read_config_file_to_string(path: &PathBuf) -> String {
     }
 }
 
-/// Writes the current configuration to config.json file.
 pub async fn write_config_to_file(path: &PathBuf) -> anyhow::Result<()> {
     let mut conf_file = fs::File::create(path).await?;
 
@@ -64,7 +65,6 @@ pub async fn write_config_to_file(path: &PathBuf) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Creates a file on the disk using the given byte-stream.
 pub async fn write_file_to_disk<S>(
     path: PathBuf,
     size: u64,
@@ -104,7 +104,6 @@ where
     Ok(())
 }
 
-/// Opens the downloads directory in the default file explorer.
 pub fn open_downloads_dir() -> anyhow::Result<()> {
     open::that_detached(&get_config().dl_path)
         .context("An error occurred while trying to open the downloads directory")?;
@@ -112,8 +111,6 @@ pub fn open_downloads_dir() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Generates the path to downloads directory depending on the source path and the OS
-/// and returns it as a String.
 pub fn build_downloads_dir_path(org_dl_path: String) -> anyhow::Result<String> {
     if is_container() {
         Ok("/downloads".to_string())
@@ -133,4 +130,19 @@ pub fn build_downloads_dir_path(org_dl_path: String) -> anyhow::Result<String> {
     } else {
         Ok(org_dl_path)
     }
+}
+
+pub async fn parse_csv_file(file_path: PathBuf) -> anyhow::Result<Vec<CsvRecord>> {
+    let mut rdr = ReaderBuilder::new()
+        .has_headers(true)
+        .from_path(file_path)
+        .context("Failed to open CSV file")?;
+
+    let mut records = Vec::new();
+    for result in rdr.deserialize() {
+        let record: CsvRecord = result.context("Failed to parse CSV record")?;
+        records.push(record);
+    }
+
+    Ok(records)
 }
