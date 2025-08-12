@@ -410,6 +410,7 @@ pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
         &*HTTP_CLIENT
     };
 
+    let index_name = format!("prod-{}-livestreaming-events", get_config().region);
     let search_params = format!(
         "{}&{}",
         VOD_SEARCH_PARAMS.as_str(),
@@ -433,7 +434,7 @@ pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
         .json(&json!({
             "requests": [
                 {
-                    "indexName": "prod-dce.ufc-livestreaming-events",
+                    "indexName": index_name,
                     "params": search_params
                 }
             ]
