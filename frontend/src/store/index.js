@@ -17,6 +17,12 @@ export const useAppStore = defineStore('app', {
             version: '',
             url: ''
         },
+        fpMeta: {
+            domain: {
+                "dce.ufc": "ufcfightpass.com",
+                "dce.ufcbrazil": "ufcfightpass.com.br",
+            }
+        },
         downloads: {},
         search: {
             showResults: false,
@@ -69,6 +75,7 @@ export const useAppStore = defineStore('app', {
         searchCurrentPage: (state) => state.search.result.page + 1,
         searchCanPrevious: (state) => state.search.result.page > 0,
         searchCanNext: (state) => state.search.result.page < state.search.result.nbPages - 1,
+        getFPDomain: (state) => state.fpMeta.domain[state.config.region]
     },
     actions: {
         popError: (error) => {
@@ -126,7 +133,7 @@ export const useAppStore = defineStore('app', {
             this.downloads[qID].status = 'cancelled';
         },
         getFightPassURLByID(id) {
-            return `https://ufcfightpass.com/video/${id}`;
+            return `https://${this.getFPDomain}/video/${id}`;
         },
         openVODInFightPass(id) {
             window.open(this.getFightPassURLByID(id), '_blank');
