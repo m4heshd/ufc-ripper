@@ -25,7 +25,7 @@
     <br>
     <br>
     <a href="https://t.me/+1aacMrVWdr1jOWY1">
-        <img src="https://img.shields.io/static/v1?logo=telegram&label=%E2%80%8B&message=Telegram group&color=2592c8&style=for-the-badge" alt="UFC Ripper Telegram support group">
+        <img src="https://img.shields.io/static/v1?logo=telegram&label=%E2%80%8B&message=Telegram%20group&color=2592c8&style=for-the-badge" alt="UFC Ripper Telegram support group">
     </a> <!--Telegram-->
     <a href="https://discord.gg/cQeXkvxCMn">
         <img src="https://img.shields.io/static/v1?logo=discord&label=%E2%80%8B&message=Discord&color=5865f2&style=for-the-badge" alt="UFC Ripper Discord server">
