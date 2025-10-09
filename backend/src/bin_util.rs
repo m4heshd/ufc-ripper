@@ -423,7 +423,14 @@ pub fn generate_vod_download_config(
     let default_format = format!(
         "{vid_quality}[height={resolution}]+{aud_quality}/{vid_quality}*[height={resolution}]"
     );
-    let dl_path_buf = PathBuf::from(dl_path).join(format!("{final_title}.%(ext)s"));
+    let dl_path_buf = PathBuf::from(dl_path);
+    let home_path = format!(
+        "home:{}",
+        dl_path_buf.to_str().context(
+            "Failed to build the given downloads path. Try changing the downloads directory",
+        )?
+    );
+    let output_template = format!("{final_title}.%(ext)s");
     let bin_path_buf = get_app_root_dir().join("bin");
     let concur_frags_string = concur_frags.to_string();
 
@@ -440,10 +447,10 @@ pub fn generate_vod_download_config(
         },
         "--merge-output-format",
         merge_ext,
+        "--paths",
+        &home_path,
         "--output",
-        dl_path_buf.to_str().context(
-            "Failed to build the given downloads path. Try changing the downloads directory",
-        )?,
+        &output_template,
         "--progress-template",
         &DL_PROGRESS_TEMPLATE,
         "--ffmpeg-location",
