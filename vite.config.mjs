@@ -9,7 +9,7 @@ export default defineConfig(async ({command}) => ({
     root: path.resolve(__dirname, 'frontend'),
     build: {
         outDir: path.resolve(__dirname, 'dist'),
-        emptyOutDir: true
+        emptyOutDir: true,
     },
     plugins: [
         vue(),
@@ -20,19 +20,22 @@ export default defineConfig(async ({command}) => ({
                     spawn(
                         platform() === 'win32' ? 'npm.cmd' : 'npm',
                         ['run', 'dev:backend'],
-                        {stdio: 'inherit'}
+                        {
+                            stdio: 'inherit',
+                            shell: true,
+                        },
                     );
                 }
             },
-        }
+        },
     ],
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, 'frontend', 'src')
-        }
+            '@': path.resolve(__dirname, 'frontend', 'src'),
+        },
     },
     server: {
         port: 8384,
-        strictPort: true
-    }
+        strictPort: true,
+    },
 }));
