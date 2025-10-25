@@ -34,10 +34,6 @@ export const useAppStore = defineStore('app', {
         },
         config: {},
         mediaTools: {
-            atomicParsley: {
-                name: 'AtomicParsley',
-                avail: false
-            },
             ffmpeg: {
                 name: 'FFmpeg',
                 avail: false

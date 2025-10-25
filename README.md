@@ -269,7 +269,6 @@ UFC Ripper uses a lot of third-party open-source tools to work. Following is a l
 
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 - [FFmpeg](https://ffmpeg.org/)
-- [AtomicParsley](https://github.com/wez/atomicparsley)
 
 Thank you to all the developers of these projects for their hard work. 🙏🏽
 

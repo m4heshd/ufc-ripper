@@ -35,7 +35,6 @@ type TaskMap = HashMap<String, JoinHandle<()>>;
 // Structs
 /// Holds all metadata for each helper media tool.
 pub struct MediaTools {
-    atomic_parsley: MediaToolMeta,
     ffmpeg: MediaToolMeta,
     ffprobe: MediaToolMeta,
     yt_dlp: MediaToolMeta,
@@ -45,7 +44,6 @@ impl MediaTools {
     /// Fetches a media-tool by the given JSON-like name.
     pub fn get_by_name(&self, name: &str) -> Option<&MediaToolMeta> {
         match name {
-            "atomicParsley" => Some(&self.atomic_parsley),
             "ffmpeg" => Some(&self.ffmpeg),
             "ffprobe" => Some(&self.ffprobe),
             "ytDlp" => Some(&self.yt_dlp),
@@ -67,13 +65,6 @@ impl MediaToolMeta {
 
 // Statics
 pub static BINS: MediaTools = MediaTools {
-    atomic_parsley: MediaToolMeta {
-        filename: if cfg!(windows) {
-            "AtomicParsley.exe"
-        } else {
-            "AtomicParsley"
-        },
-    },
     ffmpeg: MediaToolMeta {
         filename: if cfg!(windows) {
             "ffmpeg.exe"
@@ -104,7 +95,6 @@ static DL_TASKS: Lazy<Arc<Mutex<TaskMap>>> = Lazy::new(|| Arc::new(Mutex::new(Ha
 /// Validates if the media tools exist and returns the validation for each binary as JSON.
 pub fn validate_bins() -> JSON {
     json!({
-        "atomicParsley": BINS.atomic_parsley.get_path().exists(),
         "ffmpeg": BINS.ffmpeg.get_path().exists(),
         "ffprobe": BINS.ffprobe.get_path().exists(),
         "ytDlp": BINS.yt_dlp.get_path().exists()
