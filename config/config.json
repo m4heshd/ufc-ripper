@@ -25,7 +25,6 @@
   "dlRate": "100K",
   "cusFormat": false,
   "formatID": "",
-  "metadata": false,
   "useProxy": false,
   "proxyConfig": {
     "protocol": "http",

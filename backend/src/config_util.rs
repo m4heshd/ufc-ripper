@@ -46,7 +46,6 @@ pub struct UFCRConfig {
     pub cus_format: bool,
     #[serde(rename = "formatID")]
     pub format_id: String,
-    pub metadata: bool,
     pub use_proxy: bool,
     pub proxy_config: ProxyConfig,
     pub dl_args: Vec<String>,
@@ -81,7 +80,6 @@ impl Default for UFCRConfig {
             dl_rate: "100K".into(),
             cus_format: false,
             format_id: String::new(),
-            metadata: false,
             use_proxy: false,
             proxy_config: ProxyConfig::default(),
             dl_args: vec![

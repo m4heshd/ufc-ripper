@@ -318,19 +318,6 @@
             >
           </div>
         </div>
-        <nav class="v-switch">
-          <div class="max">
-            <h6>Add metadata</h6>
-            <div>Write any available metadata into the downloaded file (consumes extra time)</div>
-          </div>
-          <label class="switch">
-            <input
-                v-model="modConfig.data.metadata"
-                type="checkbox"
-            >
-            <span></span>
-          </label>
-        </nav>
       </article>
 
       <article class="border round mod-config__content__section">

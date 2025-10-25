@@ -402,7 +402,6 @@ pub fn generate_vod_download_config(
         concur_frags,
         cus_format,
         format_id,
-        metadata,
         dl_args,
         ..
     } = config;
@@ -465,9 +464,6 @@ pub fn generate_vod_download_config(
     };
     if *multi_frag {
         arg_setup.extend(["--concurrent-fragments", &concur_frags_string]);
-    };
-    if *metadata {
-        arg_setup.push("--add-metadata");
     };
 
     let mut arg_setup_final = arg_setup
