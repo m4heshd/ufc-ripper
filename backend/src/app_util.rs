@@ -1,6 +1,5 @@
 // Libs
-use std::{env, path::PathBuf};
-
+use std::{env, env::consts::ARCH, env::consts::OS, path::PathBuf};
 use anyhow::Context;
 use path_absolutize::Absolutize;
 use semver::Version;
@@ -33,10 +32,18 @@ pub fn get_app_metadata() -> AppMeta {
 
 /// Returns a Node.js-like platform name, which the application is currently running on.
 pub fn get_os_id() -> String {
-    if cfg!(windows) {
-        "win32".to_string()
-    } else {
-        "linux".to_string()
+    match OS {
+        "windows" => "win32".to_string(),
+        "linux" => "linux".to_string(),
+        _ => "unsupported".to_string(),
+    }
+}
+
+/// Returns a friendly platform architecture name, which the application is currently running on.
+pub fn get_os_arch() -> String {
+    match ARCH {
+        "x86_64" => "x64".to_string(),
+        _ => "unsupported".to_string(),
     }
 }
 

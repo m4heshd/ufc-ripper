@@ -22,7 +22,7 @@ use tower_http::cors::{Any, CorsLayer};
 use ufcr_libs::{log_err, log_success};
 
 use crate::{
-    app_util::{get_app_metadata, get_os_id, is_container},
+    app_util::{get_app_metadata, get_os_arch, get_os_id, is_container},
     bin_util::BINS,
     config_util::{get_config, is_debug, update_config, ConfigUpdate, UFCRConfig},
     fs_util::{write_file_to_disk, WebAssets},
@@ -213,7 +213,7 @@ pub async fn get_latest_app_meta() -> anyhow::Result<JSON> {
 /// Fetches all the metadata for helper media-tools.
 pub async fn get_media_tools_meta() -> anyhow::Result<JSON> {
     let resp = HTTP_CLIENT
-        .get("https://raw.githubusercontent.com/m4heshd/media-tools/master/versions.json")
+        .get("https://raw.githubusercontent.com/m4heshd/media-tools/master/api/v2/versions.json")
         .send()
         .await
         .context("An error occurred while trying to retrieve media-tools information")?;
@@ -241,6 +241,8 @@ pub async fn download_media_tools(
         .await?
         .get_mut(&get_os_id())
         .context("Media tools metadata not available for the current platform")?
+        .get_mut(&get_os_arch())
+        .context("Media tools metadata not available for the current architecture")?
         .take();
 
     for tool in tools {
