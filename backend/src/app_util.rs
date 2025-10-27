@@ -43,6 +43,7 @@ pub fn get_os_id() -> String {
 pub fn get_os_arch() -> String {
     match ARCH {
         "x86_64" => "x64".to_string(),
+        "aarch64" => "arm64".to_string(),
         _ => "unsupported".to_string(),
     }
 }
