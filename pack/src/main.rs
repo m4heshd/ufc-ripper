@@ -1,5 +1,5 @@
 // Libs
-use std::{fs::File, path::PathBuf};
+use std::{env::consts::ARCH, fs::File, path::PathBuf};
 
 use clap::Parser;
 use fs_extra::{
@@ -28,6 +28,7 @@ fn main() -> anyhow::Result<()> {
 
     let cli_args = CLIArgs::parse();
     let platform = cli_args.platform.as_str();
+    let arch = get_os_arch();
     let bin_path = if platform == "win32" {
         "target/dist/ufc-ripper.exe"
     } else if platform == "linux" {
@@ -43,7 +44,7 @@ fn main() -> anyhow::Result<()> {
 
     let target_dir = format!("package/{platform}");
     let artifacts_dir = "package/artifacts";
-    let archive = format!("{artifacts_dir}/ufc-ripper{tag}-{platform}-x64.zip");
+    let archive = format!("{artifacts_dir}/ufc-ripper{tag}-{platform}-{arch}.zip");
     let sources = vec![bin_path, "config"];
 
     log_info!("Creating directory structure..\n");
@@ -79,4 +80,11 @@ fn main() -> anyhow::Result<()> {
     log_success!("Packaging process completed!\n");
 
     Ok(())
+}
+
+fn get_os_arch() -> String {
+    match ARCH {
+        "x86_64" => "x64".to_string(),
+        unsupported_arch => unsupported_arch.to_string(),
+    }
 }
