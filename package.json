@@ -17,6 +17,7 @@
     "build:backend:win32": "npm run build && cargo build-win32",
     "build:backend:linux": "npm run build && cargo build-linux",
     "build": "vite build",
+    "docker:build": "docker build -f build.Dockerfile -t m4heshd/ufc-ripper .",
     "docker:up": "docker compose up --detach --build",
     "docker:down": "docker compose down --volumes",
     "pack:win32": "cargo pack-win32",
