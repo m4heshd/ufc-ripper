@@ -1,0 +1,149 @@
+name: release_test
+
+run-name: Test release dev.${{ github.run_number }} ${{ inputs.publish && '(published)' || '' }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish this release'
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  build-assets:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
+          - windows-latest
+        include:
+          - os: ubuntu-22.04
+            platform_alias: linux
+            arch_alias: linux-x64
+          - os: ubuntu-22.04-arm
+            platform_alias: linux
+            arch_alias: linux-arm64
+          - os: windows-latest
+            platform_alias: win32
+            arch_alias: win32-x64
+    name: Build on ${{ matrix.os }} and upload release assets
+    runs-on: ${{ matrix.os }}
+    env:
+      RELEASE_TAG: dev.${{ github.run_number }}
+    steps:
+      # Checkout repo
+      - uses: actions/checkout@v4
+      # Setup Node.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Install npm deps
+      - name: Install npm dependencies
+        run: npm install --no-audit
+      # Build Vue frontend
+      - name: Build frontend
+        run: npm run build
+      # Set up Rust and Cargo
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: 1.90.0
+      # Build app
+      - name: Build backend
+        run: cargo build-${{ matrix.platform_alias }}
+      # Package app for release
+      - name: Package app
+        run: cargo pack-${{ matrix.platform_alias }} --tag ${{ env.RELEASE_TAG }}
+      # Create Windows installer
+      - if: matrix.platform_alias == 'win32'
+        name: Create Windows installer
+        shell: bash
+        run: |
+          cargo install cargo-packager --version 0.8.1 --locked
+          cargo create-installer-win32
+          rm -rf ./package/artifacts/.cargo-packager || true
+      # Upload release assets
+      - if: inputs.publish == true
+        name: Upload assets to release ${{ env.RELEASE_TAG }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          prerelease: true
+          generate_release_notes: true
+          make_latest: 'false'
+          files: |
+            ./package/artifacts/*
+      # Upload Linux x64 build to artifacts
+      - if: matrix.arch_alias == 'linux-x64'
+        name: Upload Linux x64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64-assets
+          path: package/linux/
+      # Upload Linux arm64 build to artifacts
+      - if: matrix.arch_alias == 'linux-arm64'
+        name: Upload Linux arm64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-assets
+          path: package/linux/
+
+  docker-publish:
+    name: Build and publish image to Docker Hub
+    needs: build-assets
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: dev.${{ github.run_number }}
+      DOCKER_REPO: m4heshd/ufc-ripper
+    steps:
+      # Checkout repo
+      - name: Checkout
+        uses: actions/checkout@v4
+      # Download Linux x64 build artifacts
+      - name: Download Linux x64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-x64-assets
+          path: package/linux/amd64
+      # Download Linux arm64 build artifacts
+      - name: Download Linux arm64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-arm64-assets
+          path: package/linux/arm64
+      # Set up QEMU
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      # Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      # Authenticate Docker Hub
+      - if: inputs.publish == true
+        name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Build docker image and push to Docker Hub repo
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ci.Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ inputs.publish }}
+          tags: |
+            ${{ env.DOCKER_REPO }}:${{ env.RELEASE_TAG }}
+      # Update Docker Hub repo description
+      - if: inputs.publish == true
+        name: Update repo description
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ env.DOCKER_REPO }}
+          readme-filepath: ./docker/README.md
+          short-description: ${{ github.event.repository.description }}
