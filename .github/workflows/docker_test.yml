@@ -1,0 +1,103 @@
+name: docker_test
+
+run-name: "Docker test build #${{ github.run_number }}"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-assets:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
+        include:
+          - os: ubuntu-22.04
+            platform_alias: linux
+            arch_alias: linux-x64
+          - os: ubuntu-22.04-arm
+            platform_alias: linux
+            arch_alias: linux-arm64
+    name: Build on ${{ matrix.os }} and upload artifacts
+    runs-on: ${{ matrix.os }}
+    env:
+      RELEASE_TAG: debug-${{ github.run_number }}
+    steps:
+      # Checkout repo
+      - uses: actions/checkout@v4
+      # Setup Node.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Install npm deps
+      - name: Install npm dependencies
+        run: npm install --no-audit
+      # Build Vue frontend
+      - name: Build frontend
+        run: npm run build
+      # Set up Rust and Cargo
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: 1.90.0
+      # Build app
+      - name: Build backend
+        run: cargo build-${{ matrix.platform_alias }}
+      # Package app for release
+      - name: Package app
+        run: cargo pack-${{ matrix.platform_alias }} --tag ${{ env.RELEASE_TAG }}
+      # Upload Linux x64 build to artifacts
+      - if: matrix.arch_alias == 'linux-x64'
+        name: Upload Linux x64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64-assets
+          path: package/linux/
+      # Upload Linux arm64 build to artifacts
+      - if: matrix.arch_alias == 'linux-arm64'
+        name: Upload Linux arm64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-assets
+          path: package/linux/
+
+  docker-publish:
+    name: Test building Docker image
+    needs: build-assets
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: debug-${{ github.run_number }}
+      DOCKER_REPO: m4heshd/ufc-ripper
+    steps:
+      # Checkout repo
+      - name: Checkout
+        uses: actions/checkout@v4
+      # Download Linux x64 build artifacts
+      - name: Download Linux x64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-x64-assets
+          path: package/linux/amd64
+      # Download Linux arm64 build artifacts
+      - name: Download Linux arm64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-arm64-assets
+          path: package/linux/arm64
+      # Set up QEMU
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      # Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      # Build docker image
+      - name: Build docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ci.Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: false
+          tags: |
+            ${{ env.DOCKER_REPO }}:${{ env.RELEASE_TAG }}
