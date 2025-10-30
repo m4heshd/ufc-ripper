@@ -16,7 +16,7 @@ use ufcr_libs::{log_err, log_info, log_success};
 #[command(long_about = None)]
 struct CLIArgs {
     /// Target platform.
-    #[arg(short, long, value_name = "PLATFORM (win32, linux)")]
+    #[arg(short, long, value_name = "PLATFORM (win32, linux, macos)")]
     platform: String,
     /// Optional version tag for the release artifacts.
     #[arg(short, long, value_name = "RELEASE TAG")]
@@ -31,7 +31,7 @@ fn main() -> anyhow::Result<()> {
     let arch = get_os_arch();
     let bin_path = if platform == "win32" {
         "target/dist/ufc-ripper.exe"
-    } else if platform == "linux" {
+    } else if platform == "linux" || platform == "macos" {
         "target/dist/ufc-ripper"
     } else {
         log_err!("This platform is not supported\n");
@@ -64,7 +64,7 @@ fn main() -> anyhow::Result<()> {
     zip.create_from_directory_with_options(&PathBuf::from(&target_dir), |file| {
         if platform == "win32" {
             default_file_options
-        } else if file.eq(&PathBuf::from("package/linux/ufc-ripper")) {
+        } else if file.eq(&PathBuf::from("package/linux/ufc-ripper")) || file.eq(&PathBuf::from("package/macos/ufc-ripper")) {
             FileOptions::default()
                 .compression_method(CompressionMethod::Deflated)
                 .unix_permissions(0o775)

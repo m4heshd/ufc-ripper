@@ -35,6 +35,7 @@ pub fn get_os_id() -> String {
     match OS {
         "windows" => "win32".to_string(),
         "linux" => "linux".to_string(),
+        "macos" => "macos".to_string(),
         _ => "unsupported".to_string(),
     }
 }
