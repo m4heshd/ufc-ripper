@@ -16,12 +16,14 @@
     "test": "npm run build && cargo test-backend",
     "build:backend:win32": "npm run build && cargo build-win32",
     "build:backend:linux": "npm run build && cargo build-linux",
+    "build:backend:macos": "npm run build && cargo build-macos",
     "build": "vite build",
     "docker:build": "docker build -f build.Dockerfile -t m4heshd/ufc-ripper .",
     "docker:up": "docker compose up --detach --build",
     "docker:down": "docker compose down --volumes",
     "pack:win32": "cargo pack-win32",
-    "pack:linux": "cargo pack-linux"
+    "pack:linux": "cargo pack-linux",
+    "pack:macos": "cargo pack-macos"
   },
   "dependencies": {
     "beercss": "2.2.11",

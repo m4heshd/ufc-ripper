@@ -5,6 +5,8 @@ rustflags = ["-C", "target-feature=+crt-static"]
 test-backend = 'test -- --test-threads=1'
 build-win32 = 'build --profile dist --package ufc-ripper --features=exe_res'
 build-linux = 'build --profile dist --package ufc-ripper'
+build-macos = 'build --profile dist --package ufc-ripper'
 pack-win32 = 'run --release --package pack -- --platform win32'
 pack-linux = 'run --release --package pack -- --platform linux'
+pack-macos = 'run --release --package pack -- --platform macos'
 create-installer-win32 = 'packager -p ufc-ripper --profile dist'
