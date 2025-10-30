@@ -17,6 +17,8 @@
   "vidQuality": "bestvideo",
   "audQuality": "bestaudio",
   "dlPath": "",
+  "useTempPath": false,
+  "tempPath": "",
   "numberFiles": true,
   "curNumber": 1,
   "multiFrag": true,

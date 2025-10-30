@@ -18,7 +18,7 @@ use tokio::{
     time::Instant,
 };
 
-use ufcr_libs::log_err;
+use ufcr_libs::{log_err, log_warn};
 
 use crate::{
     app_util::get_app_root_dir,
@@ -384,6 +384,8 @@ pub fn generate_vod_download_config(
         resolution,
         merge_ext,
         dl_path,
+        use_temp_path,
+        temp_path,
         number_files,
         cur_number,
         throttle,
@@ -419,6 +421,13 @@ pub fn generate_vod_download_config(
             "Failed to build the given downloads path. Try changing the downloads directory",
         )?
     );
+    let temp_path_buf = PathBuf::from(temp_path);
+    let temp_path = format!(
+        "temp:{}",
+        temp_path_buf.to_str().context(
+            "Failed to build the given temporary path. Try changing the temporary directory",
+        )?
+    );
     let output_template = format!("{final_title}.%(ext)s");
     let bin_path_buf = get_app_root_dir().join("bin");
     let concur_frags_string = concur_frags.to_string();
@@ -449,6 +458,13 @@ pub fn generate_vod_download_config(
         )?,
     ];
 
+    if *use_temp_path {
+        if temp_path.eq("temp:") {
+            log_warn!(r#"You have "Use temporary path" enabled for downloads but the path is empty. Consider setting a proper temporary path"#);
+        } else {
+            arg_setup.extend(["--paths", &temp_path]);
+        }
+    };
     if *throttle {
         arg_setup.extend(["--limit-rate", dl_rate]);
     };

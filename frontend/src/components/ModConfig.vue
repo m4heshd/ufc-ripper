@@ -193,6 +193,29 @@
           <label>Location (directory)</label>
           <i>folder_open</i>
         </div>
+        <nav class="v-switch">
+          <div class="max">
+            <h6>Use temporary path</h6>
+            <div>Using a temporary path for download parts in a different drive (or a ramdisk) can decrease the build time of downloads significantly</div>
+          </div>
+          <label class="switch">
+            <input
+                v-model="modConfig.data.useTempPath"
+                type="checkbox"
+            >
+            <span></span>
+          </label>
+        </nav>
+        <div class="field label suffix border round small">
+          <input
+              v-model="modConfig.data.tempPath"
+              type="text"
+              autocomplete="off"
+              :disabled="store.appMeta.isContainer || !modConfig.data.useTempPath"
+          >
+          <label>Temporary location (directory)</label>
+          <i>folder_open</i>
+        </div>
         <div class="field label suffix border round small">
           <select
               v-model="modConfig.data.mergeExt"
