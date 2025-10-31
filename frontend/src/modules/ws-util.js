@@ -41,8 +41,12 @@ export function useWSUtil() {
         await getDLQ();
         store.hideOverlay();
 
-        await checkAppUpdate();
-        if (store.update.updatable) store.showModUpdatePrompt();
+        try {
+            await checkAppUpdate();
+            if (store.update.updatable) store.showModUpdatePrompt();
+        } catch (error) {
+            store.popError(error);
+        }
 
         await validateMediaTools();
         if (store.missingTools.length) modBinDL.showModBinDL();
