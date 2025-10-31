@@ -1,5 +1,6 @@
 // Libs
 use std::{env, env::consts::ARCH, env::consts::OS, path::PathBuf};
+
 use anyhow::Context;
 use path_absolutize::Absolutize;
 use semver::Version;
@@ -7,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::{
-    net_util::{get_remote_app_meta, JSON, JsonTryGet},
+    net_util::{get_remote_app_meta, JsonTryGet, JSON},
     rt_util::QuitUnwrap,
 };
 
@@ -83,11 +84,15 @@ pub async fn check_app_update() -> anyhow::Result<JSON> {
     let err_msg = "Invalid version information in the app update-check response";
     let remote_meta = get_remote_app_meta().await?;
     let latest = remote_meta.try_get("latest");
-    let version = Version::parse(latest.try_get("version").as_str().context(err_msg)?)
+    let version =
+        Version::parse(latest.try_get("version").as_str().context(err_msg)?).context(err_msg)?;
+    let release_url = latest
+        .try_get("release")
+        .try_get("url")
+        .as_str()
         .context(err_msg)?;
-    let release_url = latest.try_get("release").try_get("url").as_str().context(err_msg)?;
 
-    if version > Version::parse(get_app_metadata().version)? {
+    if version > Version::parse(get_app_metadata().version).context(err_msg)? {
         Ok(json!({
             "updatable": true,
             "version": version.to_string(),
