@@ -188,8 +188,8 @@ async fn handle_config_dl_req() -> impl IntoResponse {
 }
 
 /// Fetches UFC Ripper's update information from the GitHub repo.
-pub async fn get_latest_app_meta() -> anyhow::Result<JSON> {
-    let req_url = format!("{}/raw/master/package.json", get_app_metadata().repo);
+pub async fn get_remote_app_meta() -> anyhow::Result<JSON> {
+    let req_url = format!("{}/raw/master/api/v1/app.json", get_app_metadata().repo);
     let resp = HTTP_CLIENT
         .get(req_url)
         .send()
