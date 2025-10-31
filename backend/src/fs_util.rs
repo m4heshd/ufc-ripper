@@ -64,6 +64,20 @@ pub async fn write_config_to_file(path: &PathBuf) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Creates a backup of the config.json file in the same directory.
+pub async fn create_config_backup(
+    source_path: &PathBuf,
+    target_filename: &str,
+) -> anyhow::Result<()> {
+    let parent_dir = source_path
+        .parent()
+        .context("Failed to get parent directory of the config file")?;
+
+    fs::copy(source_path, parent_dir.join(target_filename)).await?;
+
+    Ok(())
+}
+
 /// Creates a file on the disk using the given byte-stream.
 pub async fn write_file_to_disk<S>(
     path: PathBuf,

@@ -3,16 +3,22 @@
 // Libs
 use std::{path::PathBuf, sync::Arc};
 
+use anyhow::Context;
 use arc_swap::{ArcSwap, Guard};
 use once_cell::sync::{Lazy, OnceCell};
 use serde::{Deserialize, Serialize};
 
 use crate::{
     app_util::get_app_root_dir,
-    fs_util::{build_downloads_dir_path, read_config_file_to_string, write_config_to_file},
-    net_util::LoginSession,
+    fs_util::{
+        build_downloads_dir_path, create_config_backup, read_config_file_to_string,
+        write_config_to_file,
+    },
+    net_util::{LoginSession, JSON},
     rt_util::QuitUnwrap,
 };
+
+use ufcr_libs::{log_err, log_success, log_warn};
 
 // Structs
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -149,13 +155,76 @@ pub async fn load_config() {
     update_config(ConfigUpdate::Config(Box::new(get_config_from_file().await))).await;
 }
 
+/// Merges old values of the configuration recursively into new values
+fn merge_config_data(new_data: &mut JSON, old_data: &JSON) {
+    match (new_data, old_data) {
+        (JSON::Object(ref mut new_obj), JSON::Object(ref old_obj)) => {
+            for (key, val) in old_obj {
+                if let Some(sub_value) = new_obj.get_mut(key) {
+                    match (&sub_value, val) {
+                        (JSON::Object(_), JSON::Object(_)) => merge_config_data(sub_value, val),
+                        (JSON::Array(_), JSON::Array(_))
+                        | (JSON::String(_), JSON::String(_))
+                        | (JSON::Number(_), JSON::Number(_))
+                        | (JSON::Bool(_), JSON::Bool(_))
+                        | (JSON::Null, JSON::Null) => {
+                            *sub_value = val.clone();
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+        (new_val, old_val) => {
+            *new_val = old_val.clone();
+        }
+    }
+}
+
+/// Migrates an outdated configuration into the current one
+fn migrate_config(old_config_str: &str) -> anyhow::Result<UFCRConfig> {
+    let old_config =
+        serde_json::from_str(old_config_str).context("Provided config file is not valid JSON")?;
+    let mut new_config = serde_json::to_value(UFCRConfig::default())
+        .context("Failed to convert default configuration to JSON")?;
+
+    merge_config_data(&mut new_config, &old_config);
+
+    let migrated_config: UFCRConfig = serde_json::from_value(new_config)
+        .context("Failed to generate a configuration from migrated data")?;
+
+    Ok(migrated_config)
+}
+
 /// Gets the config.json file content and turn it into a valid `UFCRConfig`.
 pub async fn get_config_from_file() -> UFCRConfig {
     let conf_file = read_config_file_to_string(&CONFIG_PATH).await;
 
-    let mut config: UFCRConfig = serde_json::from_str(&conf_file).unwrap_or_quit(
-        r#"Invalid configuration format. Please reset your "config.json" file or check the configuration"#,
-    );
+    let mut config: UFCRConfig = if let Ok(conf) = serde_json::from_str(&conf_file) {
+        conf
+    } else {
+        log_warn!("Invalid configuration format detected. Attempting to migrate..\n");
+
+        match migrate_config(&conf_file) {
+            Ok(migrated_conf) => {
+                log_success!("Migration process successful. Backing up the old config file..\n");
+
+                create_config_backup(&CONFIG_PATH, "config_backup.json").await
+                    .unwrap_or_quit("Failed to create a backup of the old configuration. Please try manually updating the config file");
+
+                log_success!("Backup file successfully created. You can find the backup file in config directory named \"config_backup.json\"\n");
+
+                migrated_conf
+            }
+            Err(error) => {
+                log_err!(
+                    "{}. Reverting to default configuration..\n",
+                    error.to_string()
+                );
+                UFCRConfig::default()
+            }
+        }
+    };
 
     config.dl_path = build_downloads_dir_path(config.dl_path)
         .unwrap_or_quit("Failed to build the path for user's downloads directory");
