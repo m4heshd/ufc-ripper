@@ -51,6 +51,7 @@ icons = ["../project-res/images/ufc-ripper-icon.ico"]
 out-dir = "../package/artifacts"
 
 [package.metadata.packager.nsis]
+template = "../project-res/win32/nsis/installer.nsi"
 installer-icon = "../project-res/images/ufc-ripper-icon.ico"
 header-image = "../project-res/images/installer_header.bmp"
 sidebar-image = "../project-res/images/installer_sidebar.bmp"
