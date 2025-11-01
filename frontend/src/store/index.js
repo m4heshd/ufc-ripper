@@ -81,6 +81,10 @@ export const useAppStore = defineStore('app', {
             toast.error(msg);
             console.error(error || msg);
         },
+        popWarning: (warning) => {
+            console.warn(warning);
+            toast.warning(warning.message);
+        },
         popInfo: msg => toast.info(msg),
         popSuccess: msg => toast.success(msg),
         showOverlay() {

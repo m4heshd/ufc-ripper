@@ -21,6 +21,10 @@ body {
       display: flex;
       align-items: center;
     }
+
+    &--warning {
+      background-color: #a98600;
+    }
   }
 
   &__close-button {

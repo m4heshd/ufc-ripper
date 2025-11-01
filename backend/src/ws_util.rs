@@ -13,7 +13,7 @@ use socketioxide::{
     SocketIo, SocketIoBuilder,
 };
 
-use ufcr_libs::{log_err, log_info};
+use ufcr_libs::{log_err, log_info, log_warn};
 
 use crate::{
     app_util::{check_app_update, get_app_metadata},
@@ -135,6 +135,19 @@ where
     );
 }
 
+/// Constructs and sends a warning event to all connected clients with the provided message
+fn emit_warn(msg: &str) {
+    log_warn!("{msg}\n");
+
+    emit_to_all(
+        "server-warning",
+        json!({
+                "name": "UFCRWarning",
+                "message": msg
+        }),
+    );
+}
+
 /// Emits any updated configuration to all connected clients
 pub fn emit_config_update() {
     emit_to_all("config-update", get_config().as_ref());
@@ -195,7 +208,12 @@ async fn handle_save_config_event(ack: AckSender, Data(data): Data<JSON>) {
         finish_config_update(ack, new_config).await;
     } else if let Ok(new_config_str) = serde_json::to_string(&data) {
         match migrate_config(&new_config_str) {
-            Ok(migrated_config) => finish_config_update(ack, migrated_config).await,
+            Ok(migrated_config) => {
+                finish_config_update(ack, migrated_config).await;
+                emit_warn(
+                    "Imported config file was outdated. A migration was performed before importing",
+                );
+            }
             Err(error) => send_error(ack, format!("Invalid configuration format. {error}")),
         }
     } else {

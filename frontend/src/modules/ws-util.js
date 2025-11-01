@@ -29,6 +29,7 @@ export function useWSUtil() {
         socket.on('disconnect', store.showOverlay);
         socket.on('config-update', onConfigUpdate);
         socket.on('server-error', onServerError);
+        socket.on('server-warning', onServerWarning);
         socket.on('dl-progress', onDownloadProgress);
         socket.on('media-tool-dl-progress', onMediaToolDLProgress);
     }
@@ -58,6 +59,10 @@ export function useWSUtil() {
 
     function onServerError(error) {
         store.popError(error);
+    }
+
+    function onServerWarning(warning) {
+        store.popWarning(warning);
     }
 
     function onDownloadProgress(qID, updates) {

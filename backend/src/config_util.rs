@@ -8,6 +8,8 @@ use arc_swap::{ArcSwap, Guard};
 use once_cell::sync::{Lazy, OnceCell};
 use serde::{Deserialize, Serialize};
 
+use ufcr_libs::{log_err, log_success, log_warn};
+
 use crate::{
     app_util::get_app_root_dir,
     fs_util::{
@@ -17,8 +19,6 @@ use crate::{
     net_util::{LoginSession, JSON},
     rt_util::QuitUnwrap,
 };
-
-use ufcr_libs::{log_err, log_success, log_warn};
 
 // Structs
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
