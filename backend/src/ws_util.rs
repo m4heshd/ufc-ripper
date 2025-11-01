@@ -18,7 +18,7 @@ use ufcr_libs::{log_err, log_info};
 use crate::{
     app_util::{check_app_update, get_app_metadata},
     bin_util::{cancel_download, get_vod_formats, start_download, validate_bins},
-    config_util::{get_config, is_debug, update_config, ConfigUpdate, UFCRConfig},
+    config_util::{get_config, is_debug, migrate_config, update_config, ConfigUpdate, UFCRConfig},
     fs_util::open_downloads_dir,
     net_util::{
         download_media_tools, get_vod_meta, get_vod_stream_url, login_to_fight_pass, search_vods,
@@ -182,15 +182,27 @@ where
 
 /// Handles the `save-config` WS event.
 async fn handle_save_config_event(ack: AckSender, Data(data): Data<JSON>) {
-    if let Ok(new_config) = serde_json::from_value::<UFCRConfig>(data) {
+    let finish_config_update = |ack: AckSender, new_config: UFCRConfig| async {
         update_config(ConfigUpdate::Config(Box::new(new_config))).await;
         ack.send(get_config().as_ref()).ok();
 
         if let Err(error) = update_proxied_client() {
             emit_error(error);
         }
+    };
+
+    if let Ok(new_config) = serde_json::from_value::<UFCRConfig>(data.clone()) {
+        finish_config_update(ack, new_config).await;
+    } else if let Ok(new_config_str) = serde_json::to_string(&data) {
+        match migrate_config(&new_config_str) {
+            Ok(migrated_config) => finish_config_update(ack, migrated_config).await,
+            Err(error) => send_error(ack, format!("Invalid configuration format. {error}")),
+        }
     } else {
-        send_error(ack, "Invalid configuration format");
+        send_error(
+            ack,
+            "Invalid configuration format. Configuration data is not valid JSON",
+        );
     }
 }
 

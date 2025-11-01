@@ -182,7 +182,7 @@ fn merge_config_data(new_data: &mut JSON, old_data: JSON) {
 }
 
 /// Migrates an outdated configuration into the current one
-fn migrate_config(old_config_str: &str) -> anyhow::Result<UFCRConfig> {
+pub fn migrate_config(old_config_str: &str) -> anyhow::Result<UFCRConfig> {
     let old_config =
         serde_json::from_str(old_config_str).context("Provided config file is not valid JSON")?;
     let mut new_config = serde_json::to_value(UFCRConfig::default())
