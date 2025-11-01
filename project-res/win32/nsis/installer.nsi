@@ -483,9 +483,11 @@ Section Install
   {{/each}}
 
   ; Copy resources
+  SetOverwrite off
   {{#each resources}}
     File /a "/oname={{this}}" "{{@key}}"
   {{/each}}
+  SetOverwrite on
 
   ; Copy external binaries
   {{#each binaries}}
