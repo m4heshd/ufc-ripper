@@ -156,19 +156,19 @@ pub async fn load_config() {
 }
 
 /// Merges old values of the configuration recursively into new values
-fn merge_config_data(new_data: &mut JSON, old_data: &JSON) {
+fn merge_config_data(new_data: &mut JSON, old_data: JSON) {
     match (new_data, old_data) {
-        (JSON::Object(ref mut new_obj), JSON::Object(ref old_obj)) => {
+        (JSON::Object(ref mut new_obj), JSON::Object(old_obj)) => {
             for (key, val) in old_obj {
-                if let Some(sub_value) = new_obj.get_mut(key) {
-                    match (&sub_value, val) {
+                if let Some(sub_value) = new_obj.get_mut(&key) {
+                    match (&sub_value, &val) {
                         (JSON::Object(_), JSON::Object(_)) => merge_config_data(sub_value, val),
                         (JSON::Array(_), JSON::Array(_))
                         | (JSON::String(_), JSON::String(_))
                         | (JSON::Number(_), JSON::Number(_))
                         | (JSON::Bool(_), JSON::Bool(_))
                         | (JSON::Null, JSON::Null) => {
-                            *sub_value = val.clone();
+                            *sub_value = val;
                         }
                         _ => {}
                     }
@@ -176,7 +176,7 @@ fn merge_config_data(new_data: &mut JSON, old_data: &JSON) {
             }
         }
         (new_val, old_val) => {
-            *new_val = old_val.clone();
+            *new_val = old_val;
         }
     }
 }
@@ -188,7 +188,7 @@ fn migrate_config(old_config_str: &str) -> anyhow::Result<UFCRConfig> {
     let mut new_config = serde_json::to_value(UFCRConfig::default())
         .context("Failed to convert default configuration to JSON")?;
 
-    merge_config_data(&mut new_config, &old_config);
+    merge_config_data(&mut new_config, old_config);
 
     let migrated_config: UFCRConfig = serde_json::from_value(new_config)
         .context("Failed to generate a configuration from migrated data")?;
