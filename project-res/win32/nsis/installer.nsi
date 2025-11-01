@@ -296,6 +296,10 @@ FunctionEnd
 
 ; 5. Choose install directoy page
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW DisableInstLocationChange
+!define MUI_PAGE_HEADER_TEXT "Install Location"
+!define MUI_PAGE_HEADER_SUBTEXT "Review the location where UFC Ripper will be installed."
+!define MUI_DIRECTORYPAGE_TEXT_TOP "UFC Ripper will be installed to the folder shown below. The installation path cannot be changed because it's the most optimal location for the application to function properly."
 !insertmacro MUI_PAGE_DIRECTORY
 
 ; 6. Start menu shortcut page
@@ -670,4 +674,21 @@ Function CreateStartMenuShortcut
   CreateDirectory "$SMPROGRAMS\$AppStartMenuFolder"
   CreateShortcut "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk" "$INSTDIR\${MAINBINARYNAME}.exe"
   ApplicationID::Set "$SMPROGRAMS\$AppStartMenuFolder\${PRODUCTNAME}.lnk" "${IDENTIFIER}"
+FunctionEnd
+
+Function DisableInstLocationChange
+  FindWindow $R0 "#32770" "" $HWNDPARENT
+  ${If} $R0 == 0
+    Return
+  ${EndIf}
+
+  GetDlgItem $R1 $R0 1019
+  ${If} $R1 != 0
+    EnableWindow $R1 0
+  ${EndIf}
+
+  GetDlgItem $R1 $R0 1001
+  ${If} $R1 != 0
+    EnableWindow $R1 0
+  ${EndIf}
 FunctionEnd
