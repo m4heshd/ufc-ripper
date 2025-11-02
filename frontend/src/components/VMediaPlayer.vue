@@ -104,25 +104,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss">
-.v-media-player {
-  min-width: 100%;
-  --plyr-color-main: var(--primary);
-
-  video {
-    height: 100%;
-    min-width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-  }
-
-  * {
-    all: revert;
-
-    &:after {
-      all: revert;
-    }
-  }
-}
-
-@import "plyr/dist/plyr";
+@use "@/assets/styles/v-media-player.scss";
+@use "plyr/dist/plyr";
 </style>
