@@ -289,9 +289,8 @@ pub async fn login_to_fight_pass(
     email: &str,
     pass: &str,
 ) -> anyhow::Result<LoginSession> {
-    let proxied_client = &*HTTP_PROXIED_CLIENT.load();
     let client = if get_config().use_proxy {
-        proxied_client
+        &HTTP_PROXIED_CLIENT.load()
     } else {
         &*HTTP_CLIENT
     };
@@ -348,9 +347,8 @@ pub async fn refresh_access_token() -> anyhow::Result<()> {
         println!("Refreshing access token..\n");
     }
 
-    let proxied_client = &*HTTP_PROXIED_CLIENT.load();
     let client = if get_config().use_proxy {
-        proxied_client
+        &HTTP_PROXIED_CLIENT.load()
     } else {
         &*HTTP_CLIENT
     };
@@ -405,9 +403,8 @@ pub async fn refresh_access_token() -> anyhow::Result<()> {
 
 /// Searches the UFC Fight Pass library for VODs.
 pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
-    let proxied_client = &*HTTP_PROXIED_CLIENT.load();
     let client = if get_config().use_proxy {
-        proxied_client
+        &HTTP_PROXIED_CLIENT.load()
     } else {
         &*HTTP_CLIENT
     };
@@ -477,9 +474,8 @@ pub async fn get_vod_meta(url: &str) -> anyhow::Result<Vod> {
     // Runs the metadata request and returns the status of that request.
     // Having this as a closure allows this process to be run multiple times.
     let run_request = || async {
-        let proxied_client = &*HTTP_PROXIED_CLIENT.load();
         let client = if get_config().use_proxy {
-            proxied_client
+            &HTTP_PROXIED_CLIENT.load()
         } else {
             &*HTTP_CLIENT
         };
@@ -573,9 +569,8 @@ pub async fn get_vod_meta(url: &str) -> anyhow::Result<Vod> {
 
 /// Fetches the HLS stream URL for a given Fight Pass video.
 pub async fn get_vod_stream_url(vod_id: u64) -> anyhow::Result<String> {
-    let proxied_client = &*HTTP_PROXIED_CLIENT.load();
     let client = if get_config().use_proxy {
-        proxied_client
+        &HTTP_PROXIED_CLIENT.load()
     } else {
         &*HTTP_CLIENT
     };
