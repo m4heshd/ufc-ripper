@@ -14,7 +14,10 @@ use axum::{
 };
 use axum_embed::{FallbackBehavior::Redirect, ServeEmbed};
 use once_cell::sync::Lazy;
-use reqwest::{header::HeaderMap, Client, Proxy, Response};
+use reqwest::{
+    header::{HeaderMap, CACHE_CONTROL, PRAGMA},
+    Client, Proxy, Response,
+};
 use serde_json::{json, value::Index, Value};
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
@@ -189,9 +192,13 @@ async fn handle_config_dl_req() -> impl IntoResponse {
 
 /// Fetches UFC Ripper's update information from the GitHub repo.
 pub async fn get_remote_app_meta() -> anyhow::Result<JSON> {
-    let req_url = format!("{}/raw/master/api/v1/app.json", get_app_metadata().repo);
     let resp = HTTP_CLIENT
-        .get(req_url)
+        .get(format!(
+            "{}/raw/master/api/v1/app.json",
+            get_app_metadata().repo
+        ))
+        .header(CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+        .header(PRAGMA, "no-cache")
         .send()
         .await
         .context("An error occurred while trying to retrieve app update information")?;
@@ -200,7 +207,7 @@ pub async fn get_remote_app_meta() -> anyhow::Result<JSON> {
         return Err(anyhow!(
             "Server responded with an error for the app update check"
         ));
-    };
+    }
 
     let json_body: JSON = resp
         .json()
@@ -214,6 +221,8 @@ pub async fn get_remote_app_meta() -> anyhow::Result<JSON> {
 pub async fn get_media_tools_meta() -> anyhow::Result<JSON> {
     let resp = HTTP_CLIENT
         .get("https://raw.githubusercontent.com/m4heshd/media-tools/master/api/v2/versions.json")
+        .header(CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+        .header(PRAGMA, "no-cache")
         .send()
         .await
         .context("An error occurred while trying to retrieve media-tools information")?;
@@ -222,7 +231,7 @@ pub async fn get_media_tools_meta() -> anyhow::Result<JSON> {
         return Err(anyhow!(
             "Server responded with an error for the media-tools metadata request"
         ));
-    };
+    }
 
     let json_body: JSON = resp
         .json()
@@ -239,9 +248,9 @@ pub async fn download_media_tools(
 ) -> anyhow::Result<()> {
     let media_tools_meta = get_media_tools_meta()
         .await?
-        .get_mut(&get_os_id())
+        .get_mut(get_os_id())
         .context("Media tools metadata not available for the current platform")?
-        .get_mut(&get_os_arch())
+        .get_mut(get_os_arch())
         .context("Media tools metadata not available for the current architecture")?
         .take();
 
@@ -322,7 +331,7 @@ pub async fn login_to_fight_pass(
         }
 
         return Err(anyhow!(err_msg));
-    };
+    }
 
     let err_msg = "Login information contains an invalid response";
     let json_body: JSON = resp.json().await.context(err_msg)?;
@@ -380,7 +389,7 @@ pub async fn refresh_access_token() -> anyhow::Result<()> {
         }
 
         return Err(anyhow!(err_msg));
-    };
+    }
 
     let json_body: JSON = resp
         .json()
@@ -446,7 +455,7 @@ pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
         return Err(anyhow!(
             "Server responded with an error for the search request"
         ));
-    };
+    }
 
     let json_body: JSON = resp
         .json()
@@ -513,7 +522,7 @@ pub async fn get_vod_meta(url: &str) -> anyhow::Result<Vod> {
                 )),
                 _ => Err(anyhow!(err_msg)),
             };
-        };
+        }
 
         let json_body: JSON = resp
             .json()
