@@ -220,7 +220,7 @@ pub async fn get_remote_app_meta() -> anyhow::Result<JSON> {
 /// Fetches all the metadata for helper media-tools.
 pub async fn get_media_tools_meta() -> anyhow::Result<JSON> {
     let resp = HTTP_CLIENT
-        .get("https://raw.githubusercontent.com/m4heshd/media-tools/master/api/v2/versions.json")
+        .get("https://m4heshd.github.io/media-tools/api/v2/latest.json")
         .header(CACHE_CONTROL, "no-cache, no-store, must-revalidate")
         .header(PRAGMA, "no-cache")
         .send()
