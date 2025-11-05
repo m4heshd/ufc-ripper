@@ -111,10 +111,26 @@ pub async fn check_app_update() -> anyhow::Result<JSON> {
 
 #[cfg(test)]
 mod tests {
-    use super::is_container;
+    use super::{get_os_arch, get_os_id, is_container};
 
     #[test]
     fn unit_is_container() {
         assert!(!is_container());
+    }
+
+    #[test]
+    fn unit_os_supported() {
+        let os = get_os_id();
+
+        println!("\x1b[32mPlatform - {os}\x1b[0m");
+        assert_ne!(os, "unsupported");
+    }
+
+    #[test]
+    fn unit_arch_supported() {
+        let arch = get_os_arch();
+
+        println!("\x1b[32mArch - {arch}\x1b[0m");
+        assert_ne!(arch, "unsupported");
     }
 }
