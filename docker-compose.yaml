@@ -2,7 +2,9 @@ version: "3"
 
 services:
   ufc-ripper:
-    build: .
+    build:
+      context: .
+      dockerfile: build.Dockerfile
     image: m4heshd/ufc-ripper
     container_name: ufc-ripper
     restart: "no"
