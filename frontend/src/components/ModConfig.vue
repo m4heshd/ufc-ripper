@@ -98,7 +98,20 @@
         <h5>General</h5>
         <nav class="v-switch">
           <div class="max">
-            <h6>Configuration</h6>
+            <h6>Verbose logging</h6>
+            <div>Prints additional information about errors and other events to the console</div>
+          </div>
+          <label class="switch">
+            <input
+                v-model="modConfig.data.verboseLogging"
+                type="checkbox"
+            >
+            <span></span>
+          </label>
+        </nav>
+        <nav class="v-switch">
+          <div class="max">
+            <h6>Configuration management</h6>
           </div>
         </nav>
         <button>
