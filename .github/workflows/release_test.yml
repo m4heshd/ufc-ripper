@@ -11,6 +11,9 @@ on:
         default: false
         type: boolean
 
+env:
+  RELEASE_TAG: dev.${{ github.run_number }}
+
 jobs:
   build-assets:
     strategy:
@@ -19,6 +22,8 @@ jobs:
           - ubuntu-22.04
           - ubuntu-22.04-arm
           - windows-latest
+          - macos-15
+          - macos-15-intel
         include:
           - os: ubuntu-22.04
             platform_alias: linux
@@ -29,10 +34,14 @@ jobs:
           - os: windows-latest
             platform_alias: win32
             arch_alias: win32-x64
+          - os: macos-15
+            platform_alias: macos
+            arch_alias: macos-arm64
+          - os: macos-15-intel
+            platform_alias: macos
+            arch_alias: macos-x64
     name: Build on ${{ matrix.os }} and upload release assets
     runs-on: ${{ matrix.os }}
-    env:
-      RELEASE_TAG: dev.${{ github.run_number }}
     steps:
       # Checkout repo
       - uses: actions/checkout@v4
@@ -96,7 +105,6 @@ jobs:
     needs: build-assets
     runs-on: ubuntu-latest
     env:
-      RELEASE_TAG: dev.${{ github.run_number }}
       DOCKER_REPO: m4heshd/ufc-ripper
     steps:
       # Checkout repo
