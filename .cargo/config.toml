@@ -2,7 +2,7 @@
 rustflags = ["-C", "target-feature=+crt-static"]
 
 [alias]
-test-backend = 'test -- --test-threads=1'
+test-backend = 'test -- --test-threads=1 --show-output'
 build-win32 = 'build --profile dist --package ufc-ripper --features=exe_res'
 build-linux = 'build --profile dist --package ufc-ripper'
 build-macos = 'build --profile dist --package ufc-ripper'
