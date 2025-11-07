@@ -28,6 +28,13 @@
         </div>
 
         <div class="donation-sources__links center-content">
+          <VAnchor href="https://wise.variatix.net/">
+            <img
+                alt="Wise support button"
+                title="Support me on Wise"
+                src="@/assets/images/wise.png"
+            >
+          </VAnchor>
           <VAnchor href="https://ko-fi.variatix.net/">
             <img
                 alt="Ko-fi support button"
@@ -64,7 +71,7 @@ import ModMsgBox from '@/components/ModMsgBox.vue';
 <style lang="scss">
 .mod-support {
   width: 100%;
-  max-width: 600rem;
+  max-width: 670rem;
   max-height: 80%;
   display: grid;
   grid-template-rows: max-content minmax(0rem, 1fr) max-content;
