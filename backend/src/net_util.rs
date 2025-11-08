@@ -268,6 +268,10 @@ pub async fn download_media_tools(
             .as_str()
             .context("Invalid media-tool download URL")?;
 
+        if is_debug() {
+            println!("Download URL - {url}\n");
+        }
+
         let resp = HTTP_CLIENT.get(url).send().await.context(format!(
             "An error occurred while trying to send the media-tool({tool}) download request"
         ))?;
