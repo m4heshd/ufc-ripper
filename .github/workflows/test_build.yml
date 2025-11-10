@@ -12,6 +12,7 @@ on:
         type: choice
         options:
           - windows-latest
+          - windows-11-arm
           - ubuntu-22.04
           - ubuntu-22.04-arm
           - macos-15
@@ -23,7 +24,7 @@ jobs:
     name: Building for tests on ${{ inputs.platform }}
     runs-on: ${{ inputs.platform }}
     env:
-      TARGET_PLATFORM: ${{ fromJSON('{"windows-latest":"win32","ubuntu-22.04":"linux","ubuntu-22.04-arm":"linux","macos-15":"macos","macos-15-intel":"macos"}')[ inputs.platform ] }}
+      TARGET_PLATFORM: ${{ fromJSON('{"windows-latest":"win32","windows-11-arm":"win32","ubuntu-22.04":"linux","ubuntu-22.04-arm":"linux","macos-15":"macos","macos-15-intel":"macos"}')[ inputs.platform ] }}
     steps:
       # Checkout repo
       - uses: actions/checkout@v4
