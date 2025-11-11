@@ -1,9 +1,14 @@
 name: release
 
+run-name: Build and publish release ${{ github.event.release.tag_name }}
+
 on:
   release:
     types:
       - released
+
+env:
+  RELEASE_TAG: dev.${{ github.event.release.tag_name }}
 
 jobs:
   build-assets:
@@ -11,16 +16,28 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
+          - ubuntu-22.04-arm
           - windows-latest
+          - macos-15
+          - macos-15-intel
         include:
           - os: ubuntu-22.04
             platform_alias: linux
+            arch_alias: linux-x64
+          - os: ubuntu-22.04-arm
+            platform_alias: linux
+            arch_alias: linux-arm64
           - os: windows-latest
             platform_alias: win32
+            arch_alias: win32-x64
+          - os: macos-15
+            platform_alias: macos
+            arch_alias: macos-arm64
+          - os: macos-15-intel
+            platform_alias: macos
+            arch_alias: macos-x64
     name: Build on ${{ matrix.os }} and upload release assets
     runs-on: ${{ matrix.os }}
-    env:
-      RELEASE_TAG: ${{ github.event.release.tag_name }}
     steps:
       # Checkout repo
       - uses: actions/checkout@v4
@@ -46,7 +63,7 @@ jobs:
       - name: Package app
         run: cargo pack-${{ matrix.platform_alias }} --tag ${{ env.RELEASE_TAG }}
       # Create Windows installer
-      - if: matrix.os == 'windows-latest'
+      - if: matrix.platform_alias == 'win32'
         name: Create Windows installer
         shell: bash
         run: |
@@ -54,18 +71,25 @@ jobs:
           cargo create-installer-win32
           rm -rf ./package/artifacts/.cargo-packager || true
       # Upload release assets
-      - name: Upload assets to release ${{ github.event.release.tag_name }}
+      - name: Upload assets to release ${{ env.RELEASE_TAG }}
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
             ./package/artifacts/*
-      # Upload Linux build to artifacts
-      - if: matrix.os == 'ubuntu-22.04'
-        name: Upload artifacts
+      # Upload Linux x64 build to artifacts
+      - if: matrix.arch_alias == 'linux-x64'
+        name: Upload Linux x64 artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-assets
+          name: linux-x64-assets
+          path: package/linux/
+      # Upload Linux arm64 build to artifacts
+      - if: matrix.arch_alias == 'linux-arm64'
+        name: Upload Linux arm64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-assets
           path: package/linux/
 
   docker-publish:
@@ -73,18 +97,23 @@ jobs:
     needs: build-assets
     runs-on: ubuntu-latest
     env:
-      RELEASE_TAG: ${{ github.event.release.tag_name }}
       DOCKER_REPO: m4heshd/ufc-ripper
     steps:
       # Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
-      # Download Linux build artifacts
-      - name: Download artifacts
+      # Download Linux x64 build artifacts
+      - name: Download Linux x64 artifacts
         uses: actions/download-artifact@v4
         with:
-          name: linux-assets
-          path: package/linux/
+          name: linux-x64-assets
+          path: package/linux/amd64
+      # Download Linux arm64 build artifacts
+      - name: Download Linux arm64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-arm64-assets
+          path: package/linux/arm64
       # Set up QEMU
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -102,10 +131,11 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64
+          file: ci.Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ env.DOCKER_REPO }}:${{ github.event.release.tag_name }}
+            ${{ env.DOCKER_REPO }}:${{ env.RELEASE_TAG }}
             ${{ env.DOCKER_REPO }}:latest
       # Update Docker Hub repo description
       - name: Update repo description
