@@ -117,9 +117,12 @@ We have two social groups dedicated to any discussion regarding UFC Ripper.
 UFC Ripper is available on desktop, both as an Installer _(Windows)_ and a portable app.
 
 1. Download the latest release corresponding to your system,
-    - ### [Windows (x64) [Installer]](https://github.com/m4heshd/ufc-ripper/releases/download/v3.1.0/ufc-ripper_3.1.0_x64-setup.exe)
-    - ### [Windows (x64) [Portable]](https://github.com/m4heshd/ufc-ripper/releases/download/v3.1.0/ufc-ripper-v3.1.0-win32-x64.zip)
-    - ### [Linux (x64) [Portable]](https://github.com/m4heshd/ufc-ripper/releases/download/v3.1.0/ufc-ripper-v3.1.0-linux-x64.zip)
+   - ### 🪟 [Windows (x64) [Installer]](https://github.com/m4heshd/ufc-ripper/releases/download/v4.0.0/ufc-ripper_4.0.0_x64-setup.exe)
+   - ### 🪟 [Windows (x64) [Portable]](https://github.com/m4heshd/ufc-ripper/releases/download/v4.0.0/ufc-ripper-v4.0.0-win32-x64.zip)
+   - ### 🐧 [Linux (x64) [Portable]](https://github.com/m4heshd/ufc-ripper/releases/download/v4.0.0/ufc-ripper-v4.0.0-linux-x64.zip)
+   - ### 🐧 [Linux (arm64) [Portable]](https://github.com/m4heshd/ufc-ripper/releases/download/v4.0.0/ufc-ripper-v4.0.0-linux-arm64.zip)
+   - ### 🍎 [macOS (x64) [Portable]](https://github.com/m4heshd/ufc-ripper/releases/download/v4.0.0/ufc-ripper-v4.0.0-macos-x64.zip)
+   - ### 🍎 [macOS (arm64) [Portable]](https://github.com/m4heshd/ufc-ripper/releases/download/v4.0.0/ufc-ripper-v4.0.0-macos-arm64.zip)
 
 2. Run the installer or extract the content of the zip file to anywhere you like
 
