@@ -62,7 +62,7 @@ to function. This merely eliminates the need to stream a massive amount of data 
 you want to go back and watch your favorite fighters. I want your fighters to be paid more. Not less. This tool is not
 in any way meant to rob you or them of any revenue coming in.
 
-The whole reason for me to create this tool is for my own need. I live in a third-world country that was destroyed by
+The whole reason for me to create this tool is for my own needs. I live in a third-world country that was destroyed by
 politicians. That made internet services more of a luxury than a right for the people of this country. Our internet
 connections are very spotty and extremely limited. 1GB of data here costs more than a meal. Imagine that. I also travel,
 and the only thing that can keep me entertained is some UFC. But how do I watch UFC if I can hardly find 4G
@@ -71,17 +71,18 @@ coverage in my messed-up land? 🤷🏽
 The thing about Fight Pass is, you can't control how much of your quota it's going to burn. Also, repeated viewings
 waste a ton of data. But my love for MMA and UFC is unconditional. So I decided to whip up this tool to eliminate all of
 these mentioned issues. Then I thought, "Why not share this with the world? There might be a ton of other people like me
-around the world". So here we are. Hope you'd understand Dana. 🙂
+around the world". So here we are. Hope you'd understand, Dana. 🙂
 
 # Support this project 🙏🏽
 
-I get it, this isn't a well-done tool. The code isn't super tidy, no tests, a lot of missing stuff, and a few bugs here
-and there. But this COULD improve a lot. Working on this project requires a lot of time and energy.
+I get it, this isn't a perfect tool. There could be a few missing features and some bugs here and there. But this COULD
+improve a lot. Working on this project and testing on all targets requires a lot of time and energy.
 
 You can help me by buying me a few coffees ☕, so I'm all buzzed up and got time to work on this further.
 Or you can send a few monies my way to simply say thanks for the work that's already been done.
 
-**Wise is the preferred method for donations because PayPal takes a huge chunk (~22%) off of every donation _(ko-fi also uses PayPal)_.**
+**Wise is the preferred method for donations because PayPal takes a huge chunk (~22%) off of every
+donation _(ko-fi also uses PayPal)_.**
 
 [![Donate to m4heshd on Wise](https://i.ibb.co/s9nT2hfp/donate-on-wise.png)](https://wise.variatix.net/)
 
@@ -108,8 +109,8 @@ We have two social groups dedicated to any discussion regarding UFC Ripper.
 ## Installation
 
 > [!NOTE]
-> UFC Ripper is currently only available for Windows and Linux systems, only in `x64`. It can also be run on the cloud
-> as a docker container.
+> UFC Ripper is available on all major platforms (Windows, Linux, macOS), in both `x64` and `arm64` targets. It can also
+> run on the cloud as a Docker container.
 
 ### Desktop
 
@@ -131,22 +132,32 @@ UFC Ripper is available on desktop, both as an Installer _(Windows)_ and a porta
 5. The first run might ask you to download some third-party tools used by UFC Ripper. Click yes, and it will
    automatically download the latest versions from [media-tools](https://github.com/m4heshd/media-tools) repo.
 
+> [!NOTE]
+> **For macOS users:**
+>
+> The first launch of the application may give you an error saying `"ufc-ripper" is damaged and can't be opened`. This
+> is because the build is not signed. Nothing to worry there.
+>
+> Simply right-click on the UFC Ripper folder, open up a new Terminal at the folder, and run `xattr -c ufc-ripper`.
+>
+> Now you should be able to double-click on the `ufc-ripper` executable, and it should run perfectly fine.
+
 ### Docker
 
 > [!NOTE]
-> Currently, the docker image is only built for `linux/amd64` systems which means it cannot be run on ARM-based systems
-> like Raspberry Pis.
+> The Docker image is available in `linux/amd64` and `linux/arm64` targets, which means it can natively run
+> on ARM-based systems like the Raspberry Pi, Snapdragon, and Apple Silicon devices.
 
-You can either build the docker image locally and run using [`docker-compose.yaml`](docker-compose.yaml) or use the
+You can either build the Docker image locally and run using [`docker-compose.yaml`](docker-compose.yaml) or use the
 published [official image](https://hub.docker.com/r/m4heshd/ufc-ripper).
 
-To build and run locally, simply run `npm run docker:up`.
+To build and run locally, simply run `npm run docker:up`. This is a standalone Dockerfile where both the app-building
+process and the runtime is done inside a multi-stage build, so the host will not require any build tools or libraries
+installed.
 
 Here's a docker-compose template for you lazies out there.
 
 ```yaml
-version: "3"
-
 services:
   ufc-ripper:
     image: m4heshd/ufc-ripper:latest # Using the latest version of the official image
@@ -176,33 +187,49 @@ That's it.
 3. Optionally, look through the configuration to change any download settings (video quality, audio quality, etc..) to
    your needs
 
+## How to update?
+
+The application will automatically notify you of any available updates on launch. You can visit the download URL and
+download your preferred build.
+
+On portable builds, you pretty much only have to replace the primary executable file (`ufc-ripper.exe` or `ufc-ripper`).
+
+> [!IMPORTANT]
+> Do not replace the `config.json` file if you would like to preserve your existing configuration, including the
+> logged-in session. UFC Ripper will migrate your existing configuration automatically into any new version on the next
+> launch of the app.
+
+If you're using the installed version on Windows, simply run the new installer, and it will update your existing build.
+The update installation will preserve your existing configuration by default. Just like the portable version, it will
+migrate your existing configuration automatically on the next launch.
+
 ## Mention-worthy features
 
 ### Advanced search
 
 If you have ever used UFC Fight Pass search, you know how difficult it is to find the video you're actually looking for
-on there. But not to worry because UFC Ripper supports much more advanced and precise searching of the Fight Pass
+on there. But not to worry, because UFC Ripper supports much more advanced and precise searching of the Fight Pass
 library than UFC Fight Pass itself.
 
-You can restrict the search algorithm to only look inside the event titles which would result in way more accurate
-results, or you can use advanced query syntax like double quotes and negative symbol like you would on Google search.
+You can restrict the search algorithm to only look inside the event titles, which would result in way more accurate
+results, or you can use advanced query syntax like double quotes and negative symbol, like you would on Google search.
 
 ### Streaming
 
-UFC Ripper can stream videos directly, right from the search results. The advantage of streaming in UFC Ripper is you're
-the one in control. You can force the player to stream the video in your preferred settings, unlike the UFC Fight Pass.
-You choose how much of your data quota you'll be burning to watch a video.
+UFC Ripper can stream videos directly, right from the search results. The advantage of streaming in UFC Ripper is that
+you're the one in control. You can force the player to stream the video in your preferred settings, unlike the UFC Fight
+Pass. You choose how much of your data quota you'll be burning to watch a video.
 
 ### Concurrent multi-fragment downloads
 
-UFC Fight Pass streams are very heavily limited to slower bandwidths. But these streams are broken down to little
-fragments. This feature allows you to download the given number of fragments concurrently, which multiplies the speed of
+UFC Fight Pass streams are very heavily limited to slower bandwidths. But these streams are broken down into little
+fragments. This feature allows you to download a given number of fragments concurrently, which multiplies the speed of
 downloads by the number of allowed concurrent fragment downloads. You can set the amount in the configuration as you
 wish.
 
 ### Proxy support
 
-This might come in handy when you run UFC Ripper as a docker container in the cloud because the service blocks any
+This might come in handy when you run UFC Ripper as a Docker container in the cloud because the service blocks any
 requests initiated using a datacenter IP address.
 
 If you set up a proxy, UFC Ripper will forward all API requests through that proxy server. Remember, only the API
@@ -212,11 +239,12 @@ transfer any data through it.
 ### File numbering
 
 UFC Ripper can automatically number each download incrementally. Let's say you discovered a fighter you haven't watched
-before and interested in watching all of their fights in order. This feature would be beneficial in an event like that.
+before and are interested in watching all of their fights in order. This feature would be beneficial in an event like
+that.
 
 ## Development
 
-You need to have the Rust compiler, platform build-tools, and Node.js (>=18) installed locally to develop, compile,
+You need to have the Rust compiler, platform build tools, and Node.js (>=22) installed locally to develop, compile,
 and package this project yourself.
 
 1. Run `git clone https://github.com/m4heshd/ufc-ripper.git`
@@ -227,7 +255,7 @@ That's it. Now you're ready to go.
 
 **To run for development,**
 
-In development mode, the backend is set to run on port `8383` and the frontend is set to run on port `8384`.
+In development mode, the backend is configured to run on port `8383` and the frontend is set to run on port `8384`.
 You can change this behavior by editing the port in `config.json`, `frontend/.env` and `vite.config.mjs`
 
 1. Run `npm run dev` to start the frontend and the backend with Vue HMR support
@@ -241,13 +269,16 @@ You can change this behavior by editing the port in `config.json`, `frontend/.en
 
 2. Run `npm run pack:win32` or `npm run pack:linux` (packaging process is NOT cross-platform compatible)
 
-**To build and run the docker container,**
+**To build and run the Docker container,**
 
-1. Run `npm run build:backend:linux`
+1. Run `npm run docker:up`
 
-2. Run `npm run pack:linux`
+The Dockerfile used for this build ([`build.Dockerfile`](build.Dockerfile)) is a multi-stage build file that builds
+both the application and the runtime image. If you're planning on testing only inside the Docker image, your host will
+not need any compilers or platform build tools.
 
-3. Run `npm run docker:up`
+All Rust compilation steps will also be cached in the initial build, which makes any subsequent builds significantly
+faster.
 
 # Future improvements planned
 
@@ -258,14 +289,15 @@ You can change this behavior by editing the port in `config.json`, `frontend/.en
 - [x] Ability to restart failed/canceled downloads
 - [x] Support for downloading custom formats
 - [x] Support for streaming VODs
-- [ ] Support for more architectures, including ARM-based systems
+- [x] Support for more architectures, including ARM-based systems
+- [x] Support for macOS hosts
 - [ ] Mobile-responsive Web UI
 - [ ] Make completed files downloadable right from the UFC Ripper Web UI (hosted)
 - [ ] Authentication support using username and password for the Web UI (hosted)
 
 # Attribution
 
-UFC Ripper uses a lot of third-party open-source tools to work. Following is a list.
+UFC Ripper utilizes several third-party open-source tools to function. Following is a list.
 
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 - [FFmpeg](https://ffmpeg.org/)
