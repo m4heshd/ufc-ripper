@@ -375,7 +375,7 @@ pub async fn refresh_access_token() -> anyhow::Result<()> {
         }))
         .send()
         .await
-        .context("An error occurred while trying fetch VOD metadata")?;
+        .context("An error occurred while trying to refresh access token")?;
 
     if !resp.status().is_success() {
         let err_msg = "Failed to refresh your login session. Please login with your UFC Fight Pass account again";
