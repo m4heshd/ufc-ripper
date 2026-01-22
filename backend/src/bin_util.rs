@@ -270,6 +270,7 @@ where
 /// Starts a format query process using `yt-dlp` and returns the available formats as JSON.
 pub async fn get_vod_formats(hls: &str) -> anyhow::Result<JSON> {
     let yt_dlp_args = vec![
+        "--no-update",
         "--print",
         "%(formats.:.{format_id,resolution,fps,tbr,vcodec,acodec})j",
         hls,
@@ -433,6 +434,7 @@ pub fn generate_vod_download_config(
     let concur_frags_string = concur_frags.to_string();
 
     let mut arg_setup = vec![
+        "--no-update",
         "--format",
         if custom_format.is_empty() {
             if *cus_format {
@@ -464,13 +466,13 @@ pub fn generate_vod_download_config(
         } else {
             arg_setup.extend(["--paths", &temp_path]);
         }
-    };
+    }
     if *throttle {
         arg_setup.extend(["--limit-rate", dl_rate]);
-    };
+    }
     if *multi_frag {
         arg_setup.extend(["--concurrent-fragments", &concur_frags_string]);
-    };
+    }
 
     let mut arg_setup_final = arg_setup
         .iter()
