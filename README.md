@@ -226,6 +226,14 @@ UFC Ripper can stream videos directly, right from the search results. The advant
 you're the one in control. You can force the player to stream the video in your preferred settings, unlike the UFC Fight
 Pass. You choose how much of your data quota you'll be burning to watch a video.
 
+### Follow full replays automatically
+
+In **Configuration → Follow full replays**, enable the opt-in follower and select numbered UFC events, UFC BJJ events, UFC Fight Nights, or Dana White's Contender Series. Existing listings are baselined by default; **Include available replays on first check** opts into downloading eligible recordings already listed (including the most recent Fight Night). Completed and skipped titles are recorded in `config/auto_follow_state.json` to prevent duplicate downloads.
+
+For numbered UFC events, the number you enter is the **inclusive start** of the search: the follower checks that number and a small bounded window of nearby numbers (it does not scan the whole catalogue). With **Include available replays on first check** off (default) it does not catch up on replays that are already published: numbered UFC records the first-check publication time and only later listings queue, while UFC BJJ, Contender Series and Fight Night mark the replays they find on that first check as seen. For example, selecting UFC 330 does not download an already-published UFC 331, even though 331 is a higher number. Missing or malformed publication dates are treated as pre-existing, and changing the selected number starts a new baseline. Turning **Include available replays on first check** on queues what is already available at the first check for every enabled category, but enabling it after a first check does not re-download titles already marked as seen.
+
+Fight Night discovery is two-stage: a bounded broad search (up to 1,000 results; a warning is logged when exceeded) collects event names from full replays and individual bouts, then the newest events are deep-searched for their full main card, Prelims, and Early/Fight Pass Prelims. Events older than the last-seen baseline are not re-searched, so new Fight Night replays are found even though the backend ranks older events first.
+
 ### Concurrent multi-fragment downloads
 
 UFC Fight Pass streams are very heavily limited to slower bandwidths. But these streams are broken down into little
