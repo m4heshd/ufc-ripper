@@ -31,6 +31,7 @@ export function useWSUtil() {
         socket.on('server-error', onServerError);
         socket.on('server-warning', onServerWarning);
         socket.on('dl-progress', onDownloadProgress);
+        socket.on('auto-download-started', (vod) => store.addDownload(vod));
         socket.on('media-tool-dl-progress', onMediaToolDLProgress);
     }
 

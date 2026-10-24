@@ -446,8 +446,13 @@ async fn handle_download_event(ack: AckSender, Data(mut data): Data<JSON>) {
 }
 
 /// Emits VOD download progress.
-fn emit_vod_download_progress(q_id: &str, updates: JSON) {
+pub fn emit_vod_download_progress(q_id: &str, updates: JSON) {
     emit_to_all("dl-progress", (q_id, updates));
+}
+
+/// Announces an automated download to connected GUIs.
+pub fn emit_auto_download_started(vod: &Vod) {
+    emit_to_all("auto-download-started", vod);
 }
 
 /// Handles the `cancel-download` WS event.
