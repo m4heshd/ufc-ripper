@@ -178,6 +178,23 @@ services:
 
 That's it.
 
+> [!NOTE]
+> **Using [Gluetun](https://github.com/qdm12/gluetun) (VPN container) with Docker?**
+>
+> If Fight Pass blocks login or token refreshes with *"Login was blocked because of the IP address your UFC Ripper
+> backend is bound to"* (`403 badLocation`) even though the same VPN server works in the desktop app, check Gluetun's
+> DNS settings.
+>
+> By default, Gluetun routes DNS queries through Cloudflare DNS-over-TLS (`1.1.1.1`), whereas VPN desktop apps typically
+> use the VPN provider's own internal DNS servers. Disabling Gluetun's built-in DoT resolver and pointing DNS to your
+> VPN provider's resolver resolves the `badLocation` block:
+>
+> ```yaml
+>     environment:
+>       - DOT=off                    # Disable Gluetun's default Cloudflare DNS-over-TLS
+>       - DNS_ADDRESS=103.86.96.100  # Use your VPN provider's internal DNS (e.g., NordVPN)
+> ```
+
 ## Usage
 
 > [!IMPORTANT]
