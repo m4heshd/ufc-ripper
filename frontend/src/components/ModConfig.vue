@@ -171,6 +171,36 @@
       </article>
 
       <article class="border round mod-config__content__section">
+        <h5>Follow full replays</h5>
+        <p>Check every 30 minutes for new full-length recordings. Downloads use your normal quality and destination settings. Only one automatic recording downloads at a time.</p>
+        <nav class="v-switch">
+          <div class="max"><h6>Automatically follow replays</h6></div>
+          <label class="switch"><input v-model="modConfig.data.autoFollowReplays" type="checkbox"><span></span></label>
+        </nav>
+        <div class="field label border round small">
+          <input v-model.number="modConfig.data.autoFollowUfcNumber" type="number" min="0" max="9999">
+          <label>Start from this numbered UFC event (0 disables UFC)</label>
+        </div>
+        <div class="field label border round small">
+          <input v-model.number="modConfig.data.autoFollowBjjNumber" type="number" min="0" max="9999">
+          <label>Start from this UFC BJJ event (0 disables BJJ)</label>
+        </div>
+        <p>Numbered and BJJ searches start at your number and cover a small bounded window of nearby events — not the whole library. Example: selecting 330 with Include available off does not catch up on an already-published 331.</p>
+        <nav class="v-switch">
+          <div class="max"><h6>Dana White's Contender Series</h6><div>Follow complete Season/Week episodes, not individual fights.</div></div>
+          <label class="switch"><input v-model="modConfig.data.autoFollowContenderSeries" type="checkbox"><span></span></label>
+        </nav>
+        <nav class="v-switch">
+          <div class="max"><h6>UFC Fight Nights</h6><div>Follow full main cards, prelims, and early prelims as they appear.</div></div>
+          <label class="switch"><input v-model="modConfig.data.autoFollowFightNights" type="checkbox"><span></span></label>
+        </nav>
+        <nav class="v-switch">
+          <div class="max"><h6>Include available replays on first check</h6><div>Off (default): does not catch up on replays already published. Numbered UFC records the first-check time and only queues later listings; BJJ, Contender and Fight Night mark what they find as seen. On: also queues what is already available at the first check; enabling it later does not re-download titles already marked seen.</div></div>
+          <label class="switch"><input v-model="modConfig.data.autoFollowExisting" type="checkbox"><span></span></label>
+        </nav>
+      </article>
+
+      <article class="border round mod-config__content__section">
         <h5>Search</h5>
         <nav class="v-switch">
           <div class="max">

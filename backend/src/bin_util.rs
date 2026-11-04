@@ -172,15 +172,27 @@ where
             .lines();
 
             let stderr_task = async {
-                if let Some(line) = yt_dlp_stderr.next_line().await? {
-                    if let Some(error) = process_yt_dlp_stderr(&line) {
+                // yt-dlp can emit blank or informational lines on stderr (and
+                // suppresses warnings only when asked). Treating any output as
+                // fatal aborts healthy downloads, so only real errors fail the
+                // download here; the process exit status is checked afterwards.
+                while let Some(line) = yt_dlp_stderr.next_line().await? {
+                    let trimmed = line.trim();
+
+                    if trimmed.is_empty() {
+                        continue;
+                    }
+
+                    if let Some(error) = process_yt_dlp_stderr(trimmed) {
                         return Err(anyhow!(error.to_string()));
                     }
 
-                    return Err(anyhow!(line).context(
-                        "Download process failed with an error. \
-                        Check the browser console for more information",
-                    ));
+                    if trimmed.starts_with("ERROR:") {
+                        return Err(anyhow!(line).context(
+                            "Download process failed with an error. \
+                            Check the browser console for more information",
+                        ));
+                    }
                 }
 
                 Ok::<(), anyhow::Error>(())
@@ -203,7 +215,12 @@ where
                 Ok::<(), anyhow::Error>(())
             };
 
-            tokio::try_join!(stderr_task, stdout_task)
+            tokio::try_join!(stderr_task, stdout_task)?;
+            let status = yt_dlp.wait().await.context("Failed to wait for yt-dlp")?;
+            if !status.success() {
+                anyhow::bail!("yt-dlp exited with status {status}");
+            }
+            Ok::<(), anyhow::Error>(())
         }
     };
 
@@ -299,15 +316,23 @@ pub async fn get_vod_formats(hls: &str) -> anyhow::Result<JSON> {
     .lines();
 
     let stderr_task = async {
-        if let Some(line) = yt_dlp_stderr.next_line().await? {
-            if let Some(error) = process_yt_dlp_stderr(&line) {
+        while let Some(line) = yt_dlp_stderr.next_line().await? {
+            let trimmed = line.trim();
+
+            if trimmed.is_empty() {
+                continue;
+            }
+
+            if let Some(error) = process_yt_dlp_stderr(trimmed) {
                 return Err(anyhow!(error.to_string()));
             }
 
-            return Err(anyhow!(line).context(
-                "Formats query request failed with an error. \
-                Check the browser console for more information",
-            ));
+            if trimmed.starts_with("ERROR:") {
+                return Err(anyhow!(line).context(
+                    "Formats query request failed with an error. \
+                        Check the browser console for more information",
+                ));
+            }
         }
 
         Ok::<(), anyhow::Error>(())
@@ -462,7 +487,9 @@ pub fn generate_vod_download_config(
 
     if *use_temp_path {
         if temp_path.eq("temp:") {
-            log_warn!(r#"You have "Use temporary path" enabled for downloads but the path is empty. Consider setting a proper temporary path"#);
+            log_warn!(
+                r#"You have "Use temporary path" enabled for downloads but the path is empty. Consider setting a proper temporary path"#
+            );
         } else {
             arg_setup.extend(["--paths", &temp_path]);
         }

@@ -71,12 +71,10 @@ static HTTP_PROXIED_CLIENT: Lazy<ArcSwap<Client>> = Lazy::new(|| {
 });
 static VOD_SEARCH_PARAMS: Lazy<String> = Lazy::new(|| {
     form_urlencoded::Serializer::new(String::new())
-        .append_pair("facetFilters", r#"["type:VOD_VIDEO"]"#)
-        .append_pair("hitsPerPage", "12")
         .append_pair("advancedSyntax", "true")
         .append_pair(
             "attributesToRetrieve",
-            r#"["id","description","thumbnailUrl","duration"]"#,
+            r#"["id","name","description","thumbnailUrl","duration","publishedDate"]"#,
         )
         .finish()
 });
@@ -446,8 +444,37 @@ pub async fn refresh_access_token() -> anyhow::Result<()> {
 
 /// Searches the UFC Fight Pass library for VODs.
 pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
+    search_vods_with_options(
+        query,
+        page,
+        12,
+        get_config().search_title_only,
+        r#"["type:VOD_VIDEO"]"#,
+    )
+    .await
+}
+
+pub async fn search_replay_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
+    search_vods_with_options(query, page, 100, true, r#"["type:VOD_VIDEO"]"#).await
+}
+
+/// Searches playlists tagged with a UFC release year (`UFC2026`). The backend
+/// only exposes recent Fight Night event names through these playlist records.
+pub async fn search_replay_playlists(query: &str, year: u32) -> anyhow::Result<JSON> {
+    let facet_filters = format!(r#"["type:VOD_PLAYLIST","tags:UFC{year}"]"#);
+    search_vods_with_options(query, 0, 100, true, &facet_filters).await
+}
+
+async fn search_vods_with_options(
+    query: &str,
+    page: u64,
+    hits_per_page: u16,
+    title_only: bool,
+    facet_filters: &str,
+) -> anyhow::Result<JSON> {
+    let proxied = HTTP_PROXIED_CLIENT.load();
     let client = if get_config().use_proxy {
-        &HTTP_PROXIED_CLIENT.load()
+        &**proxied
     } else {
         &*HTTP_CLIENT
     };
@@ -457,15 +484,13 @@ pub async fn search_vods(query: &str, page: u64) -> anyhow::Result<JSON> {
         "{}&{}",
         VOD_SEARCH_PARAMS.as_str(),
         form_urlencoded::Serializer::new(String::new())
+            .append_pair("facetFilters", facet_filters)
             .append_pair("query", query)
             .append_pair("page", &page.to_string())
+            .append_pair("hitsPerPage", &hits_per_page.to_string())
             .append_pair(
                 "restrictSearchableAttributes",
-                if get_config().search_title_only {
-                    r#"["name"]"#
-                } else {
-                    "[]"
-                }
+                if title_only { r#"["name"]"# } else { "[]" }
             )
             .finish()
     );
